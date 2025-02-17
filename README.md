@@ -4,4 +4,4 @@
 
 📁 Corte_1 -> documento pdf donde se aborda el problema del proyecto
 
-📁 Avances_2 -> recursos del Design Studio, sketchs y casos de usurios
+📁 Avances_2 -> recursos del Design Studio, sketchs y casos de usuarios

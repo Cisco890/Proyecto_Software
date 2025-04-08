@@ -12,6 +12,8 @@ app.use(express.json());
 // Rutas
 const tutoriasRouter = require('./routes/tutorias');
 app.use('/api/tutorias', tutoriasRouter);
+const LoginRouter = require('./routes/tutorias');
+app.use('/api/login', LoginRouter);
 
 // Iniciar servidor
 const PORT = process.env.PORT || 3001;

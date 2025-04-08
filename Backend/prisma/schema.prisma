@@ -1,0 +1,212 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum nivelAcademico {
+  primero
+  segundo
+  tercero
+  cuarto
+  quinto
+}
+
+enum tipoNotificacion {
+  recordatorio
+  alerta
+  mensaje
+  sistema
+}
+
+enum metodoPago {
+  tarjeta
+  efectivo
+  transferencia
+}
+
+enum estadoPago {
+  pendiente
+  completado
+  rechazado
+  cancelado
+}
+
+enum estadadoSesion {
+  pendiente
+  completada
+  en_curso
+  cancelada
+}
+
+enum metodoEnsenanza {
+  virtual
+  presencial
+  hibrido
+}
+
+enum tipoUsuario {
+  administrador
+  estudiante
+  tutor
+}
+
+model Admin {
+  id          Int    @id @default(autoincrement())
+  rol         String @db.VarChar(150)
+  nivelAcceso Int
+
+  usuario Usuarios @relation(fields: [id], references: [id])
+
+  @@map("administradores")
+}
+
+model Bitacora {
+  id          Int      @id @default(autoincrement())
+  idUsuario   Int      @map("id_usuario")
+  tipoEvento  String   @map("tipo_evento") @db.VarChar(50)
+  descripcion String   @db.Text
+  fechaHora   DateTime @default(now()) @map("fecha_hora")
+  ip          String   @map("ip_origen") @db.VarChar(45)
+
+  usuario Usuarios @relation(fields: [idUsuario], references: [id])
+
+  @@map("bitacora")
+}
+
+model Calificaciones {
+  id                Int      @id @default(autoincrement()) @map("id_calificacion")
+  idTutor           Int      @map("id_tutor")
+  idEstudiante      Int      @map("id_estudiante")
+  idSesion          Int      @map("id_sesion")
+  calificacion      Int
+  comentario        String   @db.Text
+  fechaCalificacion DateTime @default(now()) @map("fecha_calificacion")
+
+  tutor      Tutores     @relation(fields: [idTutor], references: [id])
+  estudiante Estudiantes @relation(fields: [idEstudiante], references: [id])
+  sesion     Sesiones    @relation(fields: [idSesion], references: [id])
+
+  @@map("calificaciones")
+}
+
+model Estudiantes {
+  id                  Int            @id @default(autoincrement()) @map("id_estudiante")
+  nivelAcademico      nivelAcademico @map("nivel_academico")
+  institucion         String         @default("Universidad del Valle de Guatemala") @db.VarChar(100)
+  objetivoAprendizaje String         @db.Text
+
+  usuario        Usuarios         @relation(fields: [id], references: [id])
+  sesiones       Sesiones[]       @relation("EstudianteSesiones")
+  calificaciones Calificaciones[]
+
+  @@map("estudiantes")
+}
+
+model Materias {
+  id            Int    @id @default(autoincrement()) @map("id_materia")
+  nombreMateria String @unique @map("nombre_materia") @db.VarChar(100)
+
+  sesiones      Sesiones[]
+  tutorMaterias TutorMateria[]
+
+  @@map("materias")
+}
+
+model Notificaciones {
+  id               Int              @id @default(autoincrement()) @map("id_notificacion")
+  idUsuario        Int              @map("id_usuario")
+  tipoNotificacion tipoNotificacion @map("tipo_notificacion")
+  mensaje          String           @db.Text
+  fechaEnvio       DateTime         @default(now()) @map("fecha_envio")
+
+  usuario Usuarios @relation(fields: [idUsuario], references: [id])
+
+  @@map("notificaciones")
+}
+
+model Pagos {
+  id         Int        @id @default(autoincrement()) @map("id_pago")
+  idSesion   Int        @map("id_sesion")
+  monto      Decimal    @db.Decimal(10, 2)
+  metodoPago metodoPago @map("metodo_pago")
+  fechaPago  DateTime   @default(now()) @map("fecha_pago")
+  estadoPago estadoPago @default(pendiente)
+
+  sesion Sesiones @relation(fields: [idSesion], references: [id])
+
+  @@map("pagos")
+}
+
+model Sesiones {
+  id           Int            @id @default(autoincrement()) @map("id_sesiones")
+  idTutor      Int            @map("id_tutor")
+  idEstudiante Int            @map("id_estudiante")
+  idMateria    Int            @map("id_materia")
+  fechaHora    DateTime       @default(now()) @map("fecha_hora")
+  duracion     Int            @map("duracion_min")
+  estado       estadadoSesion
+
+  tutor      Tutores     @relation(fields: [idTutor], references: [id])
+  estudiante Estudiantes @relation("EstudianteSesiones", fields: [idEstudiante], references: [id])
+  materia    Materias    @relation(fields: [idMateria], references: [id])
+
+  pagos          Pagos[]
+  calificaciones Calificaciones[]
+
+  @@map("sesiones")
+}
+
+model TutorMateria {
+  id        Int @id @default(autoincrement()) @map("id_tutor_materia")
+  idTutor   Int @map("id_tutor")
+  idMateria Int @map("id_materia")
+
+  tutor   Tutores  @relation(fields: [idTutor], references: [id])
+  materia Materias @relation(fields: [idMateria], references: [id])
+
+  @@map("tutor_materia")
+}
+
+model Tutores {
+  id              Int             @id @default(autoincrement()) @map("id_tutor")
+  descripcion     String          @db.Text
+  tarifaHora      Decimal         @map("tarifa_hora") @db.Decimal(10, 2)
+  experiencia     Int
+  disponibilidad  Int
+  metodoEnsenanza metodoEnsenanza @map("metodo_ensenanza")
+
+  usuario        Usuarios         @relation(fields: [id], references: [id])
+  sesiones       Sesiones[]
+  calificaciones Calificaciones[]
+  tutorMaterias  TutorMateria[]
+
+  @@map("tutores")
+}
+
+model Usuarios {
+  id            Int      @id @default(autoincrement()) @map("id_usuario")
+  nombre        String   @db.VarChar(100)
+  correo        String   @unique @map("correo_electronico") @db.VarChar(150)
+  contrasena    String
+  tipoUsuario   String   @map("tipo_usuario") @db.VarChar(20)
+  telefono      String   @db.VarChar(20)
+  fechaRegistro DateTime @default(now()) @map("fecha_registro")
+
+  admin          Admin?
+  bitacoras      Bitacora[]
+  notificaciones Notificaciones[]
+  tutor          Tutores?
+  estudiante     Estudiantes?
+
+  @@map("usuarios")
+}

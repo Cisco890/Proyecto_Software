@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../db');
+const { PrismaClient } = require('@prisma/client');
 
-//prueba BORRAR
+const prisma = new PrismaClient();
+
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM Usuario LIMIT 10');
-    res.json(result.rows);
+    const usuarios = await prisma.usuarios.findMany({
+      take: 10
+    });
+    res.json(usuarios);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Error del servidor');

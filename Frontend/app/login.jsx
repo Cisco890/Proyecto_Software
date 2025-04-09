@@ -2,7 +2,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { useState } from 'react';
 import { router } from 'expo-router';
 import axios from 'axios';
-import { BACKEND_URL } from '@env'; // ← vamos a definir esto en .env
+import { BACKEND_URL } from '@env'; 
 
 export default function LoginScreen() {
   const [correo, setCorreo] = useState('');

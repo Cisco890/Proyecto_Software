@@ -1,4 +1,4 @@
-FROM node:22-bullseye
+FROM node:23-bullseye
 
 # Instalar dependencias necesarias
 RUN apt-get update && \

@@ -2,25 +2,24 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { useState } from 'react';
 import { router } from 'expo-router';
 import axios from 'axios';
+import { BACKEND_URL } from '@env'; // ← vamos a definir esto en .env
 
 export default function LoginScreen() {
-  const [usuario, setUsuario] = useState('');
-  const [password, setPassword] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [contrasena, setContrasena] = useState('');
 
   const handleLogin = async () => {
     try {
-      
-      const response = await axios.post('https://api.tuapp.com/login', {
-        usuario,
-        password
+      const response = await axios.post(`${BACKEND_URL}/login`, {
+        correo,
+        contrasena
       });
 
       console.log('Login exitoso:', response.data);
-
-      
+      router.replace('/home');
     } catch (error) {
       console.error('Error en el login:', error);
-      Alert.alert('Error', 'Usuario o contraseña incorrectos');
+      Alert.alert('Error', 'Correo o contraseña incorrectos');
     }
   };
 
@@ -28,20 +27,21 @@ export default function LoginScreen() {
     <View style={styles.container}>
       <Text style={styles.logo}>UVG</Text>
 
-      <Text style={styles.label}>Usuario</Text>
+      <Text style={styles.label}>Correo</Text>
       <TextInput
         style={styles.input}
-        value={usuario}
-        onChangeText={setUsuario}
-        placeholder="Ingresa tu usuario"
+        value={correo}
+        onChangeText={setCorreo}
+        placeholder="Ingresa tu correo"
         autoCapitalize="none"
+        keyboardType="email-address"
       />
 
       <Text style={styles.label}>Contraseña</Text>
       <TextInput
         style={styles.input}
-        value={password}
-        onChangeText={setPassword}
+        value={contrasena}
+        onChangeText={setContrasena}
         placeholder="Ingresa tu contraseña"
         secureTextEntry
       />

@@ -2,8 +2,9 @@ FROM node:23-bullseye
 
 # Instalar dependencias necesarias
 RUN apt-get update && \
-    apt-get install -y git curl watchman python3 make g++ && \
+    apt-get install -y git curl python3 make g++ && \
     apt-get clean
+
 
 WORKDIR /app
 

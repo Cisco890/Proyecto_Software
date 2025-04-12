@@ -1,27 +1,19 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useState } from 'react';
 import { router } from 'expo-router';
-
-const usuariosPermitidos = [
-  { correo: 'gar22291@uvg.edu.gt', contrasena: 'Hola123' },
-  { correo: 'cis12345@uvg.edu.gt', contrasena: 'Hola123' },
-  { correo: 'oli99925@uvg.edu.gt', contrasena: 'BandoriLove' },
-  { correo: 'jua@3232uvg.edu.gt', contrasena: 'Hola123' },
-  { correo: 'pepe32222@uvg.edu.gt', contrasena: 'Hola123' },
-];
+import { login } from '../api/api'; 
 
 export default function LoginScreen() {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
 
-  const handleLogin = () => {
-    const esValido = usuariosPermitidos.some(
-      (usuario) => usuario.correo === correo && usuario.contrasena === contrasena
-    );
-
-    if (esValido) {
+  const handleLogin = async () => {
+    try {
+      const response = await login(correo, contrasena);
+      console.log('✅ Login exitoso:', response.data);
       router.replace('/home');
-    } else {
+    } catch (error) {
+      console.error('❌ Error en el login:', error.response?.data || error.message);
       Alert.alert('Error', 'Correo o contraseña incorrectos');
     }
   };

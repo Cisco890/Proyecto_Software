@@ -20,10 +20,10 @@ router.get('/', async (req, res) => {
 
 // Metodo Post De registrar usuario
 router.post('/', async (req,res) => {
-  const {nombre, correo, contrasena, tipoUsuario,telefono} = req.body;
+  const {nombre, correo, contrasena, tipo_usuario,telefono} = req.body;
 
-  if (!nombre || !correo || !contrasena || !tipoUsuario || !telefono) {
-    return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+  if (!nombre || !correo || !contrasena || !tipo_usuario || !telefono) {
+    return res.status(400).json({ error: 'Todos los campos son obligatorios'});
   }
   else if (!correo.includes('@')) {
     return res.status(400).json({ error: 'El correo debe ser válido' });
@@ -35,7 +35,7 @@ router.post('/', async (req,res) => {
         nombre,
         correo,
         contrasena,
-        tipoUsuario,
+        tipo_usuario,
         telefono,
       },
     });
@@ -48,7 +48,7 @@ router.post('/', async (req,res) => {
 });
 
 //Metodo Post para LOGIN de Usuarios
-router.post('/login', async (req, res) => {
+router.post('/', async (req, res) => {
   const {correo,contrasena} = req.body;
   
   if (!correo || !contrasena) {

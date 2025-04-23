@@ -12,7 +12,7 @@ app.use(express.json());
 // Rutas
 const tutoriasRouter = require('./routes/tutorias');
 app.use('/api/tutorias', tutoriasRouter);
-const LoginRouter = require('./routes/tutorias');
+const LoginRouter = require('./routes/login');
 app.use('/api/login', LoginRouter);
 
 // Iniciar servidor

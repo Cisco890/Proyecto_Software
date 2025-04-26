@@ -1,9 +1,8 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useState } from 'react';
-import { router } from 'expo-router';
-import { login } from '../api/api'; 
+import { login } from '../api/api';
 
-export default function LoginScreen() {
+export default function LoginScreen({ navigation }) {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
 
@@ -11,7 +10,7 @@ export default function LoginScreen() {
     try {
       const response = await login(correo, contrasena);
       console.log('✅ Login exitoso:', response.data);
-      router.replace('/home');
+      navigation.replace('Home');
     } catch (error) {
       console.error('❌ Error en el login:', error.response?.data || error.message);
       Alert.alert('Error', 'Correo o contraseña incorrectos');

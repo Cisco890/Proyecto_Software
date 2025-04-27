@@ -1,20 +1,26 @@
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { useState } from 'react';
-import { login } from '../api/api';
+import { useState, useContext } from 'react';
+import { login as loginApi } from '../api/api';
+import { AuthContext } from '../context/AuthContext';
 
 export default function LoginScreen({ navigation }) {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
+  const { login } = useContext(AuthContext);
 
   const handleLogin = async () => {
     try {
-      const response = await login(correo, contrasena);
+      const response = await loginApi(correo, contrasena);
       console.log('✅ Login exitoso:', response.data);
-      navigation.replace('Home');
+      login(response.data.user);
     } catch (error) {
       console.error('❌ Error en el login:', error.response?.data || error.message);
       Alert.alert('Error', 'Correo o contraseña incorrectos');
     }
+  };
+
+  const goToRegister = () => {
+    navigation.navigate('Register');
   };
 
   return (
@@ -42,6 +48,10 @@ export default function LoginScreen({ navigation }) {
 
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Iniciar sesión</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.registerButton} onPress={goToRegister}>
+        <Text style={styles.registerButtonText}>¿No tienes cuenta? Regístrate</Text>
       </TouchableOpacity>
     </View>
   );
@@ -86,5 +96,13 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
+  },
+  registerButton: {
+    marginTop: 20,
+  },
+  registerButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    textDecorationLine: 'underline',
   },
 });

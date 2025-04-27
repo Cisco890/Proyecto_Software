@@ -7,6 +7,9 @@ const api = axios.create({
 export const getUsuarios = () => api.get('/tutorias');
 
 export const login = (correo, contrasena) =>
-  api.post('/login/login', { correo, contrasena });
+  api.post('/login', { correo, contrasena });
+
+export const register = (userData) =>
+  api.post('/tutorias', userData);
 
 export default api;

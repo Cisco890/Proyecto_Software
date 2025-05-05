@@ -79,15 +79,14 @@ model Roles {
 }
 
 model Usuarios {
-  id_usuario     Int          @id @default(autoincrement())
-  nombre         String       @db.VarChar(100)
-  correo         String       @unique @map("correo_electronico") @db.VarChar(150)
+  id_usuario     Int      @id @default(autoincrement())
+  nombre         String   @db.VarChar(100)
+  correo         String   @unique @map("correo_electronico") @db.VarChar(150)
   contrasena     String
-  tipo_usuario   tipo_usuario
-  telefono       String?      @db.VarChar(20)
-  fecha_registro DateTime     @default(now())
+  telefono       String?  @db.VarChar(20)
+  fecha_registro DateTime @default(now())
   id_perfil      Int?
-  foto_perfil    String?      @db.VarChar(255)
+  foto_perfil    String?  @db.VarChar(255)
 
   perfil                   Perfiles?        @relation(fields: [id_perfil], references: [id_perfil])
   tutorInfo                TutoresInfo?

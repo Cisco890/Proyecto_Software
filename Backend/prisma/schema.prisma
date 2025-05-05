@@ -50,7 +50,7 @@ enum estado_sesion {
   cancelada
 }
 
-enum metodo_ensenanza {
+enum modalidad {
   virtual
   presencial
   hibrido
@@ -87,6 +87,7 @@ model Usuarios {
   telefono       String?      @db.VarChar(20)
   fecha_registro DateTime     @default(now())
   id_perfil      Int?
+  foto_perfil    String?      @db.VarChar(255)
 
   perfil                   Perfiles?        @relation(fields: [id_perfil], references: [id_perfil])
   tutorInfo                TutoresInfo?
@@ -99,13 +100,13 @@ model Usuarios {
 }
 
 model TutoresInfo {
-  id               Int               @id @default(autoincrement())
-  id_usuario       Int               @unique
-  descripcion      String?
-  tarifa_hora      Decimal?          @db.Decimal(10, 2)
-  experiencia      Int?
-  disponibilidad   Int?
-  metodo_ensenanza metodo_ensenanza?
+  id          Int        @id @default(autoincrement())
+  id_usuario  Int        @unique
+  descripcion String?
+  tarifa_hora Decimal?   @db.Decimal(10, 2)
+  experiencia Int?
+  horario     Int?
+  modalidad   modalidad?
 
   usuario       Usuarios       @relation(fields: [id_usuario], references: [id_usuario])
   tutorMaterias TutorMateria[]

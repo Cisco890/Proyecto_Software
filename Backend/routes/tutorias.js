@@ -132,5 +132,24 @@ router.get('/tutores/materia/:idMateria', async (req, res) => {
   }
 });
 
+// Filtro por modalidad
+router.get('/tutores/modalidad/:modalidad', async (req, res) => {
+  const { modalidad } = req.params;
 
+  try {
+    const tutores = await prisma.tutoresInfo.findMany({
+      where: {
+        metodo_ensenanza: modalidad // 'virtual', 'presencial' o 'hibrido'
+      },
+      include: {
+        usuario: true
+      }
+    });
+
+    res.json(tutores);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
 module.exports = router;

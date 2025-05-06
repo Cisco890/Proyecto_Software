@@ -76,7 +76,7 @@ router.post('/login', async (req, res) => {
 
 });
 
-// EndPoint que filtre tutores según su experiencia
+// EndPoint tutores por experiencia
 router.get('/tutores/experiencia', async (req, res) => {
   const { minExperiencia } = req.query;
 
@@ -97,6 +97,35 @@ router.get('/tutores/experiencia', async (req, res) => {
     });
 
     res.json(tutores);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+// EndPoint filtro por materia
+router.get('/tutores/materia/:idMateria', async (req, res) => {
+  const { idMateria } = req.params;
+
+  try {
+    const tutores = await prisma.tutorMateria.findMany({
+      where: {
+        id_materia: parseInt(idMateria)
+      },
+      include: {
+        tutor: {
+          include: {
+            usuario: true
+          }
+        },
+        materia: true
+      }
+    });
+
+    res.json(tutores.map(tm => ({
+      ...tm.tutor,
+      usuario: tm.tutor.usuario,
+      })));
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Error del servidor');

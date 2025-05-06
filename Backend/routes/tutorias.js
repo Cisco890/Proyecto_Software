@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 });
 
 // Metodo Post De registrar usuario
-router.post('/', async (req,res) => {
+router.post('/registro', async (req,res) => {
   const {nombre, correo, contrasena, tipo_usuario,telefono} = req.body;
 
   if (!nombre || !correo || !contrasena || !tipo_usuario || !telefono) {
@@ -48,7 +48,7 @@ router.post('/', async (req,res) => {
 });
 
 //Metodo Post para LOGIN de Usuarios
-router.post('/', async (req, res) => {
+router.post('/login', async (req, res) => {
   const {correo,contrasena} = req.body;
   
   if (!correo || !contrasena) {
@@ -75,5 +75,33 @@ router.post('/', async (req, res) => {
   
 
 });
+
+// EndPoint que filtre tutores según su experiencia
+router.get('/tutores/experiencia', async (req, res) => {
+  const { minExperiencia } = req.query;
+
+  if (!minExperiencia || isNaN(minExperiencia)) {
+    return res.status(400).json({ error: 'Debe proporcionar un valor mínimo de experiencia válido' });
+  }
+
+  try {
+    const tutores = await prisma.tutoresInfo.findMany({
+      where: {
+        experiencia: {
+          gte: parseInt(minExperiencia)
+        }
+      },
+      include: {
+        usuario: true
+      }
+    });
+
+    res.json(tutores);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
 
 module.exports = router;

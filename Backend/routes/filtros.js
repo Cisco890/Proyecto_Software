@@ -51,3 +51,107 @@ router.get('/horarios/:horario', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
+// EndPoint tutores por experiencia
+router.get('/tutores/experiencia', async (req, res) => {
+  const { minExperiencia } = req.query;
+
+  if (!minExperiencia || isNaN(minExperiencia)) {
+    return res.status(400).json({ error: 'Debe proporcionar un valor mínimo de experiencia válido' });
+  }
+
+  try {
+    const tutores = await prisma.tutoresInfo.findMany({
+      where: {
+        experiencia: {
+          gte: parseInt(minExperiencia)
+        }
+      },
+      include: {
+        usuario: true
+      }
+    });
+
+    res.json(tutores);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+// EndPoint filtro por materia
+router.get('/tutores/materia/:idMateria', async (req, res) => {
+  const { idMateria } = req.params;
+
+  try {
+    const tutores = await prisma.tutorMateria.findMany({
+      where: {
+        id_materia: parseInt(idMateria)
+      },
+      include: {
+        tutor: {
+          include: {
+            usuario: true
+          }
+        },
+        materia: true
+      }
+    });
+
+    res.json(tutores.map(tm => ({
+      ...tm.tutor,
+      usuario: tm.tutor.usuario,
+      })));
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+// Filtro por modalidad
+router.get('/tutores/modalidad/:modalidad', async (req, res) => {
+  const { modalidad } = req.params;
+
+  try {
+    const tutores = await prisma.tutoresInfo.findMany({
+      where: {
+        metodo_ensenanza: modalidad // 'virtual', 'presencial' o 'hibrido'
+      },
+      include: {
+        usuario: true
+      }
+    });
+
+    res.json(tutores);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+module.exports = router;
+
+
+// Filtro por horario
+router.get('/tutores/horario/:hora', async (req, res) => {
+  const { hora } = req.params;
+
+  if (!hora || isNaN(hora)) {
+    return res.status(400).json({ error: 'Debe proporcionar una hora válida (0-23)' });
+  }
+
+  try {
+    const tutores = await prisma.tutoresInfo.findMany({
+      where: {
+        horario: parseInt(hora)
+      },
+      include: {
+        usuario: true
+      }
+    });
+
+    res.json(tutores);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});

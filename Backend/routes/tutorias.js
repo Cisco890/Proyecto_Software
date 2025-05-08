@@ -153,3 +153,29 @@ router.get('/tutores/modalidad/:modalidad', async (req, res) => {
   }
 });
 module.exports = router;
+
+
+// Filtro por horario
+router.get('/tutores/horario/:hora', async (req, res) => {
+  const { hora } = req.params;
+
+  if (!hora || isNaN(hora)) {
+    return res.status(400).json({ error: 'Debe proporcionar una hora válida (0-23)' });
+  }
+
+  try {
+    const tutores = await prisma.tutoresInfo.findMany({
+      where: {
+        horario: parseInt(hora)
+      },
+      include: {
+        usuario: true
+      }
+    });
+
+    res.json(tutores);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});

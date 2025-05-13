@@ -116,3 +116,73 @@ router.get('/tutores/:id/rating', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
+//Endpoint GET para obtener la información del tutor
+router.get('/tutores/info/:idTutor', async (req, res) => {
+  const { idTutor } = req.params;
+
+  try {
+    // TUTOR INFO
+    const tutorInfo = await prisma.tutoresInfo.findUnique({
+      where: {
+        id: parseInt(idTutor)
+      },
+      include: {
+        usuario: true,
+        tutorMaterias: {
+          include: {
+            materia: true
+          }
+        }
+      }
+    });
+    //Si no hay respuesta da error
+    if (!tutorInfo) {
+      return res.status(404).json({ error: 'Tutor no encontrado' });
+    }
+
+    //Calificaciones del tutor
+    const calificaciones = await prisma.calificaciones.findMany({
+      where: {
+        id_tutor: tutorInfo.id_usuario,
+        calificacion: {
+          not: null
+        }
+      }
+    });
+
+    // Rating del tutor como la endpoint anterior
+    const rating_promedio = calificaciones.length > 0 
+      ? calificaciones.reduce((acc, curr) => acc + curr.calificacion, 0) / calificaciones.length
+      : 0;
+
+    // Regresa todos los datos del tutor
+    const response = {
+      id_tutor: tutorInfo.id,
+      id_usuario: tutorInfo.id_usuario,
+      nombre: tutorInfo.usuario.nombre,
+      foto_perfil: tutorInfo.usuario.foto_perfil,
+      descripcion: tutorInfo.descripcion,
+      horario: tutorInfo.horario,
+      modalidad: tutorInfo.modalidad,
+      experiencia: tutorInfo.experiencia,
+      tarifa_hora: tutorInfo.tarifa_hora,
+      materias: tutorInfo.tutorMaterias.map(tm => ({
+        id_materia: tm.materia.id_materia,
+        nombre_materia: tm.materia.nombre_materia
+      })),
+      rating_promedio: parseFloat(rating_promedio.toFixed(2)),
+      total_calificaciones: calificaciones.length,
+      comentarios: calificaciones.filter(c => c.comentario).map(c => ({
+        calificacion: c.calificacion,
+        comentario: c.comentario,
+        fecha: c.fecha_calificacion
+      }))
+    };
+    
+    res.json(response);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});

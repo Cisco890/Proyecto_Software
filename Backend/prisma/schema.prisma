@@ -62,6 +62,15 @@ enum tipo_usuario {
   tutor
 }
 
+enum horario {
+  mañana
+  tarde
+  noche
+}
+
+
+
+
 model Perfiles {
   id_perfil Int        @id @default(autoincrement())
   nombre    String     @db.VarChar(100)

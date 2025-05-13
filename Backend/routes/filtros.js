@@ -155,3 +155,31 @@ router.get('/tutores/horario/:hora', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
+// Filtro por precio
+// /api/tutorias/tutores/precio?maxPrecio=25.00
+router.get('/tutores/precio', async (req, res) => {
+  const { maxPrecio } = req.query;
+
+  if (!maxPrecio || isNaN(maxPrecio)) {
+    return res.status(400).json({ error: 'Debe proporcionar un precio máximo válido' });
+  }
+
+  try {
+    const tutores = await prisma.tutoresInfo.findMany({
+      where: {
+        tarifa_hora: {
+          lte: parseFloat(maxPrecio)
+        }
+      },
+      include: {
+        usuario: true
+      }
+    });
+
+    res.json(tutores);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});

@@ -76,3 +76,43 @@ router.post('/login', async (req, res) => {
 
 });
 
+
+// Metodo get para obtener el raiting del tutor
+router.get('/tutores/:id/rating', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+
+    const calificaciones = await prisma.calificaciones.findMany({
+      where: {
+        id_tutor: parseInt(id),
+        calificacion: {
+          not: null
+        }
+      },
+      select: {
+        calificacion: true
+      }
+    });
+
+    if (calificaciones.length === 0) {
+      return res.json({
+        rating_promedio: 0,
+        total_calificaciones: 0,
+        message: 'Este tutor aún no tiene calificaciones'
+      });
+    }
+
+    // Calcular promedio
+    const suma = calificaciones.reduce((acc, curr) => acc + curr.calificacion, 0);
+    const promedio = suma / calificaciones.length;
+
+    res.json({
+      rating_promedio: promedio,
+      total_calificaciones: calificaciones.length
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});

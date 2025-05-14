@@ -10,7 +10,7 @@ export const login = (correo, contrasena) =>
   api.post('/login', { correo, contrasena });
 
 export const register = (userData) =>
-  api.post('/tutorias', userData);
+  api.post('/tutorias/registro', userData);
 
 export const buscarTutoresPorNombre = (busqueda) =>
   api.get(`/tutorias/tutores/nombre?busqueda=${encodeURIComponent(busqueda)}`);

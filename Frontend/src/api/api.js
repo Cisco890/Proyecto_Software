@@ -21,5 +21,7 @@ export const filtrarTutoresPorRating = (minRating) =>
 export const filtrarTutoresPorPrecio = (maxPrecio) =>
   api.get(`/tutorias/tutores/precio?maxPrecio=${maxPrecio}`);
 
+export const filtrarTutoresPorModalidad = (modalidad) =>
+  api.get(`/tutorias/tutores/modalidad/${modalidad}`);
 
 export default api;

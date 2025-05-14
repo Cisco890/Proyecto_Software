@@ -18,4 +18,8 @@ export const buscarTutoresPorNombre = (busqueda) =>
 export const filtrarTutoresPorRating = (minRating) =>
   api.get(`/tutorias/tutores/rating?minRating=${minRating}`);
 
+export const filtrarTutoresPorPrecio = (maxPrecio) =>
+  api.get(`/tutorias/tutores/precio?maxPrecio=${maxPrecio}`);
+
+
 export default api;

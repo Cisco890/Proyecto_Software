@@ -15,5 +15,7 @@ export const register = (userData) =>
 export const buscarTutoresPorNombre = (busqueda) =>
   api.get(`/tutorias/tutores/nombre?busqueda=${encodeURIComponent(busqueda)}`);
 
+export const filtrarTutoresPorRating = (minRating) =>
+  api.get(`/tutorias/tutores/rating?minRating=${minRating}`);
 
 export default api;

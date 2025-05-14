@@ -271,35 +271,4 @@ router.get('/tutores/rating', async (req, res) => {
 });
 
 
-// /api/tutorias/tutores/nombre?busqueda=ana
-// Filtro para buscar tutores por nombre
-router.get('/tutores/nombre', async (req, res) => {
-  const { busqueda } = req.query;
 
-  if (!busqueda) {
-    return res.status(400).json({ error: 'Debe proporcionar un texto de búsqueda' });
-  }
-
-  try {
-    const tutores = await prisma.usuarios.findMany({
-      where: {
-        nombre: {
-          contains: busqueda,
-          mode: 'insensitive' // para búsqueda sin importar mayúsculas
-        },
-        tutorInfo: {
-          // aseguramos que es tutor
-          isNot: null
-        }
-      },
-      include: {
-        tutorInfo: true
-      }
-    });
-
-    res.json(tutores);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send('Error del servidor');
-  }
-});

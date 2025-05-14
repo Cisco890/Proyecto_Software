@@ -186,3 +186,107 @@ router.get('/tutores/info/:idTutor', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
+// Endpoint para obtener la metodología del tutor
+router.get('/tutores/:id/metodologia', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const tutorInfo = await prisma.tutoresInfo.findUnique({
+      where: {
+        id: parseInt(id)
+      },
+      select: {
+        metodologia: true
+      }
+    });
+
+    if (!tutorInfo) {
+      return res.status(404).json({ error: 'Tutor no encontrado' });
+    }
+
+    res.json({
+      metodologia: tutorInfo.metodologia || 'No se ha especificado una metodología'
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+// Endpoint para obtener la tutoría que da el tutor
+router.get('/tutores/:id/tutorias', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const tutorMaterias = await prisma.tutorMaterias.findMany({
+      where: {
+        id_tutor: parseInt(id)
+      },
+      include: {
+        materia: true,
+        tutor: {
+          include: {
+            usuario: {
+              select: {
+                nombre: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!tutorMaterias || tutorMaterias.length === 0) {
+      return res.status(404).json({ error: 'No se encontraron tutorías para este tutor' });
+    }
+
+    const tutorias = tutorMaterias.map(tm => ({
+      materia: tm.materia.nombre_materia,
+      tutor: tm.tutor.usuario.nombre,
+      horario: tm.tutor.horario,
+      modalidad: tm.tutor.modalidad
+    }));
+
+    res.json(tutorias);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+// Endpoint para obtener la descripción del tutor
+router.get('/tutores/:id/descripcion', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const tutorInfo = await prisma.tutoresInfo.findUnique({
+      where: {
+        id: parseInt(id)
+      },
+      select: {
+        descripcion: true,
+        usuario: {
+          select: {
+            nombre: true
+          }
+        }
+      }
+    });
+
+    if (!tutorInfo) {
+      return res.status(404).json({ error: 'Tutor no encontrado' });
+    }
+
+    res.json({
+      nombre: tutorInfo.usuario.nombre,
+      descripcion: tutorInfo.descripcion || 'No se ha proporcionado una descripción'
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+
+module.exports = router;
+  

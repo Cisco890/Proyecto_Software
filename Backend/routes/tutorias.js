@@ -186,3 +186,8 @@ router.get('/tutores/info/:idTutor', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
+
+
+module.exports = router;
+  

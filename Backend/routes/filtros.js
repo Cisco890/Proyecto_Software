@@ -155,3 +155,7 @@ router.get('/tutores/horario/:hora', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
+
+module.exports = router;
+  

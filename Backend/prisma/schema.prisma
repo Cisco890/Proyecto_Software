@@ -68,9 +68,6 @@ enum horario {
   noche
 }
 
-
-
-
 model Perfiles {
   id_perfil Int        @id @default(autoincrement())
   nombre    String     @db.VarChar(100)
@@ -95,7 +92,7 @@ model Usuarios {
   telefono       String?  @db.VarChar(20)
   fecha_registro DateTime @default(now())
   id_perfil      Int?
-  foto_perfil    String?  @db.VarChar(255)
+  foto_perfil    String   @db.VarChar(255)
 
   perfil                   Perfiles?        @relation(fields: [id_perfil], references: [id_perfil])
   tutorInfo                TutoresInfo?

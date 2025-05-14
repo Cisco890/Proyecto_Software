@@ -27,7 +27,6 @@ router.post('/', async (req, res) => {
             nombre: usuario.nombre,
             correo: usuario.correo,
             telefono: usuario.telefono,
-            TipoUsuario: usuario.tipo_usuario
         }
     
         res.status(200).json({ message: 'Inicio de sesión exitoso', user: userData });

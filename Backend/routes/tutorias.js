@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
 router.post('/registro', async (req,res) => {
   const {nombre, correo, contrasena, tipo_usuario,telefono} = req.body;
 
-  if (!nombre || !correo || !contrasena || !tipo_usuario || !telefono) {
+  if (!nombre || !correo || !contrasena || !telefono) {
     return res.status(400).json({ error: 'Todos los campos son obligatorios'});
   }
   else if (!correo.includes('@')) {
@@ -35,8 +35,9 @@ router.post('/registro', async (req,res) => {
         nombre,
         correo,
         contrasena,
-        tipo_usuario,
+        id_perfil: 1 ,
         telefono,
+        foto_perfil:"null"
       },
     });
 
@@ -46,6 +47,29 @@ router.post('/registro', async (req,res) => {
     res.status(500).send("Error del servidor");
   }
 });
+
+//metodo post para los perfiles
+router.post('/perfiles', async (req, res) => {
+  const { nombre } = req.body;
+
+  if (!nombre) {
+    return res.status(400).json({ error: 'El nombre del perfil es obligatorio' });
+  }
+
+  try {
+    const nuevoPerfil = await prisma.perfiles.create({
+      data: {
+        nombre
+      }
+    });
+
+    res.status(201).json(nuevoPerfil);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al crear el perfil' });
+  }
+});
+
 
 //Metodo Post para LOGIN de Usuarios
 router.post('/login', async (req, res) => {

@@ -25,7 +25,6 @@ export default function RegisterScreen() {
         nombre,
         correo,
         contrasena,
-        tipo_usuario: esTutor ? 'tutor' : 'estudiante',
         telefono,
       };
 

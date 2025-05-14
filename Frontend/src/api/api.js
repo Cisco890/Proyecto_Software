@@ -27,5 +27,7 @@ export const filtrarTutoresPorModalidad = (modalidad) =>
 export const filtrarTutoresPorMateria = (idMateria) =>
   api.get(`/tutorias/tutores/materia/${idMateria}`);
 
+export const filtrarTutoresPorHora = (hora) =>
+  api.get(`/tutorias/tutores/horario/${hora}`);
 
 export default api;

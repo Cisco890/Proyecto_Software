@@ -187,6 +187,32 @@ router.get('/tutores/info/:idTutor', async (req, res) => {
   }
 });
 
+// Endpoint para obtener la metodología del tutor
+router.get('/tutores/:id/metodologia', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const tutorInfo = await prisma.tutoresInfo.findUnique({
+      where: {
+        id: parseInt(id)
+      },
+      select: {
+        metodologia: true
+      }
+    });
+
+    if (!tutorInfo) {
+      return res.status(404).json({ error: 'Tutor no encontrado' });
+    }
+
+    res.json({
+      metodologia: tutorInfo.metodologia || 'No se ha especificado una metodología'
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
 
 
 module.exports = router;

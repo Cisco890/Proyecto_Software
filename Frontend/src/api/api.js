@@ -12,4 +12,8 @@ export const login = (correo, contrasena) =>
 export const register = (userData) =>
   api.post('/tutorias', userData);
 
+export const buscarTutoresPorNombre = (busqueda) =>
+  api.get(`/tutorias/tutores/nombre?busqueda=${encodeURIComponent(busqueda)}`);
+
+
 export default api;

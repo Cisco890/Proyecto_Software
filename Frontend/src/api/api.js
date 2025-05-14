@@ -30,4 +30,7 @@ export const filtrarTutoresPorMateria = (idMateria) =>
 export const filtrarTutoresPorHora = (hora) =>
   api.get(`/tutorias/tutores/horario/${hora}`);
 
+export const filtrarTutoresPorExperiencia = (minExperiencia) =>
+  api.get(`/tutorias/tutores/experiencia?minExperiencia=${minExperiencia}`);
+
 export default api;

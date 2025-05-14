@@ -214,6 +214,47 @@ router.get('/tutores/:id/metodologia', async (req, res) => {
   }
 });
 
+// Endpoint para obtener la tutoría que da el tutor
+router.get('/tutores/:id/tutorias', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const tutorMaterias = await prisma.tutorMaterias.findMany({
+      where: {
+        id_tutor: parseInt(id)
+      },
+      include: {
+        materia: true,
+        tutor: {
+          include: {
+            usuario: {
+              select: {
+                nombre: true
+              }
+            }
+          }
+        }
+      }
+    });
+
+    if (!tutorMaterias || tutorMaterias.length === 0) {
+      return res.status(404).json({ error: 'No se encontraron tutorías para este tutor' });
+    }
+
+    const tutorias = tutorMaterias.map(tm => ({
+      materia: tm.materia.nombre_materia,
+      tutor: tm.tutor.usuario.nombre,
+      horario: tm.tutor.horario,
+      modalidad: tm.tutor.modalidad
+    }));
+
+    res.json(tutorias);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
 
 module.exports = router;
   

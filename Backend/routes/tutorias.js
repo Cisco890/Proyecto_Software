@@ -254,6 +254,38 @@ router.get('/tutores/:id/tutorias', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+// Endpoint para obtener la descripción del tutor
+router.get('/tutores/:id/descripcion', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const tutorInfo = await prisma.tutoresInfo.findUnique({
+      where: {
+        id: parseInt(id)
+      },
+      select: {
+        descripcion: true,
+        usuario: {
+          select: {
+            nombre: true
+          }
+        }
+      }
+    });
+
+    if (!tutorInfo) {
+      return res.status(404).json({ error: 'Tutor no encontrado' });
+    }
+
+    res.json({
+      nombre: tutorInfo.usuario.nombre,
+      descripcion: tutorInfo.descripcion || 'No se ha proporcionado una descripción'
+    });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
 
 
 module.exports = router;

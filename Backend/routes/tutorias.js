@@ -312,5 +312,54 @@ router.get('/tutores/:id/descripcion', async (req, res) => {
 });
 
 
+
+//POST para agregar info del tutor
+router.post('/tutores/info', async (req, res) => {
+  const { id_usuario, descripcion, tarifa_hora, experiencia, horario, modalidad } = req.body;
+//Obliga a llenar los campos
+  if (!id_usuario || !descripcion || !tarifa_hora || !experiencia || !horario || !modalidad) {
+    return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+  }
+
+  try {
+    // El usuario existe
+    const usuario = await prisma.usuarios.findUnique({
+      where: { id_usuario: parseInt(id_usuario) }
+    });
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const tutorExistente = await prisma.tutoresInfo.findUnique({
+      where: { id_usuario: parseInt(id_usuario) }
+    });
+    //Si encuentra la llave foranea del id en tutor no deja crear 
+    if (tutorExistente) {
+      return res.status(400).json({ error: 'Este usuario ya tiene información de tutor' });
+    }
+
+    // DATA
+    const nuevoTutor = await prisma.tutoresInfo.create({
+      data: {
+        id_usuario: parseInt(id_usuario),
+        descripcion,
+        tarifa_hora: parseFloat(tarifa_hora),
+        experiencia: parseInt(experiencia),
+        horario: parseInt(horario),
+        modalidad
+      },
+      include: {
+        usuario: true
+      }
+    });
+
+    res.status(201).json(nuevoTutor);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
 module.exports = router;
   

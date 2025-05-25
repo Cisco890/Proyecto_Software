@@ -23,9 +23,10 @@ export default function Sidebar({ navigation }) {
 
       {/* Parte del medio */}
       <View style={styles.middleSection}>
-        <TouchableOpacity style={styles.menuButton}>
+        <TouchableOpacity style={styles.menuButton}
+        onPress={() => navigation.navigate('Home')}>
           <Ionicons name="time-outline" size={24} color="white" />
-          <Text style={styles.menuText}>Sesiones pasadas</Text>
+          <Text style={styles.menuText}>Inicio</Text>
         </TouchableOpacity>
   {user?.id_perfil === 2 ? (
     <>

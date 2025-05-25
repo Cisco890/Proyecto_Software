@@ -4,6 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
+import TutorDetailScreen from '../screens/TutorDetailScreen';
 import DrawerNavigator from './DrawerNavigator';
 
 const Stack = createNativeStackNavigator();
@@ -18,7 +19,10 @@ export default function MainStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {user ? (
-        <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
+        <>
+          <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
+          <Stack.Screen name="TutorDetail" component={TutorDetailScreen} />
+        </>
       ) : (
         <>
           <Stack.Screen name="Login" component={LoginScreen} />

@@ -1,12 +1,19 @@
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 export default function TutorCard({ tutor }) {
+  const navigation = useNavigation();
+
+  const handlePress = () => {
+    navigation.navigate('TutorDetail', { tutor });
+  };
+
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.header}>
         <Image
-          source={require('../../assets/bolamarilla.png')} // Imagen provisional
+          source={require('../../assets/bolamarilla.png')}
           style={styles.profileImage}
         />
         <View style={styles.info}>
@@ -36,7 +43,7 @@ export default function TutorCard({ tutor }) {
         <Text style={styles.date}>{tutor.fecha}</Text>
         <Text style={styles.hours}>{tutor.horas} h</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

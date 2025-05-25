@@ -1,145 +1,212 @@
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, ScrollView } from 'react-native';
-import { useState, useContext, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, ActivityIndicator, Modal } from 'react-native';
+import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
+import Header from '../../components/Header';
+import Footer from '../../components/Footer';
 import { crearInfoTutor, obtenerInfoTutor } from '../../api/api';
 
 export default function TutorProfileScreen() {
+  const [modalVisible, setModalVisible] = useState(false);
+  const opciones = ['virtual', 'presencial', 'hibrido'];
   const { user } = useContext(AuthContext);
-  const [form, setForm] = useState({
-    descripcion: '',
-    tarifa_hora: '',
-    experiencia: '',
-    horario: '',
-    modalidad: '',
-  });
+  const [descripcion, setDescripcion] = useState('');
+  const [tarifa, setTarifa] = useState('');
+  const [experiencia, setExperiencia] = useState('');
+  const [horario, setHorario] = useState('');
+  const [modalidad, setModalidad] = useState('');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const loadInfo = async () => {
       try {
         const res = await obtenerInfoTutor(user.id_usuario);
-        if (res.data) {
-          setForm({
-            descripcion: res.data.descripcion || '',
-            tarifa_hora: String(res.data.tarifa_hora || ''),
-            experiencia: String(res.data.experiencia || ''),
-            horario: String(res.data.horario || ''),
-            modalidad: res.data.modalidad || '',
-          });
-        }
-      } catch (error) {
-        console.log('No existing tutor info');
+        const info = res.data;
+
+        setDescripcion(info.descripcion || '');
+        setTarifa(info.tarifa_hora?.toString() || '');
+        setExperiencia(info.experiencia?.toString() || '');
+        setHorario(info.horario?.toString() || '');
+        setModalidad(info.modalidad || '');
+      } catch (err) {
+        console.warn('ℹ️ No hay información previa del tutor o no se pudo obtener.');
+      } finally {
+        setLoading(false);
       }
     };
 
-    if (user?.id_usuario) {
-      fetchData();
-    }
-  }, [user]);
-
-  const handleChange = (field, value) => {
-    setForm({ ...form, [field]: value });
-  };
+    loadInfo();
+  }, []);
 
   const handleSubmit = async () => {
     try {
-      const payload = {
-        ...form,
+      await crearInfoTutor({
         id_usuario: user.id_usuario,
-        tarifa_hora: parseFloat(form.tarifa_hora),
-        experiencia: parseInt(form.experiencia),
-        horario: parseInt(form.horario),
-      };
-      await crearInfoTutor(payload);
-      Alert.alert('Éxito', 'Información registrada correctamente');
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Error', 'No se pudo guardar la información');
+        descripcion,
+        tarifa_hora: tarifa,
+        experiencia,
+        horario,
+        modalidad,
+      });
+
+      alert('✅ Información guardada correctamente');
+    } catch (err) {
+      console.error('❌ Error al guardar la información:', err);
+      alert('Error al guardar la información');
     }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Tutor Profile</Text>
+    <View style={styles.container}>
+      <Header title="Perfil de Tutor" />
 
-      <Text style={styles.label}>Description</Text>
-      <TextInput
-        style={styles.input}
-        multiline
-        numberOfLines={4}
-        value={form.descripcion}
-        onChangeText={(text) => handleChange('descripcion', text)}
-      />
+      <View style={styles.content}>
+        {loading ? (
+          <ActivityIndicator size="large" color="#000" />
+        ) : (
+          <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+            <Text style={styles.label}>Descripción</Text>
+            <TextInput
+              style={styles.input}
+              value={descripcion}
+              onChangeText={setDescripcion}
+              placeholder="Describe tu experiencia, logros, etc."
+              multiline
+            />
 
-      <Text style={styles.label}>Hourly Rate ($)</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        value={form.tarifa_hora}
-        onChangeText={(text) => handleChange('tarifa_hora', text)}
-      />
+            <Text style={styles.label}>Tarifa por hora ($)</Text>
+            <TextInput
+              style={styles.input}
+              value={tarifa}
+              onChangeText={setTarifa}
+              keyboardType="numeric"
+              placeholder="Ej: 20"
+            />
 
-      <Text style={styles.label}>Experience (years)</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        value={form.experiencia}
-        onChangeText={(text) => handleChange('experiencia', text)}
-      />
+            <Text style={styles.label}>Años de experiencia</Text>
+            <TextInput
+              style={styles.input}
+              value={experiencia}
+              onChangeText={setExperiencia}
+              keyboardType="numeric"
+              placeholder="Ej: 3"
+            />
 
-      <Text style={styles.label}>Available Hour (0-23)</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        value={form.horario}
-        onChangeText={(text) => handleChange('horario', text)}
-      />
+            <Text style={styles.label}>Horario (0-23)</Text>
+            <TextInput
+              style={styles.input}
+              value={horario}
+              onChangeText={setHorario}
+              keyboardType="numeric"
+              placeholder="Ej: 14"
+            />
 
-      <Text style={styles.label}>Modality</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="virtual | presencial | hibrido"
-        value={form.modalidad}
-        onChangeText={(text) => handleChange('modalidad', text)}
-      />
+            <Text style={styles.label}>Modalidad</Text>
+            <TouchableOpacity
+              style={styles.selectButton}
+              onPress={() => setModalVisible(true)}
+            >
+              <Text style={styles.selectButtonText}>
+                {modalidad ? modalidad : 'Selecciona una modalidad'}
+              </Text>
+            </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-        <Text style={styles.buttonText}>Save</Text>
-      </TouchableOpacity>
-    </ScrollView>
+            <Modal visible={modalVisible} transparent animationType="fade">
+              <View style={styles.modalOverlay}>
+                <View style={styles.modalContainer}>
+                  {opciones.map((opcion) => (
+                    <TouchableOpacity
+                      key={opcion}
+                      style={styles.modalOption}
+                      onPress={() => {
+                        setModalidad(opcion);
+                        setModalVisible(false);
+                      }}
+                    >
+                      <Text style={styles.modalOptionText}>{opcion}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            </Modal>
+            
+            <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+              <Text style={styles.buttonText}>Guardar</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        )}
+      </View>
+
+      <Footer />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    padding: 16,
     backgroundColor: '#fff',
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
   label: {
+    fontWeight: 'bold',
+    marginBottom: 6,
     fontSize: 16,
-    marginBottom: 5,
-    marginTop: 10,
+    color: '#333',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    padding: 10,
-    fontSize: 16,
+    backgroundColor: '#f2f2f2',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15,
   },
   button: {
     backgroundColor: '#4CAF50',
-    marginTop: 20,
-    paddingVertical: 15,
-    borderRadius: 10,
+    padding: 14,
+    borderRadius: 8,
     alignItems: 'center',
+    marginTop: 10,
   },
   buttonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
   },
+  selectButton: {
+  borderWidth: 1,
+  borderColor: '#ccc',
+  borderRadius: 10,
+  padding: 15,
+  marginBottom: 15,
+  backgroundColor: '#fff',
+},
+
+selectButtonText: {
+  fontSize: 16,
+  color: '#333',
+},
+modalOverlay: {
+  flex: 1,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'rgba(0, 0, 0, 0.5)',
+},
+modalContainer: {
+  backgroundColor: '#fff',
+  borderRadius: 10,
+  padding: 20,
+  width: '80%',
+},
+
+modalOption: {
+  paddingVertical: 10,
+  borderBottomWidth: 1,
+  borderBottomColor: '#eee',
+},
+
+modalOptionText: {
+  fontSize: 16,
+  textAlign: 'center',
+},
 });

@@ -9,7 +9,12 @@ const prisma = new PrismaClient();
 router.get('/', async (req, res) => {
   try {
     const usuarios = await prisma.usuarios.findMany({
-      take: 10
+      where: {
+        id_perfil: 2
+      },
+      include: {
+        tutorInfo: true
+      }
     });
     res.json(usuarios);
   } catch (err) {
@@ -17,6 +22,7 @@ router.get('/', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
 
 // Metodo Post De registrar usuario
 router.post('/registro', async (req,res) => {
@@ -35,7 +41,7 @@ router.post('/registro', async (req,res) => {
         nombre,
         correo,
         contrasena,
-        id_perfil: 1 ,
+        id_perfil: tipo_usuario === 'tutor' ? 2 : 1,
         telefono,
         foto_perfil:"null"
       },

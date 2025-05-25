@@ -26,8 +26,10 @@ export default function RegisterScreen() {
         correo,
         contrasena,
         telefono,
+        tipo_usuario: esTutor ? 'tutor' : 'estudiante'
       };
 
+console.log('📦 Datos enviados:', userData)
       const response = await registerApi(userData);
       console.log('✅ Registro exitoso:', response.data);
       

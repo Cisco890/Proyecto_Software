@@ -27,7 +27,39 @@ export default function Sidebar({ navigation }) {
           <Ionicons name="time-outline" size={24} color="white" />
           <Text style={styles.menuText}>Sesiones pasadas</Text>
         </TouchableOpacity>
-      </View>
+  {user?.id_perfil === 2 ? (
+    <>
+      <TouchableOpacity
+        style={styles.menuButton}
+        onPress={() => navigation.navigate('Profile')}
+      >
+        <Ionicons name="person-outline" size={24} color="white" />
+        <Text style={styles.menuText}>Perfil de Tutor</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.menuButton}
+        onPress={() => navigation.navigate('Sessions')}
+      >
+        <Ionicons name="calendar-outline" size={24} color="white" />
+        <Text style={styles.menuText}>Sesiones</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={styles.menuButton}
+        onPress={() => navigation.navigate('Reviews')}
+      >
+        <Ionicons name="star-outline" size={24} color="white" />
+        <Text style={styles.menuText}>Reseñas</Text>
+      </TouchableOpacity>
+    </>
+  ) : (
+    <Text style={[styles.menuText, { color: '#fff' }]}>
+      Bienvenido estudiante
+    </Text>
+  )}
+</View>
+
 
       {/* Parte de abajo */}
       <View style={styles.bottomSection}>

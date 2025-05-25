@@ -13,6 +13,8 @@ export default function LoginScreen({ navigation }) {
       const response = await loginApi(correo, contrasena);
       console.log('✅ Login exitoso:', response.data);
       login(response.data.user);
+      console.log("🚀 Usuario logueado:", response.data.user);
+
     } catch (error) {
       console.error('❌ Error en el login:', error.response?.data || error.message);
       Alert.alert('Error', 'Correo o contraseña incorrectos');

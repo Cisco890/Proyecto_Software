@@ -376,6 +376,7 @@ router.post('/tutores/info', async (req, res) => {
 });
 
 
+
 router.post('/calificaciones', async (req, res) => {
   const { id_tutor, id_estudiante, id_sesion, calificacion, comentario } = req.body;
 
@@ -478,6 +479,43 @@ router.get('/tutores/:id/sesiones', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
+//Subir bitacora
+router.post('/bitacora', async (req, res) => {
+  const { id_usuario, tipo_evento, descripcion, ip_origen } = req.body;
+
+  if (!id_usuario || !tipo_evento || !descripcion || !ip_origen) {
+    return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+  }
+  //Validación de usuario
+  try {
+    const usuario = await prisma.usuarios.findUnique({
+      where: { id_usuario: parseInt(id_usuario) }
+    });
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    //Datos
+    const nuevaBitacora = await prisma.bitacora.create({
+      data: {
+        id_usuario: parseInt(id_usuario),
+        tipo_evento,
+        descripcion,
+        ip_origen
+      },
+      include: {
+        usuario: true
+      }
+    });
+
+    res.status(201).json(nuevaBitacora);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
 
 
 module.exports = router;

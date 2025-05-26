@@ -561,7 +561,7 @@ router.put('/usuarios/:id/foto', async (req, res) => {
 
 
 
-  
+
   try {
     const usuario = await prisma.usuarios.findUnique({
       where: { id_usuario: parseInt(id) }
@@ -584,7 +584,38 @@ router.put('/usuarios/:id/foto', async (req, res) => {
   }
 });
 
+//Delete de usuarios
+router.delete('/usuarios/:id', async (req, res) => {
+  const { id } = req.params;
 
+  try {
+    // Usuario validación
+    const usuario = await prisma.usuarios.findUnique({
+      where: { id_usuario: parseInt(id) }
+    });
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    // Elimina  todo lo relacionado al tutor
+    if (usuario.id_perfil === 2) {
+      await prisma.tutoresInfo.deleteMany({
+        where: { id_usuario: parseInt(id) }
+      });
+    }
+
+    // Delete
+    await prisma.usuarios.delete({
+      where: { id_usuario: parseInt(id) }
+    });
+
+    res.json({ message: 'Usuario eliminado correctamente' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
 
 
 module.exports = router;

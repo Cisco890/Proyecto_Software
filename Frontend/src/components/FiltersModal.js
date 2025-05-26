@@ -1,48 +1,32 @@
-import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView, TextInput } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useEffect, useState } from 'react';
-import { filtrarTutoresPorMateria, filtrarTutoresPorModalidad, filtrarTutoresPorExperiencia, filtrarTutoresPorPrecio, buscarTutoresPorNombre } from '../api/api';
+import { useState } from 'react';
 
 export default function FiltersModal({ visible, onClose, onApply }) {
-  const [selectedMateria, setSelectedMateria] = useState(null);
-  const [modalidad, setModalidad] = useState('');
-  const [experiencia, setExperiencia] = useState('');
-  const [precioMax, setPrecioMax] = useState('');
-  const [materias, setMaterias] = useState([]);
+  const [selectedFilters, setSelectedFilters] = useState([]);
 
-  useEffect(() => {
-    // Simulando materias porque no tenemos un endpoint real para obtenerlas
-    setMaterias([
-      { id: 1, nombre: 'Matemáticas' },
-      { id: 2, nombre: 'Física' },
-      { id: 3, nombre: 'Química' },
-      { id: 4, nombre: 'Programación' },
-      { id: 5, nombre: 'Idiomas' },
-    ]);
-  }, []);
+  const materias = [
+    'Matemáticas',
+    'Física',
+    'Química',
+    'Programación',
+    'Idiomas',
+    'Biología',
+  ];
 
-  const handleApply = async () => {
-    try {
-      let resultado = null;
+  const modalidades = ['virtual', 'presencial', 'hibrido'];
 
-      if (selectedMateria) {
-        resultado = await filtrarTutoresPorMateria(selectedMateria);
-      } else if (modalidad) {
-        resultado = await filtrarTutoresPorModalidad(modalidad);
-      } else if (experiencia) {
-        resultado = await filtrarTutoresPorExperiencia(experiencia);
-      } else if (precioMax) {
-        resultado = await filtrarTutoresPorPrecio(precioMax);
-      }
-
-      if (resultado?.data) {
-        onApply(resultado.data);
-      }
-    } catch (error) {
-      console.error('Error aplicando filtros:', error);
-    } finally {
-      onClose();
+  const toggleFilter = (filter) => {
+    if (selectedFilters.includes(filter)) {
+      setSelectedFilters(selectedFilters.filter((item) => item !== filter));
+    } else {
+      setSelectedFilters([...selectedFilters, filter]);
     }
+  };
+
+  const handleApply = () => {
+    onApply(selectedFilters);
+    onClose();
   };
 
   return (
@@ -57,65 +41,47 @@ export default function FiltersModal({ visible, onClose, onApply }) {
           </View>
 
           <ScrollView>
-            <Text style={styles.label}>Materia</Text>
-            {materias.map((materia) => (
+            <Text style={styles.sectionTitle}>Materias</Text>
+            {materias.map((filter) => (
               <TouchableOpacity
-                key={materia.id}
+                key={filter}
                 style={[
                   styles.filterButton,
-                  selectedMateria === materia.id && styles.filterButtonSelected,
+                  selectedFilters.includes(filter) && styles.filterButtonSelected,
                 ]}
-                onPress={() => setSelectedMateria(materia.id)}
+                onPress={() => toggleFilter(filter)}
               >
                 <Text
                   style={[
                     styles.filterButtonText,
-                    selectedMateria === materia.id && styles.filterButtonTextSelected,
+                    selectedFilters.includes(filter) && styles.filterButtonTextSelected,
                   ]}
                 >
-                  {materia.nombre}
+                  {filter}
                 </Text>
               </TouchableOpacity>
             ))}
 
-            <Text style={styles.label}>Modalidad</Text>
-            {['virtual', 'presencial', 'hibrido'].map((mod) => (
+            <Text style={styles.sectionTitle}>Modalidad</Text>
+            {modalidades.map((mod) => (
               <TouchableOpacity
                 key={mod}
                 style={[
                   styles.filterButton,
-                  modalidad === mod && styles.filterButtonSelected,
+                  selectedFilters.includes(mod) && styles.filterButtonSelected,
                 ]}
-                onPress={() => setModalidad(mod)}
+                onPress={() => toggleFilter(mod)}
               >
                 <Text
                   style={[
                     styles.filterButtonText,
-                    modalidad === mod && styles.filterButtonTextSelected,
+                    selectedFilters.includes(mod) && styles.filterButtonTextSelected,
                   ]}
                 >
-                  {mod}
+                  {mod.charAt(0).toUpperCase() + mod.slice(1)}
                 </Text>
               </TouchableOpacity>
             ))}
-
-            <Text style={styles.label}>Experiencia mínima (años)</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={experiencia}
-              onChangeText={setExperiencia}
-              placeholder="Ej: 2"
-            />
-
-            <Text style={styles.label}>Precio máximo ($/hora)</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="numeric"
-              value={precioMax}
-              onChangeText={setPrecioMax}
-              placeholder="Ej: 25"
-            />
           </ScrollView>
 
           <TouchableOpacity style={styles.applyButton} onPress={handleApply}>
@@ -134,7 +100,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContainer: {
-    height: '80%',
+    height: '75%',
     backgroundColor: '#fff',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
@@ -150,11 +116,11 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: 'bold',
   },
-  label: {
-    fontSize: 16,
+  sectionTitle: {
+    fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 10,
-    marginBottom: 5,
+    marginVertical: 10,
+    color: '#333',
   },
   filterButton: {
     padding: 15,
@@ -171,14 +137,6 @@ const styles = StyleSheet.create({
   },
   filterButtonTextSelected: {
     color: '#fff',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 10,
-    padding: 10,
-    fontSize: 16,
-    marginBottom: 15,
   },
   applyButton: {
     marginTop: 10,

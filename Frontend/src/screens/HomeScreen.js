@@ -77,12 +77,20 @@ useEffect(() => {
   }
 
   const filteredTutores = tutores.filter((tutor) => {
-    const matchesSearch = tutor.nombre.toLowerCase().includes(searchText.toLowerCase())
-    const matchesFilters = selectedFilters.length === 0 || tutor.materias.some((materia) =>
-      selectedFilters.includes(materia)
-    )
-    return matchesSearch && matchesFilters
-  })
+  const matchesSearch = tutor.nombre.toLowerCase().includes(searchText.toLowerCase());
+
+  const matchesMateria =
+    tutor.materias.some((materia) => selectedFilters.includes(materia));
+
+  const matchesModalidad =
+    selectedFilters.includes(tutor.modalidad);
+
+  const matchesFilters =
+    selectedFilters.length === 0 || matchesMateria || matchesModalidad;
+
+  return matchesSearch && matchesFilters;
+});
+
 
   return (
     <View style={styles.container}>

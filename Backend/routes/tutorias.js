@@ -5,7 +5,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 
-//Metodo Get de todos los usuarios.
+//Metodo Get de todos los usuarios (tutores)
 router.get('/', async (req, res) => {
   try {
     const usuarios = await prisma.usuarios.findMany({
@@ -13,7 +13,15 @@ router.get('/', async (req, res) => {
         id_perfil: 2
       },
       include: {
-        tutorInfo: true
+        tutorInfo: {
+          include: {
+            tutorMaterias: {
+              include: {
+                materia: true
+              }
+            }
+          }
+        }
       }
     });
     res.json(usuarios);
@@ -22,6 +30,7 @@ router.get('/', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
 
 
 // Metodo Post De registrar usuario
@@ -148,14 +157,14 @@ router.get('/tutores/:id/rating', async (req, res) => {
 });
 
 //Endpoint GET para obtener la información del tutor
-router.get('/tutores/info/:idTutor', async (req, res) => {
-  const { idTutor } = req.params;
+// Endpoint GET para obtener la información del tutor por ID de USUARIO
+router.get('/tutores/info/usuario/:idUsuario', async (req, res) => {
+  const { idUsuario } = req.params;
 
   try {
-    // TUTOR INFO
     const tutorInfo = await prisma.tutoresInfo.findUnique({
       where: {
-        id: parseInt(idTutor)
+        id_usuario: parseInt(idUsuario)
       },
       include: {
         usuario: true,
@@ -166,12 +175,11 @@ router.get('/tutores/info/:idTutor', async (req, res) => {
         }
       }
     });
-    //Si no hay respuesta da error
+
     if (!tutorInfo) {
       return res.status(404).json({ error: 'Tutor no encontrado' });
     }
 
-    //Calificaciones del tutor
     const calificaciones = await prisma.calificaciones.findMany({
       where: {
         id_tutor: tutorInfo.id_usuario,
@@ -181,12 +189,10 @@ router.get('/tutores/info/:idTutor', async (req, res) => {
       }
     });
 
-    // Rating del tutor como la endpoint anterior
     const rating_promedio = calificaciones.length > 0 
       ? calificaciones.reduce((acc, curr) => acc + curr.calificacion, 0) / calificaciones.length
       : 0;
 
-    // Regresa todos los datos del tutor
     const response = {
       id_tutor: tutorInfo.id,
       id_usuario: tutorInfo.id_usuario,
@@ -209,13 +215,14 @@ router.get('/tutores/info/:idTutor', async (req, res) => {
         fecha: c.fecha_calificacion
       }))
     };
-    
+
     res.json(response);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Error del servidor');
   }
 });
+
 
 // Endpoint para obtener la metodología del tutor
 router.get('/tutores/:id/metodologia', async (req, res) => {
@@ -284,6 +291,7 @@ router.get('/tutores/:id/tutorias', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
 // Endpoint para obtener la descripción del tutor
 router.get('/tutores/:id/descripcion', async (req, res) => {
   const { id } = req.params;
@@ -428,6 +436,49 @@ router.post('/calificaciones', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
+// GET /tutores/:id/sesiones
+router.get('/tutores/:id/sesiones', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const sesiones = await prisma.sesiones.findMany({
+      where: {
+        id_tutor: parseInt(id)
+      },
+      include: {
+        estudiante: {
+          select: {
+            nombre: true
+          }
+        },
+        materia: {
+          select: {
+            nombre_materia: true
+          }
+        },
+        tutor: {
+          include: {
+            tutorInfo: true
+          }
+        }
+      }
+    });
+
+    const resultado = sesiones.map(s => ({
+      materia: s.materia.nombre_materia,
+      estudiante: s.estudiante.nombre,
+      modalidad: s.tutor.tutorInfo?.modalidad || 'No definida',
+      horario: s.tutor.tutorInfo?.horario ?? 'Sin horario'
+    }));
+
+    res.json(resultado);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
 
 module.exports = router;
   

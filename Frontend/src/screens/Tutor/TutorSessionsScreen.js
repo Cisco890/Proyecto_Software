@@ -1,6 +1,6 @@
 import { useEffect, useState, useContext } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
-import { obtenerTutoriasDelTutor } from '../../api/api';
+import { obtenerSesionesDelTutor } from '../../api/api';
 import { AuthContext } from '../../context/AuthContext';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -11,24 +11,26 @@ export default function TutorSessionsScreen() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSessions = async () => {
-      try {
-        const res = await obtenerTutoriasDelTutor(user.id_usuario);
-        setSessions(res.data);
-      } catch (err) {
-        console.error('Error al obtener sesiones:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchSessions = async () => {
+    try {
+      const res = await obtenerSesionesDelTutor(user.id_usuario);
+      console.log('📥 Sesiones del tutor:', res.data); // <-- Aquí
+      setSessions(res.data);
+    } catch (err) {
+      console.error('Error al obtener sesiones:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchSessions();
-  }, []);
+  fetchSessions();
+}, []);
+
 
   const renderItem = ({ item }) => (
     <View style={styles.card}>
       <Text style={styles.materia}>{item.materia}</Text>
-      <Text style={styles.info}>Estudiante: {item.tutor}</Text>
+      <Text style={styles.info}>Estudiante: {item.estudiante}</Text>
       <Text style={styles.info}>Modalidad: {item.modalidad}</Text>
       <Text style={styles.info}>Horario: {item.horario}</Text>
     </View>

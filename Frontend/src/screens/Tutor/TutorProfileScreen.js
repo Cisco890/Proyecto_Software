@@ -8,7 +8,8 @@ import { crearInfoTutor, obtenerInfoTutor } from '../../api/api';
 export default function TutorProfileScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const opciones = ['virtual', 'presencial', 'hibrido'];
-  const { user } = useContext(AuthContext);
+  const { user, loading: authLoading } = useContext(AuthContext);
+
   const [descripcion, setDescripcion] = useState('');
   const [tarifa, setTarifa] = useState('');
   const [experiencia, setExperiencia] = useState('');
@@ -16,44 +17,57 @@ export default function TutorProfileScreen() {
   const [modalidad, setModalidad] = useState('');
   const [loading, setLoading] = useState(true);
 
+  const loadInfo = async () => {
+    try {
+      const res = await obtenerInfoTutor(user.id_usuario);
+      const info = res.data;
+
+      setDescripcion(info.descripcion || '');
+      setTarifa(info.tarifa_hora?.toString() || '');
+      setExperiencia(info.experiencia?.toString() || '');
+      setHorario(info.horario?.toString() || '');
+      setModalidad(info.modalidad || '');
+    } catch (err) {
+      console.warn('ℹ️ No hay información previa del tutor o no se pudo obtener.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadInfo = async () => {
-      try {
-        const res = await obtenerInfoTutor(user.id_usuario);
-        const info = res.data;
-
-        setDescripcion(info.descripcion || '');
-        setTarifa(info.tarifa_hora?.toString() || '');
-        setExperiencia(info.experiencia?.toString() || '');
-        setHorario(info.horario?.toString() || '');
-        setModalidad(info.modalidad || '');
-      } catch (err) {
-        console.warn('ℹ️ No hay información previa del tutor o no se pudo obtener.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadInfo();
-  }, []);
+    console.log('👤 ID del usuario desde contexto:', user?.id_usuario);
+    if (user?.id_usuario) {
+      loadInfo();
+    }
+  }, [user?.id_usuario]);
 
   const handleSubmit = async () => {
     try {
       await crearInfoTutor({
         id_usuario: user.id_usuario,
         descripcion,
-        tarifa_hora: tarifa,
-        experiencia,
-        horario,
+        tarifa_hora: parseFloat(tarifa),
+        experiencia: parseInt(experiencia),
+        horario: parseInt(horario),
         modalidad,
       });
 
       alert('✅ Información guardada correctamente');
+      loadInfo();
     } catch (err) {
+      const mensaje = err?.response?.data?.error || 'Error al guardar la información';
+      alert(`❌ ${mensaje}`);
       console.error('❌ Error al guardar la información:', err);
-      alert('Error al guardar la información');
     }
   };
+
+  if (authLoading || !user?.id_usuario) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -128,7 +142,7 @@ export default function TutorProfileScreen() {
                 </View>
               </View>
             </Modal>
-            
+
             <TouchableOpacity style={styles.button} onPress={handleSubmit}>
               <Text style={styles.buttonText}>Guardar</Text>
             </TouchableOpacity>

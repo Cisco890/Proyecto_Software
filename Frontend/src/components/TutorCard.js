@@ -39,10 +39,19 @@ export default function TutorCard({ tutor }) {
         ))}
       </View>
 
-      <View style={styles.footer}>
+      <View style={styles.extraInfo}>
+        <Text style={styles.textSmall}>
+          Modalidad: {tutor.modalidad || 'No definida'}
+        </Text>
+        <Text style={styles.textSmall}>
+          Horario: {tutor.horario !== null ? tutor.horario : 'Sin horario'}
+        </Text>
+      </View>
+
+      {/* <View style={styles.footer}>
         <Text style={styles.date}>{tutor.fecha}</Text>
         <Text style={styles.hours}>{tutor.horas} h</Text>
-      </View>
+      </View> */}
     </TouchableOpacity>
   );
 }
@@ -97,4 +106,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#777',
   },
+  extraInfo: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  marginTop: 8,
+},
+
+textSmall: {
+  fontSize: 13,
+  color: '#555',
+},
+
 });

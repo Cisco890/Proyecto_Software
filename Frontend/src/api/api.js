@@ -22,8 +22,8 @@ export const crearPerfil = (nombre) =>
 export const crearInfoTutor = (tutorData) =>
   api.post('/tutorias/tutores/info', tutorData);
 
-export const obtenerInfoTutor = (idTutor) =>
-  api.get(`/tutorias/tutores/info/${idTutor}`);
+export const obtenerInfoTutor = (idUsuario) =>
+  api.get(`/tutorias/tutores/info/usuario/${idUsuario}`);
 
 export const obtenerDescripcionDelTutor = (idTutor) =>
   api.get(`/tutorias/tutores/${idTutor}/descripcion`);
@@ -36,6 +36,9 @@ export const obtenerTutoriasDelTutor = (idTutor) =>
 
 export const obtenerRatingDelTutor = (id) =>
   api.get(`/tutorias/tutores/${id}/rating`);
+
+export const obtenerSesionesDelTutor = (id) =>
+  api.get(`/tutorias/tutores/${id}/sesiones`);
 
 // Calificaciones
 export const calificarTutor = (calificacionData) =>

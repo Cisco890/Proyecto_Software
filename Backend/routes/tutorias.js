@@ -375,6 +375,40 @@ router.post('/tutores/info', async (req, res) => {
   }
 });
 
+//PUT para modificar la información de tutores
+router.put('/tutores/info/:id', async (req, res) => {
+  const { id } = req.params;
+  const { descripcion, tarifa_hora, experiencia, horario, modalidad } = req.body;
+
+  try {
+    const tutorInfo = await prisma.tutoresInfo.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!tutorInfo) {
+      return res.status(404).json({ error: 'Información no encontrada' });
+    }
+
+    const tutorActualizado = await prisma.tutoresInfo.update({
+      where: { id: parseInt(id) },
+      data: {
+        descripcion: descripcion || tutorInfo.descripcion,
+        tarifa_hora: tarifa_hora ? parseFloat(tarifa_hora) : tutorInfo.tarifa_hora,
+        experiencia: experiencia ? parseInt(experiencia) : tutorInfo.experiencia,
+        horario: horario ? parseInt(horario) : tutorInfo.horario,
+        modalidad: modalidad || tutorInfo.modalidad
+      },
+      include: {
+        usuario: true
+      }
+    });
+
+    res.json(tutorActualizado);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
 
 
 router.post('/calificaciones', async (req, res) => {
@@ -515,6 +549,41 @@ router.post('/bitacora', async (req, res) => {
     res.status(500).send('Error del servidor');
   }
 });
+
+//Modificar tutor foto
+router.put('/usuarios/:id/foto', async (req, res) => {
+  const { id } = req.params;
+  const { foto_perfil } = req.body;
+
+  if (!foto_perfil) {
+    return res.status(400).json({ error: 'La URL de la foto es obligatoria' });
+  }
+
+
+
+  
+  try {
+    const usuario = await prisma.usuarios.findUnique({
+      where: { id_usuario: parseInt(id) }
+    });
+
+    if (!usuario) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+
+    const usuarioActualizado = await prisma.usuarios.update({
+      where: { id_usuario: parseInt(id) },
+      data: {
+        foto_perfil: foto_perfil
+      }
+    });
+    res.json(usuarioActualizado);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
 
 
 

@@ -617,6 +617,28 @@ router.delete('/usuarios/:id', async (req, res) => {
   }
 });
 
+//Eliminar bitacoras
+router.delete('/bitacora/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const bitacora = await prisma.bitacora.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!bitacora) {
+      return res.status(404).json({ error: 'Bitácora no encontrada' });
+    }
+    await prisma.bitacora.delete({
+      where: { id: parseInt(id) }
+    });
+
+    res.json({ message: 'Bitácora eliminada correctamente' });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
 
 module.exports = router;
   

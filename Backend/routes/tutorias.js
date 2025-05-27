@@ -712,6 +712,32 @@ router.post('/tutores/:id/horario', async (req, res) => {
 });
 
 
+//Modificar horario del tutor
+router.put('/tutores/:id/horario', async (req, res) => {
+  const { id } = req.params;
+  const { horario } = req.body;
+
+  try {
+    const tutor = await prisma.tutoresInfo.findUnique({
+      where: { id_usuario: parseInt(id) }
+    });
+
+    if (!tutor) {
+      return res.status(404).json({ error: 'Tutor no encontrado' });
+    }
+
+    const actualizado = await prisma.tutoresInfo.update({
+      where: { id_usuario: parseInt(id) },
+      data: { horario: parseInt(horario) }
+    });
+
+    res.json(actualizado);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
 
 module.exports = router;
   

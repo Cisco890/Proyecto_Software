@@ -640,5 +640,29 @@ router.delete('/bitacora/:id', async (req, res) => {
   }
 });
 
+//Modificar calificaciones
+router.put('/calificaciones/:id', async (req, res) => {
+  const { id } = req.params;
+  const { calificacion, comentario } = req.body;
+
+  try {
+    const actualizada = await prisma.calificaciones.update({
+      where: { id_calificacion: parseInt(id) },
+      data: {
+        calificacion: calificacion ? parseInt(calificacion) : undefined,
+        comentario: comentario || undefined,
+        fecha_calificacion: new Date()
+      }
+    });
+
+    res.json(actualizada);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+
 module.exports = router;
   
+

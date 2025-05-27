@@ -739,6 +739,21 @@ router.put('/tutores/:id/horario', async (req, res) => {
 });
 
 
+//Eliminar horarios de los tutores inactivos
+router.delete('/tutores/horarios/inactivos', async (req, res) => {
+  try {
+    const result = await prisma.tutoresInfo.deleteMany({
+      where: { horario: null }
+    });
+
+    res.json({ message: `${result.count} horarios eliminados` });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+
 module.exports = router;
   
 

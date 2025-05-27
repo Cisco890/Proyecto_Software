@@ -663,6 +663,36 @@ router.put('/calificaciones/:id', async (req, res) => {
 });
 
 
+//Crear sesiones
+router.post('/sesiones', async (req, res) => {
+  const { id_tutor, id_estudiante, id_materia, fecha_hora, duracion_min } = req.body;
+
+  if (!id_tutor || !id_estudiante || !id_materia || !fecha_hora) {
+    return res.status(400).json({ error: 'Faltan campos requeridos' });
+  }
+
+  try {
+    const nuevaSesion = await prisma.sesiones.create({
+      data: {
+        id_tutor: parseInt(id_tutor),
+        id_estudiante: parseInt(id_estudiante),
+        id_materia: parseInt(id_materia),
+        fecha_hora: new Date(fecha_hora),
+        duracion_min: duracion_min ? parseInt(duracion_min) : null,
+        estado: 'pendiente'
+      }
+    });
+
+    res.status(201).json(nuevaSesion);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+
+
+
 module.exports = router;
   
 

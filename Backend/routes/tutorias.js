@@ -691,6 +691,26 @@ router.post('/sesiones', async (req, res) => {
 });
 
 
+//Modificar horario
+router.post('/tutores/:id/horario', async (req, res) => {
+  const { id } = req.params;
+  const { horario } = req.body;
+
+  try {
+    const actualizado = await prisma.tutoresInfo.update({
+      where: { id_usuario: parseInt(id) },
+      data: {
+        horario: horario ? parseInt(horario) : null
+      }
+    });
+
+    res.json(actualizado);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
 
 
 module.exports = router;

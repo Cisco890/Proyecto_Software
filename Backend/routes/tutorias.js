@@ -753,6 +753,32 @@ router.delete('/tutores/horarios/inactivos', async (req, res) => {
   }
 });
 
+// Eliminar tutores retirados
+router.delete('/tutores/retirados', async (req, res) => {
+  try {
+    const retirados = await prisma.usuarios.findMany({
+      where: {
+        id_perfil: 2,
+        tutorInfo: null
+      }
+    });
+
+    const ids = retirados.map(u => u.id_usuario);
+
+    await prisma.usuarios.deleteMany({
+      where: {
+        id_usuario: { in: ids }
+      }
+    });
+
+    res.json({ message: `${ids.length} tutores retirados eliminados` });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+
 
 module.exports = router;
   

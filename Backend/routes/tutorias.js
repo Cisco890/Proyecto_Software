@@ -640,5 +640,146 @@ router.delete('/bitacora/:id', async (req, res) => {
   }
 });
 
+//Modificar calificaciones
+router.put('/calificaciones/:id', async (req, res) => {
+  const { id } = req.params;
+  const { calificacion, comentario } = req.body;
+
+  try {
+    const actualizada = await prisma.calificaciones.update({
+      where: { id_calificacion: parseInt(id) },
+      data: {
+        calificacion: calificacion ? parseInt(calificacion) : undefined,
+        comentario: comentario || undefined,
+        fecha_calificacion: new Date()
+      }
+    });
+
+    res.json(actualizada);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+
+//Crear sesiones
+router.post('/sesiones', async (req, res) => {
+  const { id_tutor, id_estudiante, id_materia, fecha_hora, duracion_min } = req.body;
+
+  if (!id_tutor || !id_estudiante || !id_materia || !fecha_hora) {
+    return res.status(400).json({ error: 'Faltan campos requeridos' });
+  }
+
+  try {
+    const nuevaSesion = await prisma.sesiones.create({
+      data: {
+        id_tutor: parseInt(id_tutor),
+        id_estudiante: parseInt(id_estudiante),
+        id_materia: parseInt(id_materia),
+        fecha_hora: new Date(fecha_hora),
+        duracion_min: duracion_min ? parseInt(duracion_min) : null,
+        estado: 'pendiente'
+      }
+    });
+
+    res.status(201).json(nuevaSesion);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+
+//Modificar horario
+router.post('/tutores/:id/horario', async (req, res) => {
+  const { id } = req.params;
+  const { horario } = req.body;
+
+  try {
+    const actualizado = await prisma.tutoresInfo.update({
+      where: { id_usuario: parseInt(id) },
+      data: {
+        horario: horario ? parseInt(horario) : null
+      }
+    });
+
+    res.json(actualizado);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+
+//Modificar horario del tutor
+router.put('/tutores/:id/horario', async (req, res) => {
+  const { id } = req.params;
+  const { horario } = req.body;
+
+  try {
+    const tutor = await prisma.tutoresInfo.findUnique({
+      where: { id_usuario: parseInt(id) }
+    });
+
+    if (!tutor) {
+      return res.status(404).json({ error: 'Tutor no encontrado' });
+    }
+
+    const actualizado = await prisma.tutoresInfo.update({
+      where: { id_usuario: parseInt(id) },
+      data: { horario: parseInt(horario) }
+    });
+
+    res.json(actualizado);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+
+//Eliminar horarios de los tutores inactivos
+router.delete('/tutores/horarios/inactivos', async (req, res) => {
+  try {
+    const result = await prisma.tutoresInfo.deleteMany({
+      where: { horario: null }
+    });
+
+    res.json({ message: `${result.count} horarios eliminados` });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+// Eliminar tutores retirados
+router.delete('/tutores/retirados', async (req, res) => {
+  try {
+    const retirados = await prisma.usuarios.findMany({
+      where: {
+        id_perfil: 2,
+        tutorInfo: null
+      }
+    });
+
+    const ids = retirados.map(u => u.id_usuario);
+
+    await prisma.usuarios.deleteMany({
+      where: {
+        id_usuario: { in: ids }
+      }
+    });
+
+    res.json({ message: `${ids.length} tutores retirados eliminados` });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Error del servidor');
+  }
+});
+
+
+
 module.exports = router;
   
+

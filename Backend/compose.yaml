@@ -11,4 +11,21 @@ services:
     env_file:
       - .env
     restart: unless-stopped
+    depends_on:
+      - database
+
+  database:
+    image: postgres:latest
+    container_name: postgres-database
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
 

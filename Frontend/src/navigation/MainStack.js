@@ -1,11 +1,12 @@
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import React, { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
-import LoginScreen from '../screens/LoginScreen';
-import RegisterScreen from '../screens/RegisterScreen';
-import TutorDetailScreen from '../screens/TutorDetailScreen';
-import DrawerNavigator from './DrawerNavigator';
+import LoginScreen from "../screens/LoginScreen";
+import RegisterScreen from "../screens/RegisterScreen";
+import TutorDetailScreen from "../screens/TutorDetailScreen";
+import DrawerNavigator from "./DrawerNavigator";
+import AppointmentBookingScreen from "../screens/AppointmentBookingScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +23,10 @@ export default function MainStack() {
         <>
           <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
           <Stack.Screen name="TutorDetail" component={TutorDetailScreen} />
+          <Stack.Screen
+            name="AppointmentBooking"
+            component={AppointmentBookingScreen}
+          />
         </>
       ) : (
         <>

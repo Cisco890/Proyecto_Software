@@ -51,54 +51,72 @@ export default function RegisterScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Regístrate</Text>
+    <>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>{modalMessage}</Text>
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
+              <Text style={styles.modalButtonText}>Cerrar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Nombre completo"
-        value={nombre}
-        onChangeText={setNombre}
-      />
+      <View style={styles.container}>
+        <Text style={styles.title}>Regístrate</Text>
 
-      <TextInput
-        style={styles.input}
-        placeholder="Correo electrónico"
-        value={correo}
-        onChangeText={setCorreo}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Nombre completo"
+          value={nombre}
+          onChangeText={setNombre}
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Contraseña"
-        value={contrasena}
-        onChangeText={setContrasena}
-        secureTextEntry
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Correo electrónico"
+          value={correo}
+          onChangeText={setCorreo}
+          autoCapitalize="none"
+          keyboardType="email-address"
+        />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Teléfono"
-        value={telefono}
-        onChangeText={setTelefono}
-        keyboardType="phone-pad"
-      />
+        <TextInput
+          style={styles.input}
+          placeholder="Contraseña"
+          value={contrasena}
+          onChangeText={setContrasena}
+          secureTextEntry
+        />
 
-      <View style={styles.switchContainer}>
-        <Text style={styles.switchLabel}>¿Eres tutor?</Text>
-        <Switch value={esTutor} onValueChange={setEsTutor} />
+        <TextInput
+          style={styles.input}
+          placeholder="Teléfono"
+          value={telefono}
+          onChangeText={setTelefono}
+          keyboardType="phone-pad"
+        />
+
+        <View style={styles.switchContainer}>
+          <Text style={styles.switchLabel}>¿Eres tutor?</Text>
+          <Switch value={esTutor} onValueChange={setEsTutor} />
+        </View>
+
+        <TouchableOpacity style={styles.button} onPress={handleRegister}>
+          <Text style={styles.buttonText}>Registrarse</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Text style={styles.goBackText}>¿Ya tienes cuenta? Inicia sesión</Text>
+        </TouchableOpacity>
       </View>
-
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Registrarse</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Text style={styles.goBackText}>¿Ya tienes cuenta? Inicia sesión</Text>
-      </TouchableOpacity>
-    </View>
+    </>
   );
 }
 

@@ -34,8 +34,8 @@ export default function TutorCard({ tutor }) {
 
       <View style={styles.subjects}>
         {tutor.materias.map((materia, index) => (
-          <Text key={index} style={styles.subject}>
-            {materia}
+          <Text key={materia.id_materia || index} style={styles.subject}>
+            {materia.nombre_materia}
           </Text>
         ))}
       </View>
@@ -45,7 +45,10 @@ export default function TutorCard({ tutor }) {
           Modalidad: {tutor.modalidad || "No definida"}
         </Text>
         <Text style={styles.textSmall}>
-          Horario: {tutor.horario !== null ? tutor.horario : "Sin horario"}
+          Horario:{" "}
+          {typeof tutor.horario === "string"
+            ? tutor.horario
+            : ["mañana", "tarde", "noche"][tutor.horario ?? 0]}
         </Text>
       </View>
 

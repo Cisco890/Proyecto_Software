@@ -43,21 +43,31 @@ export default function HomeScreen() {
 
             return {
               id: tutor.id_usuario?.toString() || "0",
+              id_usuario: tutor.id_usuario,
+              id_tutor: info.id,
               nombre: tutor.nombre || "Sin nombre",
               foto: tutor.foto_perfil,
               rating,
-              materias: info.tutorMaterias?.map(
-                (m) => m?.materia?.nombre_materia || "Materia desconocida"
-              ) || ["Sin materias"],
+              materias:
+                info.tutorMaterias?.map((tm) => ({
+                  id_materia: tm.materia?.id_materia,
+                  nombre_materia:
+                    tm.materia?.nombre_materia || "Materia desconocida",
+                })) || [],
+              tutorMaterias: info.tutorMaterias,
               fecha: info.fecha_disponible || "No definida",
               horas: info.horas_disponibles ?? 0,
               tarifa: info.tarifa_hora ?? 0,
               modalidad: info.modalidad || "No definida",
               descripcion: info.descripcion || "Sin descripción",
               experiencia: info.experiencia ?? 0,
-              horario: info.horario ?? null,
+              horario: ["mañana", "tarde", "noche"][info.horario ?? 0], // 0 = mañana
             };
           })
+        );
+        console.log(
+          "🎯 Tutores con horario mapeado:",
+          tutoresConRating.map((t) => ({ id: t.id, horario: t.horario }))
         );
 
         setTutores(tutoresConRating);

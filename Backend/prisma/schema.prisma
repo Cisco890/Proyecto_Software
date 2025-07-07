@@ -110,7 +110,7 @@ model TutoresInfo {
   descripcion String?
   tarifa_hora Decimal?   @db.Decimal(10, 2)
   experiencia Int?
-  horario     Int?
+  horario     horario?
   modalidad   modalidad?
 
   usuario       Usuarios       @relation(fields: [id_usuario], references: [id_usuario])

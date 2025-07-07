@@ -27,9 +27,9 @@ export default function TutorDetailScreen({ route }) {
         <Text style={styles.name}>{tutor.nombre}</Text>
 
         <Text style={styles.label}>Materias:</Text>
-        {tutor.materias.map((materia, index) => (
-          <Text key={index} style={styles.value}>
-            {materia}
+        {tutor.tutorMaterias?.map((tm, index) => (
+          <Text key={tm.materia?.id_materia || index} style={styles.value}>
+            {tm.materia?.nombre_materia || "Materia no disponible"}
           </Text>
         ))}
 
@@ -47,7 +47,7 @@ export default function TutorDetailScreen({ route }) {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={() => navigation.navigate("AppointmentBooking")}
+          onPress={() => navigation.navigate("AppointmentBooking", { tutor })}
         >
           <Text style={styles.buttonText}>Solicitar sesión</Text>
         </TouchableOpacity>

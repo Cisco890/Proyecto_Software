@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   View,
   Text,
@@ -9,24 +9,34 @@ import {
 } from "react-native";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { getDisponibilidadTutor, agendarCita } from "../api/api";
+import { AuthContext } from "../context/AuthContext";
 
-// 🔥 Información simulada del tutor
-const MOCK_TUTOR = {
-  id: 12,
-  horario: "mañana", // puede ser: 'mañana' | 'tarde' | 'noche'
-  materias: [
-    { id: 1, nombre: "Matemáticas" },
-    { id: 2, nombre: "Física" },
-    { id: 3, nombre: "Química" },
-  ],
-};
+export default function AppointmentBookingScreen({ route }) {
+  const { tutor } = route.params;
+  const { user } = useContext(AuthContext);
 
-export default function AppointmentBookingScreen() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState(null);
+  const [bloquesOcupados, setBloquesOcupados] = useState([]);
 
-  // 🔢 Fechas simuladas: hoy + 5 días
+  useEffect(() => {
+    console.log("🧪 tutor.horario:", tutor.horario);
+    console.log("🧪 tutor.materias:", tutor.materias);
+    getDisponibilidadTutor(tutor.id_tutor)
+      .then((res) => {
+        const ocupados = res.data.bloques_ocupados.map((d) =>
+          new Date(d).toISOString()
+        );
+        setBloquesOcupados(ocupados);
+      })
+      .catch((err) => {
+        console.error("Error obteniendo disponibilidad:", err);
+        setBloquesOcupados([]);
+      });
+  }, []);
+
   const getNextFiveDays = () => {
     const today = new Date();
     return [...Array(5)].map((_, i) => {
@@ -36,9 +46,8 @@ export default function AppointmentBookingScreen() {
     });
   };
 
-  // ⏰ Horarios según disponibilidad general del tutor
   const getTimeSlots = () => {
-    switch (MOCK_TUTOR.horario) {
+    switch (tutor.horario) {
       case "mañana":
         return ["08:00", "09:00", "10:00"];
       case "tarde":
@@ -50,29 +59,42 @@ export default function AppointmentBookingScreen() {
     }
   };
 
-  const handleConfirm = () => {
+  const isSlotOccupied = (date, time) => {
+    const slot = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      parseInt(time.split(":")[0])
+    );
+    return bloquesOcupados.includes(slot.toISOString());
+  };
+
+  const handleConfirm = async () => {
     if (!selectedDate || !selectedTime || !selectedSubject) {
       Alert.alert("Faltan datos", "Selecciona fecha, hora y materia.");
       return;
     }
 
-    // 💡 Esta info se usará en un futuro POST a /sesiones
-    const appointmentData = {
-      id_tutor: MOCK_TUTOR.id,
-      id_estudiante: 45, // Simulado
-      id_materia: selectedSubject.id,
-      fecha_hora: new Date(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth(),
-        selectedDate.getDate(),
-        parseInt(selectedTime.split(":")[0]),
-        0,
-        0
-      ).toISOString(),
-    };
+    const fecha_hora = new Date(
+      selectedDate.getFullYear(),
+      selectedDate.getMonth(),
+      selectedDate.getDate(),
+      parseInt(selectedTime.split(":")[0])
+    ).toISOString();
 
-    console.log("📦 Datos para enviar:", appointmentData);
-    Alert.alert("Cita agendada", "Tu cita ha sido creada (simulada).");
+    try {
+      await agendarCita({
+        id_tutor: tutor.id_usuario,
+        id_estudiante: user?.id_usuario,
+        id_materia: selectedSubject.id_materia,
+        fecha_hora,
+      });
+
+      Alert.alert("Cita agendada", "Tu cita ha sido creada exitosamente.");
+    } catch (err) {
+      console.error("Error al agendar:", err);
+      Alert.alert("Error", "No se pudo agendar la cita.");
+    }
   };
 
   return (
@@ -110,17 +132,25 @@ export default function AppointmentBookingScreen() {
         <View style={styles.buttonGroup}>
           {getTimeSlots().map((time, index) => {
             const isSelected = selectedTime === time;
+            const isDisabled =
+              selectedDate && isSlotOccupied(selectedDate, time);
             return (
               <TouchableOpacity
                 key={index}
+                disabled={isDisabled}
                 style={[
                   styles.optionButton,
                   isSelected && styles.selectedButton,
+                  isDisabled && { backgroundColor: "#ccc" },
                 ]}
                 onPress={() => setSelectedTime(time)}
               >
                 <Text
-                  style={[styles.optionText, isSelected && styles.selectedText]}
+                  style={[
+                    styles.optionText,
+                    isSelected && styles.selectedText,
+                    isDisabled && { color: "#777" },
+                  ]}
                 >
                   {time} - {parseInt(time.split(":")[0]) + 1}:00
                 </Text>
@@ -131,11 +161,12 @@ export default function AppointmentBookingScreen() {
 
         <Text style={styles.sectionTitle}>3. Selecciona una materia</Text>
         <View style={styles.buttonGroup}>
-          {MOCK_TUTOR.materias.map((materia) => {
-            const isSelected = selectedSubject?.id === materia.id;
+          {tutor.materias.map((materia) => {
+            const isSelected =
+              selectedSubject?.id_materia === materia.id_materia;
             return (
               <TouchableOpacity
-                key={materia.id}
+                key={materia.id_materia}
                 style={[
                   styles.optionButton,
                   isSelected && styles.selectedButton,
@@ -145,7 +176,7 @@ export default function AppointmentBookingScreen() {
                 <Text
                   style={[styles.optionText, isSelected && styles.selectedText]}
                 >
-                  {materia.nombre}
+                  {materia.nombre_materia}
                 </Text>
               </TouchableOpacity>
             );

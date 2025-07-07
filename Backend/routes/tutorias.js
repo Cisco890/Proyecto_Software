@@ -339,20 +339,26 @@ router.post("/tutores/info", async (req, res) => {
     horario,
     modalidad,
   } = req.body;
-  //Obliga a llenar los campos
+
   if (
     !id_usuario ||
     !descripcion ||
     !tarifa_hora ||
     !experiencia ||
-    !horario ||
+    horario === undefined ||
     !modalidad
   ) {
     return res.status(400).json({ error: "Todos los campos son obligatorios" });
   }
 
+  const horarioNum = parseInt(horario);
+  if (![0, 1, 2].includes(horarioNum)) {
+    return res.status(400).json({
+      error: "Horario inválido. Debe ser 0 (mañana), 1 (tarde) o 2 (noche)",
+    });
+  }
+
   try {
-    // El usuario existe
     const usuario = await prisma.usuarios.findUnique({
       where: { id_usuario: parseInt(id_usuario) },
     });
@@ -364,21 +370,20 @@ router.post("/tutores/info", async (req, res) => {
     const tutorExistente = await prisma.tutoresInfo.findUnique({
       where: { id_usuario: parseInt(id_usuario) },
     });
-    //Si encuentra la llave foranea del id en tutor no deja crear
+
     if (tutorExistente) {
       return res
         .status(400)
         .json({ error: "Este usuario ya tiene información de tutor" });
     }
 
-    // DATA
     const nuevoTutor = await prisma.tutoresInfo.create({
       data: {
         id_usuario: parseInt(id_usuario),
         descripcion,
         tarifa_hora: parseFloat(tarifa_hora),
         experiencia: parseInt(experiencia),
-        horario: parseInt(horario),
+        horario: horarioNum,
         modalidad,
       },
       include: {
@@ -408,6 +413,17 @@ router.put("/tutores/info/:id", async (req, res) => {
       return res.status(404).json({ error: "Información no encontrada" });
     }
 
+    let horarioValidado = tutorInfo.horario;
+    if (horario !== undefined) {
+      const horarioNum = parseInt(horario);
+      if (![0, 1, 2].includes(horarioNum)) {
+        return res
+          .status(400)
+          .json({ error: "Horario inválido. Debe ser 0, 1 o 2" });
+      }
+      horarioValidado = horarioNum;
+    }
+
     const tutorActualizado = await prisma.tutoresInfo.update({
       where: { id: parseInt(id) },
       data: {
@@ -418,7 +434,7 @@ router.put("/tutores/info/:id", async (req, res) => {
         experiencia: experiencia
           ? parseInt(experiencia)
           : tutorInfo.experiencia,
-        horario: horario ? parseInt(horario) : tutorInfo.horario,
+        horario: horarioValidado,
         modalidad: modalidad || tutorInfo.modalidad,
       },
       include: {

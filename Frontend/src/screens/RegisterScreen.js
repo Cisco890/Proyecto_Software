@@ -3,6 +3,8 @@ import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { register as registerApi } from '../api/api';
 import { useNavigation } from '@react-navigation/native';
+import { Modal } from 'react-native';
+
 
 export default function RegisterScreen() {
   const [nombre, setNombre] = useState('');
@@ -10,15 +12,19 @@ export default function RegisterScreen() {
   const [contrasena, setContrasena] = useState('');
   const [telefono, setTelefono] = useState('');
   const [esTutor, setEsTutor] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+
 
   const { login } = useContext(AuthContext);
   const navigation = useNavigation();
 
   const handleRegister = async () => {
     if (!nombre || !correo || !contrasena || !telefono) {
-      Alert.alert('Error', 'Todos los campos son obligatorios');
-      return;
-    }
+      setModalMessage('Todos los campos son obligatorios');
+      setModalVisible(true);
+    return;
+}
 
     try {
       const userData = {

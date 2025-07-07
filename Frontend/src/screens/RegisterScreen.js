@@ -26,23 +26,27 @@ export default function RegisterScreen() {
     return;
 }
 
-    try {
-      const userData = {
-        nombre,
-        correo,
-        contrasena,
-        telefono,
-        tipo_usuario: esTutor ? 'tutor' : 'estudiante'
-      };
+  try {
+    const userData = {
+      nombre,
+      correo,
+      contrasena,
+      telefono,
+      tipo_usuario: esTutor ? 'tutor' : 'estudiante'
+    };
 
-console.log('📦 Datos enviados:', userData)
-      const response = await registerApi(userData);
-      console.log('✅ Registro exitoso:', response.data);
-      
-      login(response.data);
+  console.log('📦 Datos enviados:', userData);
+  const response = await registerApi(userData);
+  console.log('✅ Registro exitoso:', response.data);
+
+  login(response.data);
+  setModalMessage('Registro exitoso. ¡Bienvenido!');
+  setModalVisible(true);
+
     } catch (error) {
       console.error('❌ Error en el registro:', error.response?.data || error.message);
-      Alert.alert('Error', error.response?.data?.error || 'Error al registrarse');
+      setModalMessage(error.response?.data?.error || 'Error al registrarse');
+      setModalVisible(true);
     }
   };
 

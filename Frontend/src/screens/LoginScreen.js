@@ -2,11 +2,16 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { useState, useContext } from 'react';
 import { login as loginApi } from '../api/api';
 import { AuthContext } from '../context/AuthContext';
+import { Modal } from 'react-native';
+
 
 export default function LoginScreen({ navigation }) {
   const [correo, setCorreo] = useState('');
   const [contrasena, setContrasena] = useState('');
   const { login } = useContext(AuthContext);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+
 
   const handleLogin = async () => {
     try {
@@ -15,9 +20,13 @@ export default function LoginScreen({ navigation }) {
       login(response.data.user);
       console.log("🚀 Usuario logueado:", response.data.user);
 
+      setModalMessage('Inicio de sesión exitoso');
+      setModalVisible(true);
+
     } catch (error) {
       console.error('❌ Error en el login:', error.response?.data || error.message);
-      Alert.alert('Error', 'Correo o contraseña incorrectos');
+      setModalMessage('Correo o contraseña incorrectos');
+      setModalVisible(true);
     }
   };
 
@@ -25,7 +34,27 @@ export default function LoginScreen({ navigation }) {
     navigation.navigate('Register');
   };
 
+  
+
+
   return (
+  <>
+    <Modal
+      animationType="fade"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={() => setModalVisible(false)}
+    >
+      <View style={styles.modalOverlay}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalText}>{modalMessage}</Text>
+          <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
+            <Text style={styles.modalButtonText}>Cerrar</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+
     <View style={styles.container}>
       <Text style={styles.logo}>UVG</Text>
 
@@ -56,7 +85,9 @@ export default function LoginScreen({ navigation }) {
         <Text style={styles.registerButtonText}>¿No tienes cuenta? Regístrate</Text>
       </TouchableOpacity>
     </View>
-  );
+  </>
+);
+
 }
 
 const styles = StyleSheet.create({
@@ -107,4 +138,33 @@ const styles = StyleSheet.create({
     fontSize: 14,
     textDecorationLine: 'underline',
   },
+  modalOverlay: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.5)',
+  justifyContent: 'center',
+  alignItems: 'center',
+},
+modalContent: {
+  backgroundColor: '#fff',
+  padding: 20,
+  borderRadius: 10,
+  alignItems: 'center',
+  width: 300,
+},
+modalText: {
+  fontSize: 16,
+  marginBottom: 10,
+},
+modalButton: {
+  marginTop: 10,
+  backgroundColor: '#4CAF50',
+  paddingHorizontal: 20,
+  paddingVertical: 10,
+  borderRadius: 5,
+},
+modalButtonText: {
+  color: '#fff',
+  fontSize: 14,
+}
+
 });

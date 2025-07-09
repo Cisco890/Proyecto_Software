@@ -93,24 +93,41 @@ router.post('/login', async (req, res) => {
   if (!correo || !contrasena) {
     return res.status(400).json({ error: 'Todos los campos son obligatorios' });
   }
+    //Encriptamiento
+    try {
+      const usuario = await prisma.usuarios.findUnique({
+        where: { correo }
+      });
 
-
-  try {
-    const usuario = await prisma.usuarios.findUnique({
-      where: {
-        correo: correo
+      if (!usuario) {
+        return res.status(401).json({ error: 'Credenciales incorrectas' });
       }
-    });
+      //Bcrypt para encriptar la contraseña y que no sea tan facil hackear
+      const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasena);
+      if (!contrasenaValida) {
+        return res.status(401).json({ error: 'Credenciales incorrectas' });
+      }
 
-    if (!usuario || usuario.contrasena !== contrasena){
-      return res.status(401).json({error: "Credenciales incorrectas"});
-    }
+      const token = jwt.sign(
+        { id: usuario.id_usuario, perfil: usuario.id_perfil },
+        process.env.JWT_SECRET,
+        { expiresIn: '8h' }
+      );
+
+      const userData = {
+        id_usuario: usuario.id_usuario,
+        nombre: usuario.nombre,
+        correo: usuario.correo,
+        telefono: usuario.telefono,
+        id_perfil: usuario.id_perfil,
+        token
+      };
 
     res.status(200).json({ message: 'Inicio de sesión exitoso', user: usuario });
-  }catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error del servidor");
-  }
+    }catch (err) {
+      console.error(err.message);
+      res.status(500).send("Error del servidor");
+    }
   
 
 });

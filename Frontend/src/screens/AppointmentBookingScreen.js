@@ -22,8 +22,6 @@ export default function AppointmentBookingScreen({ route }) {
   const [bloquesOcupados, setBloquesOcupados] = useState([]);
 
   useEffect(() => {
-    console.log("🧪 tutor.horario:", tutor.horario);
-    console.log("🧪 tutor.materias:", tutor.materias);
     getDisponibilidadTutor(tutor.id_tutor)
       .then((res) => {
         const ocupados = res.data.bloques_ocupados.map((d) =>

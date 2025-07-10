@@ -61,13 +61,9 @@ export default function HomeScreen() {
               modalidad: info.modalidad || "No definida",
               descripcion: info.descripcion || "Sin descripción",
               experiencia: info.experiencia ?? 0,
-              horario: ["mañana", "tarde", "noche"][info.horario ?? 0], // 0 = mañana
+              horario: ["mañana", "tarde", "noche"][info.horario ?? 0],
             };
           })
-        );
-        console.log(
-          "🎯 Tutores con horario mapeado:",
-          tutoresConRating.map((t) => ({ id: t.id, horario: t.horario }))
         );
 
         setTutores(tutoresConRating);

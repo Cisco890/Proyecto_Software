@@ -13,6 +13,8 @@ export const register = (userData) => api.post("/tutorias/registro", userData);
 // Usuarios
 export const getUsuarios = () => api.get("/tutorias");
 
+export const getEstudiantes = () => api.get("/tutorias/usuarios/estudiantes");
+
 // Perfiles
 export const crearPerfil = (nombre) =>
   api.post("/tutorias/perfiles", { nombre });

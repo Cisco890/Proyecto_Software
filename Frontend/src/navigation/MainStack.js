@@ -9,33 +9,38 @@ import DrawerNavigator from "./DrawerNavigator";
 import AppointmentBookingScreen from "../screens/AppointmentBookingScreen";
 import DebugPanelScreen from "../screens/DebugPanelScreen";
 
-const Stack = createNativeStackNavigator();
 import { IS_DEV_MODE } from "../utils/config";
+
+const Stack = createNativeStackNavigator();
 
 export default function MainStack() {
   const { user, loading } = useContext(AuthContext);
 
-  if (loading) {
-    return null;
-  }
+  if (loading) return null;
 
-  const allowWithoutLogin = IS_DEV_MODE || user;
+  const initialRoute =
+    IS_DEV_MODE && !user ? "DebugPanel" : user ? "DrawerNavigator" : "Login";
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {allowWithoutLogin ? (
-        <>
-          <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
-          <Stack.Screen name="TutorDetail" component={TutorDetailScreen} />
-          <Stack.Screen
-            name="AppointmentBooking"
-            component={AppointmentBookingScreen}
-          />
-          {IS_DEV_MODE && (
-            <Stack.Screen name="DebugPanel" component={DebugPanelScreen} />
-          )}
-        </>
-      ) : (
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName={initialRoute}
+    >
+      {/* Pantallas normales */}
+      <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
+      <Stack.Screen name="TutorDetail" component={TutorDetailScreen} />
+      <Stack.Screen
+        name="AppointmentBooking"
+        component={AppointmentBookingScreen}
+      />
+
+      {/* Debug panel solo visible en dev mode */}
+      {IS_DEV_MODE && (
+        <Stack.Screen name="DebugPanel" component={DebugPanelScreen} />
+      )}
+
+      {/* Login solo visible en producción o sin usuario */}
+      {!user && !IS_DEV_MODE && (
         <>
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Register" component={RegisterScreen} />

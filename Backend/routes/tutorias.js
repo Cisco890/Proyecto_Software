@@ -30,6 +30,29 @@ router.get("/", async (req, res) => {
   }
 });
 
+// GET /usuarios/estudiantes
+router.get("/usuarios/estudiantes", async (req, res) => {
+  try {
+    const estudiantes = await prisma.usuarios.findMany({
+      where: {
+        id_perfil: 1,
+      },
+      select: {
+        id_usuario: true,
+        nombre: true,
+        correo: true,
+        telefono: true,
+        foto_perfil: true,
+      },
+    });
+
+    res.json(estudiantes);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Error del servidor");
+  }
+});
+
 // Metodo Post De registrar usuario
 router.post("/registro", async (req, res) => {
   const { nombre, correo, contrasena, tipo_usuario, telefono } = req.body;

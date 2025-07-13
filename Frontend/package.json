@@ -9,6 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/metro-runtime": "~5.0.4",
     "@react-native-async-storage/async-storage": "2.1.2",
     "@react-native-masked-view/masked-view": "0.3.2",
     "@react-native-picker/picker": "^2.11.0",
@@ -20,19 +21,24 @@
     "expo-status-bar": "~2.2.3",
     "frontend": "file:",
     "react": "19.0.0",
+    "react-dom": "19.0.0",
     "react-native": "0.79.2",
     "react-native-dotenv": "^3.4.11",
     "react-native-gesture-handler": "~2.24.0",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.10.0",
-    "react-dom": "19.0.0",
-    "react-native-web": "^0.20.0",
-    "@expo/metro-runtime": "~5.0.4"
+    "react-native-web": "^0.20.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@testing-library/jest-native": "^5.4.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/react-native": "^13.2.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/react": "^19.1.5",
+    "jest": "^30.0.4",
+    "jest-expo": "^53.0.9",
     "typescript": "^5.3.3"
   },
   "private": true

@@ -1,22 +1,24 @@
-const express = require('express');
-const cors = require('cors');
-const { PrismaClient } = require('@prisma/client');
+// app.js
+const express = require("express");
+const cors = require("cors");
+const { PrismaClient } = require("@prisma/client");
 
 const app = express();
-const prisma = new PrismaClient(); 
+const prisma = new PrismaClient();
 
-// Middlewares
 app.use(cors());
 app.use(express.json());
 
-// Rutas
-const tutoriasRouter = require('./routes/tutorias');
-app.use('/api/tutorias', tutoriasRouter);
-const LoginRouter = require('./routes/login');
-app.use('/api/login', LoginRouter);
+app.use("/api/tutorias", require("./routes/tutorias"));
+app.use("/api/login", require("./routes/login"));
+const filtroRouter = require("./routes/filtros");
+app.use("/api/tutorias", filtroRouter);
 
-// Iniciar servidor
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Servidor API en http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== "test") {
+  const PORT = process.env.PORT || 3001;
+  app.listen(PORT, () => {
+    console.log(`Servidor API en http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

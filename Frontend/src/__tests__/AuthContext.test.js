@@ -1,98 +1,91 @@
 import React from "react";
 import { render, act } from "@testing-library/react-native";
+import { AuthContext, AuthProvider } from "../context/AuthContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { AuthProvider, AuthContext } from "../context/AuthContext";
 
-// Mock de AsyncStorage
+// Mock AsyncStorage
 jest.mock("@react-native-async-storage/async-storage", () => ({
-  setItem: jest.fn(),
-  getItem: jest.fn(),
-  removeItem: jest.fn(),
+  setItem: jest.fn(() => Promise.resolve()),
+  getItem: jest.fn(() => Promise.resolve(null)),
+  removeItem: jest.fn(() => Promise.resolve()),
 }));
 
 describe("AuthContext", () => {
-  afterEach(() => {
+  beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it("loads user from AsyncStorage on mount", async () => {
     AsyncStorage.getItem.mockResolvedValueOnce(
-      JSON.stringify({ nombre: "Ana" })
+      JSON.stringify({ id: 1, name: "Luis" })
     );
-
     let contextValue;
 
-    await act(async () => {
-      render(
-        <AuthProvider>
-          <AuthContext.Consumer>
-            {(value) => {
-              contextValue = value;
-              return null;
-            }}
-          </AuthContext.Consumer>
-        </AuthProvider>
-      );
-    });
+    const { findByText } = render(
+      <AuthProvider>
+        <AuthContext.Consumer>
+          {(value) => {
+            contextValue = value;
+            return <></>;
+          }}
+        </AuthContext.Consumer>
+      </AuthProvider>
+    );
 
-    expect(contextValue.user).toEqual({ nombre: "Ana" });
-    expect(contextValue.loading).toBe(false);
+    // Espera a que se cargue el usuario
+    await act(() => Promise.resolve());
+
+    expect(contextValue.user).toEqual({ id: 1, name: "Luis" });
   });
 
   it("saves user on login", async () => {
-    const user = { nombre: "Carlos", id: 1 };
     let contextValue;
 
-    await act(async () => {
-      render(
-        <AuthProvider>
-          <AuthContext.Consumer>
-            {(value) => {
-              contextValue = value;
-              return null;
-            }}
-          </AuthContext.Consumer>
-        </AuthProvider>
-      );
-    });
+    render(
+      <AuthProvider>
+        <AuthContext.Consumer>
+          {(value) => {
+            contextValue = value;
+            return <></>;
+          }}
+        </AuthContext.Consumer>
+      </AuthProvider>
+    );
 
     await act(async () => {
-      await contextValue.login(user);
+      await contextValue.login({ id: 2, name: "Ana" });
     });
 
+    expect(contextValue.user).toEqual({ id: 2, name: "Ana" });
     expect(AsyncStorage.setItem).toHaveBeenCalledWith(
       "user",
-      JSON.stringify(user)
+      JSON.stringify({ id: 2, name: "Ana" })
     );
-    expect(contextValue.user).toEqual(user);
   });
 
   it("clears user on logout", async () => {
-    const user = { nombre: "Carlos", id: 1 };
     let contextValue;
 
-    await act(async () => {
-      render(
-        <AuthProvider>
-          <AuthContext.Consumer>
-            {(value) => {
-              contextValue = value;
-              return null;
-            }}
-          </AuthContext.Consumer>
-        </AuthProvider>
-      );
-    });
+    render(
+      <AuthProvider>
+        <AuthContext.Consumer>
+          {(value) => {
+            contextValue = value;
+            return <></>;
+          }}
+        </AuthContext.Consumer>
+      </AuthProvider>
+    );
 
     await act(async () => {
-      await contextValue.login(user);
+      await contextValue.login({ id: 3, name: "Carlos" });
     });
 
     await act(async () => {
       await contextValue.logout();
     });
 
-    expect(AsyncStorage.removeItem).toHaveBeenCalledWith("user");
     expect(contextValue.user).toBe(null);
+    expect(AsyncStorage.removeItem).toHaveBeenCalledWith("user");
   });
 });

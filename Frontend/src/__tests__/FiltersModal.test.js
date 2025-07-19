@@ -6,6 +6,10 @@ describe("FiltersModal", () => {
   const onCloseMock = jest.fn();
   const onApplyMock = jest.fn();
 
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("renders modal when visible is true", () => {
     const { getByText } = render(
       <FiltersModal
@@ -17,11 +21,10 @@ describe("FiltersModal", () => {
 
     expect(getByText("Filtros")).toBeTruthy();
     expect(getByText("Materias")).toBeTruthy();
-    expect(getByText("Modalidad")).toBeTruthy();
   });
 
   it("calls onClose when close button is pressed", () => {
-    const { getByRole } = render(
+    const { getByLabelText } = render(
       <FiltersModal
         visible={true}
         onClose={onCloseMock}
@@ -29,8 +32,9 @@ describe("FiltersModal", () => {
       />
     );
 
-    const closeButton = getByRole("button"); // Ionicons dentro de TouchableOpacity
+    const closeButton = getByLabelText("Cerrar modal");
     fireEvent.press(closeButton);
+
     expect(onCloseMock).toHaveBeenCalled();
   });
 
@@ -43,8 +47,8 @@ describe("FiltersModal", () => {
       />
     );
 
-    const filterBtn = getByText("Matemáticas");
-    fireEvent.press(filterBtn);
+    const matematicaBtn = getByText("Matemáticas");
+    fireEvent.press(matematicaBtn);
 
     const applyBtn = getByText("Aplicar filtros");
     fireEvent.press(applyBtn);

@@ -1,20 +1,27 @@
-import { Modal, View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import {
+  Modal,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import React, { useState } from "react";
 
 export default function FiltersModal({ visible, onClose, onApply }) {
   const [selectedFilters, setSelectedFilters] = useState([]);
 
   const materias = [
-    'Matemáticas',
-    'Física',
-    'Química',
-    'Programación',
-    'Idiomas',
-    'Biología',
+    "Matemáticas",
+    "Física",
+    "Química",
+    "Programación",
+    "Idiomas",
+    "Biología",
   ];
 
-  const modalidades = ['virtual', 'presencial', 'hibrido'];
+  const modalidades = ["virtual", "presencial", "hibrido"];
 
   const toggleFilter = (filter) => {
     if (selectedFilters.includes(filter)) {
@@ -35,7 +42,10 @@ export default function FiltersModal({ visible, onClose, onApply }) {
         <View style={styles.modalContainer}>
           <View style={styles.header}>
             <Text style={styles.headerText}>Filtros</Text>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity
+              onPress={onClose}
+              accessibilityLabel="Cerrar modal"
+            >
               <Ionicons name="close" size={24} color="black" />
             </TouchableOpacity>
           </View>
@@ -47,14 +57,16 @@ export default function FiltersModal({ visible, onClose, onApply }) {
                 key={filter}
                 style={[
                   styles.filterButton,
-                  selectedFilters.includes(filter) && styles.filterButtonSelected,
+                  selectedFilters.includes(filter) &&
+                    styles.filterButtonSelected,
                 ]}
                 onPress={() => toggleFilter(filter)}
               >
                 <Text
                   style={[
                     styles.filterButtonText,
-                    selectedFilters.includes(filter) && styles.filterButtonTextSelected,
+                    selectedFilters.includes(filter) &&
+                      styles.filterButtonTextSelected,
                   ]}
                 >
                   {filter}
@@ -75,7 +87,8 @@ export default function FiltersModal({ visible, onClose, onApply }) {
                 <Text
                   style={[
                     styles.filterButtonText,
-                    selectedFilters.includes(mod) && styles.filterButtonTextSelected,
+                    selectedFilters.includes(mod) &&
+                      styles.filterButtonTextSelected,
                   ]}
                 >
                   {mod.charAt(0).toUpperCase() + mod.slice(1)}
@@ -96,57 +109,57 @@ export default function FiltersModal({ visible, onClose, onApply }) {
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "flex-end",
   },
   modalContainer: {
-    height: '75%',
-    backgroundColor: '#fff',
+    height: "75%",
+    backgroundColor: "#fff",
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 20,
   },
   headerText: {
     fontSize: 22,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginVertical: 10,
-    color: '#333',
+    color: "#333",
   },
   filterButton: {
     padding: 15,
     borderRadius: 10,
-    backgroundColor: '#e0e0e0',
+    backgroundColor: "#e0e0e0",
     marginBottom: 10,
   },
   filterButtonSelected: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
   },
   filterButtonText: {
     fontSize: 16,
-    color: '#000',
+    color: "#000",
   },
   filterButtonTextSelected: {
-    color: '#fff',
+    color: "#fff",
   },
   applyButton: {
     marginTop: 10,
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     borderRadius: 10,
     paddingVertical: 15,
-    alignItems: 'center',
+    alignItems: "center",
   },
   applyButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
   },
 });

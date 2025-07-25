@@ -128,7 +128,6 @@ router.get("/tutores/modalidad/:modalidad", async (req, res) => {
     res.status(500).send("Error del servidor");
   }
 });
-module.exports = router;
 
 // Filtro por horario
 router.get("/tutores/horario/:hora", async (req, res) => {
@@ -313,75 +312,87 @@ router.get("/tutores/nombre", async (req, res) => {
 });
 
 //Filtros avanzados
-router.get('/tutores/busqueda-avanzada', async (req, res) => {
+router.get("/tutores/busqueda-avanzada", async (req, res) => {
   try {
-    const { 
-      nombre, 
-      materia, 
-      minRating, 
-      maxPrecio, 
-      minExperiencia, 
-      modalidad, 
-      horario 
+    const {
+      nombre,
+      materia,
+      minRating,
+      maxPrecio,
+      minExperiencia,
+      modalidad,
+      horario,
     } = req.query;
 
     //Filtro por rating
     let tutoresFiltradosPorRating = [];
     if (minRating) {
       const resultadosRating = await prisma.calificaciones.groupBy({
-        by: ['id_tutor'],
+        by: ["id_tutor"],
         _avg: {
-          calificacion: true
+          calificacion: true,
         },
         having: {
           calificacion: {
             _avg: {
-              gte: parseFloat(minRating)
-            }
-          }
-        }
+              gte: parseFloat(minRating),
+            },
+          },
+        },
       });
-      tutoresFiltradosPorRating = resultadosRating.map(r => r.id_tutor);
+      tutoresFiltradosPorRating = resultadosRating.map((r) => r.id_tutor);
     }
 
     // Construir filtros
     const whereClause = {
       AND: [
-        { id_perfil: 2 }, 
-        nombre ? { 
-          nombre: { 
-            contains: nombre,
-            mode: 'insensitive'
-          } 
-        } : {},
-        minExperiencia ? { 
-          tutorInfo: {
-            experiencia: { 
-              gte: parseInt(minExperiencia) 
+        { id_perfil: 2 },
+        nombre
+          ? {
+              nombre: {
+                contains: nombre,
+                mode: "insensitive",
+              },
             }
-          }
-        } : {},
-        maxPrecio ? {
-          tutorInfo: {
-            tarifa_hora: {
-              lte: parseFloat(maxPrecio)
+          : {},
+        minExperiencia
+          ? {
+              tutorInfo: {
+                experiencia: {
+                  gte: parseInt(minExperiencia),
+                },
+              },
             }
-          }
-        } : {},
-        modalidad ? {
-          tutorInfo: {
-            modalidad: modalidad
-          }
-        } : {},
-        horario ? {
-          tutorInfo: {
-            horario: horario
-          }
-        } : {},
-        minRating && tutoresFiltradosPorRating.length > 0 ? {
-          id_usuario: { in: tutoresFiltradosPorRating }
-        } : {},
-      ]
+          : {},
+        maxPrecio
+          ? {
+              tutorInfo: {
+                tarifa_hora: {
+                  lte: parseFloat(maxPrecio),
+                },
+              },
+            }
+          : {},
+        modalidad
+          ? {
+              tutorInfo: {
+                modalidad: modalidad,
+              },
+            }
+          : {},
+        horario
+          ? {
+              tutorInfo: {
+                horario: horario,
+              },
+            }
+          : {},
+        minRating && tutoresFiltradosPorRating.length > 0
+          ? {
+              id_usuario: { in: tutoresFiltradosPorRating },
+            }
+          : {},
+      ],
     };
 
     // Main
@@ -392,51 +403,92 @@ router.get('/tutores/busqueda-avanzada', async (req, res) => {
           include: {
             tutorMaterias: {
               include: {
-                materia: true
-              }
-            }
-          }
-        }
-      }
+                materia: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     // Optimización
     if (materia) {
       const idMateria = parseInt(materia);
-      tutores = tutores.filter(tutor => 
-        tutor.tutorInfo?.tutorMaterias?.some(tm => tm.materia.id_materia === idMateria)
+      tutores = tutores.filter((tutor) =>
+        tutor.tutorInfo?.tutorMaterias?.some(
+          (tm) => tm.materia.id_materia === idMateria
+        )
       );
     }
 
     // Rating promedio
-    const tutoresConRating = await Promise.all(tutores.map(async tutor => {
-      const calificaciones = await prisma.calificaciones.findMany({
-        where: {
-          id_tutor: tutor.id_usuario
-        },
-        select: {
-          calificacion: true
-        }
-      });
+    const tutoresConRating = await Promise.all(
+      tutores.map(async (tutor) => {
+        const calificaciones = await prisma.calificaciones.findMany({
+          where: {
+            id_tutor: tutor.id_usuario,
+          },
+          select: {
+            calificacion: true,
+          },
+        });
 
-      const ratingPromedio = calificaciones.length > 0 ?
-        calificaciones.reduce((sum, c) => sum + c.calificacion, 0) / calificaciones.length :
-        0;
+        const ratingPromedio =
+          calificaciones.length > 0
+            ? calificaciones.reduce((sum, c) => sum + c.calificacion, 0) /
+              calificaciones.length
+            : 0;
 
-      return {
-        ...tutor,
-        ratingPromedio: parseFloat(ratingPromedio.toFixed(2)),
-        totalCalificaciones: calificaciones.length
-      };
-    }));
-
+        return {
+          ...tutor,
+          ratingPromedio: parseFloat(ratingPromedio.toFixed(2)),
+          totalCalificaciones: calificaciones.length,
+        };
+      })
+    );
 
     tutoresConRating.sort((a, b) => b.ratingPromedio - a.ratingPromedio);
 
     res.json(tutoresConRating);
   } catch (err) {
-    console.error('Error en búsqueda avanzada:', err);
-    res.status(500).json({ error: 'Error del servidor' });
+    console.error("Error en búsqueda avanzada:", err);
+    res.status(500).json({ error: "Error del servidor" });
+  }
+});
+
+// Filtro combinado por experiencia mínima y modalidad
+// Ejemplo: /api/tutorias/tutores?minExperiencia=3&modalidad=virtual
+router.get("/tutores", async (req, res) => {
+  const { minExperiencia, modalidad } = req.query;
+
+  // Validación básica
+  if ((!minExperiencia || isNaN(minExperiencia)) && !modalidad) {
+    return res.status(400).json({
+      error: "Debe proporcionar al menos minExperiencia (número) o modalidad.",
+    });
+  }
+
+  try {
+    const whereClause = {
+      AND: [
+        minExperiencia
+          ? { experiencia: { gte: parseInt(minExperiencia) } }
+          : {},
+        modalidad ? { modalidad: modalidad } : {},
+      ],
+    };
+
+    const tutores = await prisma.tutoresInfo.findMany({
+      where: whereClause,
+      include: {
+        usuario: true,
+      },
+    });
+
+    res.json(tutores);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Error del servidor");
   }
 });
 

@@ -32,7 +32,8 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/registro", async (req, res) => {
-  const { nombre, correo, contrasena, tipo_usuario, telefono } = req.body;
+  const { nombre, correo, contrasena, tipo_usuario, telefono, foto_perfil } =
+    req.body;
 
   if (!nombre || !correo || !contrasena || !telefono) {
     return res.status(400).json({
@@ -54,7 +55,7 @@ router.post("/registro", async (req, res) => {
         contrasena,
         id_perfil: tipo_usuario === "tutor" ? 2 : 1,
         telefono,
-        foto_perfil: "null",
+        foto_perfil: foto_perfil || null, // Ahora acepta la foto si viene
       },
     });
 

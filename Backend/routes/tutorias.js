@@ -113,6 +113,11 @@ router.post("/login", async (req, res) => {
   if (!correo || !contrasena) {
     return res.status(400).json({ error: "Todos los campos son obligatorios" });
   }
+    //Encriptamiento
+    try {
+      const usuario = await prisma.usuarios.findUnique({
+        where: { correo }
+      });
 
   try {
     const usuario = await prisma.usuarios.findUnique({

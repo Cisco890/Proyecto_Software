@@ -13,6 +13,8 @@ app.use("/api/tutorias", require("./routes/tutorias"));
 app.use("/api/login", require("./routes/login"));
 const filtroRouter = require("./routes/filtros");
 app.use("/api/tutorias", filtroRouter);
+const citasRoutes = require("./routes/citas");
+app.use("/api/citas", citasRoutes);
 
 if (process.env.NODE_ENV !== "test") {
   const PORT = process.env.PORT || 3001;

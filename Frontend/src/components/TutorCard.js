@@ -1,19 +1,20 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import React from "react";
 
 export default function TutorCard({ tutor }) {
   const navigation = useNavigation();
 
   const handlePress = () => {
-    navigation.navigate('TutorDetail', { tutor });
+    navigation.navigate("TutorDetail", { tutor });
   };
 
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.header}>
         <Image
-          source={require('../../assets/bolamarilla.png')}
+          source={require("../../assets/bolamarilla.png")}
           style={styles.profileImage}
         />
         <View style={styles.info}>
@@ -22,7 +23,7 @@ export default function TutorCard({ tutor }) {
             {Array.from({ length: 5 }).map((_, index) => (
               <Ionicons
                 key={index}
-                name={index < tutor.rating ? 'star' : 'star-outline'}
+                name={index < tutor.rating ? "star" : "star-outline"}
                 size={16}
                 color="#FFD700"
               />
@@ -33,18 +34,21 @@ export default function TutorCard({ tutor }) {
 
       <View style={styles.subjects}>
         {tutor.materias.map((materia, index) => (
-          <Text key={index} style={styles.subject}>
-            {materia}
+          <Text key={materia.id_materia || index} style={styles.subject}>
+            {materia.nombre_materia}
           </Text>
         ))}
       </View>
 
       <View style={styles.extraInfo}>
         <Text style={styles.textSmall}>
-          Modalidad: {tutor.modalidad || 'No definida'}
+          Modalidad: {tutor.modalidad || "No definida"}
         </Text>
         <Text style={styles.textSmall}>
-          Horario: {tutor.horario !== null ? tutor.horario : 'Sin horario'}
+          Horario:{" "}
+          {typeof tutor.horario === "string"
+            ? tutor.horario
+            : ["mañana", "tarde", "noche"][tutor.horario ?? 0]}
         </Text>
       </View>
 
@@ -58,32 +62,32 @@ export default function TutorCard({ tutor }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#e0e0e0',
+    backgroundColor: "#e0e0e0",
     borderRadius: 10,
     padding: 15,
     marginBottom: 15,
     elevation: 3,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   profileImage: {
     width: 50,
     height: 50,
     borderRadius: 25,
     marginRight: 15,
-    backgroundColor: '#ccc',
+    backgroundColor: "#ccc",
   },
   info: {
     flex: 1,
   },
   name: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   rating: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginTop: 5,
   },
   subjects: {
@@ -92,29 +96,28 @@ const styles = StyleSheet.create({
   },
   subject: {
     fontSize: 14,
-    color: '#555',
+    color: "#555",
   },
   footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   date: {
     fontSize: 12,
-    color: '#777',
+    color: "#777",
   },
   hours: {
     fontSize: 12,
-    color: '#777',
+    color: "#777",
   },
   extraInfo: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  marginTop: 8,
-},
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 8,
+  },
 
-textSmall: {
-  fontSize: 13,
-  color: '#555',
-},
-
+  textSmall: {
+    fontSize: 13,
+    color: "#555",
+  },
 });

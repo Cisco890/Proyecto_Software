@@ -1,51 +1,59 @@
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Switch } from 'react-native';
-import { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
-import { register as registerApi } from '../api/api';
-import { useNavigation } from '@react-navigation/native';
-import { Modal } from 'react-native';
-
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Switch,
+} from "react-native";
+import React, { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { register as registerApi } from "../api/api";
+import { useNavigation } from "@react-navigation/native";
+import { Modal } from "react-native";
 
 export default function RegisterScreen() {
-  const [nombre, setNombre] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [contrasena, setContrasena] = useState('');
-  const [telefono, setTelefono] = useState('');
+  const [nombre, setNombre] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [contrasena, setContrasena] = useState("");
+  const [telefono, setTelefono] = useState("");
   const [esTutor, setEsTutor] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
-
+  const [modalMessage, setModalMessage] = useState("");
 
   const { login } = useContext(AuthContext);
   const navigation = useNavigation();
 
   const handleRegister = async () => {
     if (!nombre || !correo || !contrasena || !telefono) {
-      setModalMessage('Todos los campos son obligatorios');
+      setModalMessage("Todos los campos son obligatorios");
       setModalVisible(true);
-    return;
-}
+      return;
+    }
 
-  try {
-    const userData = {
-      nombre,
-      correo,
-      contrasena,
-      telefono,
-      tipo_usuario: esTutor ? 'tutor' : 'estudiante'
-    };
+    try {
+      const userData = {
+        nombre,
+        correo,
+        contrasena,
+        telefono,
+        tipo_usuario: esTutor ? "tutor" : "estudiante",
+      };
 
-  console.log('📦 Datos enviados:', userData);
-  const response = await registerApi(userData);
-  console.log('✅ Registro exitoso:', response.data);
+      console.log("📦 Datos enviados:", userData);
+      const response = await registerApi(userData);
+      console.log("✅ Registro exitoso:", response.data);
 
-  login(response.data);
-  setModalMessage('Registro exitoso. ¡Bienvenido!');
-  setModalVisible(true);
-
+      login(response.data);
+      setModalMessage("Registro exitoso. ¡Bienvenido!");
+      setModalVisible(true);
     } catch (error) {
-      console.error('❌ Error en el registro:', error.response?.data || error.message);
-      setModalMessage(error.response?.data?.error || 'Error al registrarse');
+      console.error(
+        "❌ Error en el registro:",
+        error.response?.data || error.message
+      );
+      setModalMessage(error.response?.data?.error || "Error al registrarse");
       setModalVisible(true);
     }
   };
@@ -61,7 +69,10 @@ export default function RegisterScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalText}>{modalMessage}</Text>
-            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalButton}>
+            <TouchableOpacity
+              onPress={() => setModalVisible(false)}
+              style={styles.modalButton}
+            >
               <Text style={styles.modalButtonText}>Cerrar</Text>
             </TouchableOpacity>
           </View>
@@ -113,7 +124,9 @@ export default function RegisterScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.goBackText}>¿Ya tienes cuenta? Inicia sesión</Text>
+          <Text style={styles.goBackText}>
+            ¿Ya tienes cuenta? Inicia sesión
+          </Text>
         </TouchableOpacity>
       </View>
     </>
@@ -123,20 +136,20 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#4CAF50',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#4CAF50",
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 30,
   },
   title: {
     fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: "bold",
+    color: "#fff",
     marginBottom: 30,
   },
   input: {
-    width: '100%',
-    backgroundColor: '#e0e0e0',
+    width: "100%",
+    backgroundColor: "#e0e0e0",
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 10,
@@ -144,60 +157,59 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   switchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 20,
   },
   switchLabel: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
     marginRight: 10,
   },
   button: {
-    backgroundColor: '#000',
+    backgroundColor: "#000",
     paddingHorizontal: 30,
     paddingVertical: 12,
     borderRadius: 10,
     marginBottom: 20,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
   },
   goBackText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
   },
 
   modalOverlay: {
-  flex: 1,
-  backgroundColor: 'rgba(0,0,0,0.5)',
-  justifyContent: 'center',
-  alignItems: 'center',
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   modalContent: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     padding: 20,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
     width: 300,
   },
   modalText: {
     fontSize: 16,
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: "center",
   },
   modalButton: {
     marginTop: 10,
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 5,
   },
   modalButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
-  }
-
+  },
 });

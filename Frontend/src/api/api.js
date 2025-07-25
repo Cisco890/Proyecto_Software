@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 const api = axios.create({
   baseURL: process.env.EXPO_PUBLIC_API_URL,
@@ -6,21 +6,22 @@ const api = axios.create({
 
 // Autenticación
 export const login = (correo, contrasena) =>
-  api.post('/login', { correo, contrasena });
+  api.post("/login", { correo, contrasena });
 
-export const register = (userData) =>
-  api.post('/tutorias/registro', userData);
+export const register = (userData) => api.post("/tutorias/registro", userData);
 
 // Usuarios
-export const getUsuarios = () => api.get('/tutorias');
+export const getUsuarios = () => api.get("/tutorias");
+
+export const getEstudiantes = () => api.get("/tutorias/usuarios/estudiantes");
 
 // Perfiles
 export const crearPerfil = (nombre) =>
-  api.post('/tutorias/perfiles', { nombre });
+  api.post("/tutorias/perfiles", { nombre });
 
 // Información del tutor
 export const crearInfoTutor = (tutorData) =>
-  api.post('/tutorias/tutores/info', tutorData);
+  api.post("/tutorias/tutores/info", tutorData);
 
 export const obtenerInfoTutor = (idUsuario) =>
   api.get(`/tutorias/tutores/info/usuario/${idUsuario}`);
@@ -42,7 +43,7 @@ export const obtenerSesionesDelTutor = (id) =>
 
 // Calificaciones
 export const calificarTutor = (calificacionData) =>
-  api.post('/tutorias/calificaciones', calificacionData);
+  api.post("/tutorias/calificaciones", calificacionData);
 
 // Filtros
 export const buscarTutoresPorNombre = (busqueda) =>
@@ -70,3 +71,12 @@ export const filtrarTutoresPorFranjaHoraria = (horario) =>
   api.get(`/tutorias/horarios/${horario}`);
 
 export default api;
+
+// Citas / Sesiones
+
+// Obtener disponibilidad de bloques ocupados del tutor
+export const getDisponibilidadTutor = (idTutor) =>
+  api.get(`/citas/disponibilidad/${idTutor}`);
+
+// Crear una nueva cita
+export const agendarCita = (data) => api.post("/citas", data);

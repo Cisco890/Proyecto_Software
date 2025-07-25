@@ -1,9 +1,19 @@
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity } from 'react-native';
-import Header from '../components/Header';
-import Footer from '../components/Footer';
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 export default function TutorDetailScreen({ route }) {
   const { tutor } = route.params;
+  const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
@@ -11,14 +21,16 @@ export default function TutorDetailScreen({ route }) {
 
       <ScrollView style={styles.content}>
         <Image
-          source={require('../../assets/bolamarilla.png')}
+          source={require("../../assets/bolamarilla.png")}
           style={styles.image}
         />
         <Text style={styles.name}>{tutor.nombre}</Text>
 
         <Text style={styles.label}>Materias:</Text>
-        {tutor.materias.map((materia, index) => (
-          <Text key={index} style={styles.value}>{materia}</Text>
+        {tutor.tutorMaterias?.map((tm, index) => (
+          <Text key={tm.materia?.id_materia || index} style={styles.value}>
+            {tm.materia?.nombre_materia || "Materia no disponible"}
+          </Text>
         ))}
 
         <Text style={styles.label}>Experiencia:</Text>
@@ -33,7 +45,10 @@ export default function TutorDetailScreen({ route }) {
         <Text style={styles.label}>Descripción:</Text>
         <Text style={styles.value}>{tutor.descripcion}</Text>
 
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => navigation.navigate("AppointmentBooking", { tutor })}
+        >
           <Text style={styles.buttonText}>Solicitar sesión</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -49,38 +64,38 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   image: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    alignSelf: 'center',
+    alignSelf: "center",
     marginBottom: 15,
   },
   name: {
     fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
   },
   label: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginTop: 15,
   },
   value: {
     fontSize: 16,
-    color: '#555',
+    color: "#555",
     marginBottom: 5,
   },
   button: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     padding: 15,
     borderRadius: 10,
     marginTop: 30,
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
   },
 });

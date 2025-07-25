@@ -4,13 +4,10 @@ const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
 
-//Metodo Get de todos los usuarios (tutores)
 router.get("/", async (req, res) => {
   try {
     const usuarios = await prisma.usuarios.findMany({
-      where: {
-        id_perfil: 2,
-      },
+      where: { id_perfil: 2 },
       include: {
         tutorInfo: {
           include: {
@@ -26,41 +23,27 @@ router.get("/", async (req, res) => {
     res.json(usuarios);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
 
-// GET /usuarios/estudiantes
-router.get("/usuarios/estudiantes", async (req, res) => {
-  try {
-    const estudiantes = await prisma.usuarios.findMany({
-      where: {
-        id_perfil: 1,
-      },
-      select: {
-        id_usuario: true,
-        nombre: true,
-        correo: true,
-        telefono: true,
-        foto_perfil: true,
-      },
-    });
-
-    res.json(estudiantes);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error del servidor");
-  }
-});
-
-// Metodo Post De registrar usuario
 router.post("/registro", async (req, res) => {
   const { nombre, correo, contrasena, tipo_usuario, telefono } = req.body;
 
   if (!nombre || !correo || !contrasena || !telefono) {
-    return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    return res.status(400).json({
+      error:
+        "Debes completar todos los campos obligatorios: nombre, correo, contraseña y teléfono.",
+    });
   } else if (!correo.includes("@")) {
-    return res.status(400).json({ error: "El correo debe ser válido" });
+    return res.status(400).json({
+      error:
+        'El correo ingresado no tiene un formato válido (debe incluir "@").',
+    });
   }
 
   try {
@@ -78,68 +61,70 @@ router.post("/registro", async (req, res) => {
     res.status(201).json(nuevoUsuario);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
 
-//metodo post para los perfiles
 router.post("/perfiles", async (req, res) => {
   const { nombre } = req.body;
 
   if (!nombre) {
     return res
       .status(400)
-      .json({ error: "El nombre del perfil es obligatorio" });
+      .json({ error: "El nombre del perfil es obligatorio." });
   }
 
   try {
     const nuevoPerfil = await prisma.perfiles.create({
-      data: {
-        nombre,
-      },
+      data: { nombre },
     });
-
     res.status(201).json(nuevoPerfil);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Error al crear el perfil" });
+    res.status(500).json({
+      error: "Error al crear el perfil. Intenta nuevamente más tarde.",
+    });
   }
 });
 
-//Metodo Post para LOGIN de Usuarios
 router.post("/login", async (req, res) => {
   const { correo, contrasena } = req.body;
 
   if (!correo || !contrasena) {
-    return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    return res
+      .status(400)
+      .json({ error: "Debes ingresar tu correo y contraseña." });
   }
-    //Encriptamiento
-    try {
-      const usuario = await prisma.usuarios.findUnique({
-        where: { correo }
-      });
 
   try {
     const usuario = await prisma.usuarios.findUnique({
-      where: {
-        correo: correo,
-      },
+      where: { correo: correo },
     });
 
     if (!usuario || usuario.contrasena !== contrasena) {
-      return res.status(401).json({ error: "Credenciales incorrectas" });
+      return res.status(401).json({
+        error:
+          "Correo o contraseña incorrectos. Verifica tus datos e inténtalo de nuevo.",
+      });
     }
 
     res
       .status(200)
-      .json({ message: "Inicio de sesión exitoso", user: usuario });
+      .json({ message: "Inicio de sesión exitoso", user: usuario });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
 
-// Metodo get para obtener el raiting del tutor
 router.get("/tutores/:id/rating", async (req, res) => {
   const { id } = req.params;
 
@@ -147,24 +132,19 @@ router.get("/tutores/:id/rating", async (req, res) => {
     const calificaciones = await prisma.calificaciones.findMany({
       where: {
         id_tutor: parseInt(id),
-        calificacion: {
-          not: null,
-        },
+        calificacion: { not: null },
       },
-      select: {
-        calificacion: true,
-      },
+      select: { calificacion: true },
     });
 
     if (calificaciones.length === 0) {
       return res.json({
         rating_promedio: 0,
         total_calificaciones: 0,
-        message: "Este tutor aún no tiene calificaciones",
+        message: "Este tutor aún no ha sido calificado.",
       });
     }
 
-    // Calcular promedio
     const suma = calificaciones.reduce(
       (acc, curr) => acc + curr.calificacion,
       0
@@ -177,40 +157,38 @@ router.get("/tutores/:id/rating", async (req, res) => {
     });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
-
-//Endpoint GET para obtener la información del tutor
-// Endpoint GET para obtener la información del tutor por ID de USUARIO
 router.get("/tutores/info/usuario/:idUsuario", async (req, res) => {
   const { idUsuario } = req.params;
 
   try {
     const tutorInfo = await prisma.tutoresInfo.findUnique({
-      where: {
-        id_usuario: parseInt(idUsuario),
-      },
+      where: { id_usuario: parseInt(idUsuario) },
       include: {
         usuario: true,
         tutorMaterias: {
-          include: {
-            materia: true,
-          },
+          include: { materia: true },
         },
       },
     });
 
     if (!tutorInfo) {
-      return res.status(404).json({ error: "Tutor no encontrado" });
+      return res.status(404).json({
+        error:
+          "No se encontró información para el tutor con el ID especificado.",
+      });
     }
 
     const calificaciones = await prisma.calificaciones.findMany({
       where: {
         id_tutor: tutorInfo.id_usuario,
-        calificacion: {
-          not: null,
-        },
+        calificacion: { not: null },
       },
     });
 
@@ -248,26 +226,27 @@ router.get("/tutores/info/usuario/:idUsuario", async (req, res) => {
     res.json(response);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
 
-// Endpoint para obtener la metodología del tutor
 router.get("/tutores/:id/metodologia", async (req, res) => {
   const { id } = req.params;
 
   try {
     const tutorInfo = await prisma.tutoresInfo.findUnique({
-      where: {
-        id: parseInt(id),
-      },
-      select: {
-        metodologia: true,
-      },
+      where: { id: parseInt(id) },
+      select: { metodologia: true },
     });
 
     if (!tutorInfo) {
-      return res.status(404).json({ error: "Tutor no encontrado" });
+      return res
+        .status(404)
+        .json({ error: "No se encontró el tutor con el ID especificado." });
     }
 
     res.json({
@@ -276,27 +255,26 @@ router.get("/tutores/:id/metodologia", async (req, res) => {
     });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
 
-// Endpoint para obtener la tutoría que da el tutor
 router.get("/tutores/:id/tutorias", async (req, res) => {
   const { id } = req.params;
 
   try {
     const tutorMaterias = await prisma.tutorMaterias.findMany({
-      where: {
-        id_tutor: parseInt(id),
-      },
+      where: { id_tutor: parseInt(id) },
       include: {
         materia: true,
         tutor: {
           include: {
             usuario: {
-              select: {
-                nombre: true,
-              },
+              select: { nombre: true },
             },
           },
         },
@@ -304,9 +282,9 @@ router.get("/tutores/:id/tutorias", async (req, res) => {
     });
 
     if (!tutorMaterias || tutorMaterias.length === 0) {
-      return res
-        .status(404)
-        .json({ error: "No se encontraron tutorías para este tutor" });
+      return res.status(404).json({
+        error: "No se encontraron tutorías registradas para este tutor.",
+      });
     }
 
     const tutorias = tutorMaterias.map((tm) => ({
@@ -319,31 +297,31 @@ router.get("/tutores/:id/tutorias", async (req, res) => {
     res.json(tutorias);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
-
-// Endpoint para obtener la descripción del tutor
 router.get("/tutores/:id/descripcion", async (req, res) => {
   const { id } = req.params;
 
   try {
     const tutorInfo = await prisma.tutoresInfo.findUnique({
-      where: {
-        id: parseInt(id),
-      },
+      where: { id: parseInt(id) },
       select: {
         descripcion: true,
         usuario: {
-          select: {
-            nombre: true,
-          },
+          select: { nombre: true },
         },
       },
     });
 
     if (!tutorInfo) {
-      return res.status(404).json({ error: "Tutor no encontrado" });
+      return res
+        .status(404)
+        .json({ error: "No se encontró el tutor con el ID especificado." });
     }
 
     res.json({
@@ -353,11 +331,14 @@ router.get("/tutores/:id/descripcion", async (req, res) => {
     });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
 
-//POST para agregar info del tutor
 router.post("/tutores/info", async (req, res) => {
   const {
     id_usuario,
@@ -373,16 +354,12 @@ router.post("/tutores/info", async (req, res) => {
     !descripcion ||
     !tarifa_hora ||
     !experiencia ||
-    horario === undefined ||
+    !horario ||
     !modalidad
   ) {
-    return res.status(400).json({ error: "Todos los campos son obligatorios" });
-  }
-
-  const horarioNum = parseInt(horario);
-  if (![0, 1, 2].includes(horarioNum)) {
     return res.status(400).json({
-      error: "Horario inválido. Debe ser 0 (mañana), 1 (tarde) o 2 (noche)",
+      error:
+        "Debes completar todos los campos obligatorios para registrar la información del tutor.",
     });
   }
 
@@ -392,7 +369,9 @@ router.post("/tutores/info", async (req, res) => {
     });
 
     if (!usuario) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
+      return res
+        .status(404)
+        .json({ error: "Usuario no encontrado. Verifica el ID ingresado." });
     }
 
     const tutorExistente = await prisma.tutoresInfo.findUnique({
@@ -400,9 +379,9 @@ router.post("/tutores/info", async (req, res) => {
     });
 
     if (tutorExistente) {
-      return res
-        .status(400)
-        .json({ error: "Este usuario ya tiene información de tutor" });
+      return res.status(400).json({
+        error: "Este usuario ya tiene información registrada como tutor.",
+      });
     }
 
     const nuevoTutor = await prisma.tutoresInfo.create({
@@ -411,22 +390,23 @@ router.post("/tutores/info", async (req, res) => {
         descripcion,
         tarifa_hora: parseFloat(tarifa_hora),
         experiencia: parseInt(experiencia),
-        horario: horarioNum,
+        horario: parseInt(horario),
         modalidad,
       },
-      include: {
-        usuario: true,
-      },
+      include: { usuario: true },
     });
 
     res.status(201).json(nuevoTutor);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
 
-//PUT para modificar la información de tutores
 router.put("/tutores/info/:id", async (req, res) => {
   const { id } = req.params;
   const { descripcion, tarifa_hora, experiencia, horario, modalidad } =
@@ -438,18 +418,9 @@ router.put("/tutores/info/:id", async (req, res) => {
     });
 
     if (!tutorInfo) {
-      return res.status(404).json({ error: "Información no encontrada" });
-    }
-
-    let horarioValidado = tutorInfo.horario;
-    if (horario !== undefined) {
-      const horarioNum = parseInt(horario);
-      if (![0, 1, 2].includes(horarioNum)) {
-        return res
-          .status(400)
-          .json({ error: "Horario inválido. Debe ser 0, 1 o 2" });
-      }
-      horarioValidado = horarioNum;
+      return res.status(404).json({
+        error: "No se encontró la información del tutor para actualizar.",
+      });
     }
 
     const tutorActualizado = await prisma.tutoresInfo.update({
@@ -462,18 +433,20 @@ router.put("/tutores/info/:id", async (req, res) => {
         experiencia: experiencia
           ? parseInt(experiencia)
           : tutorInfo.experiencia,
-        horario: horarioValidado,
+        horario: horario ? parseInt(horario) : tutorInfo.horario,
         modalidad: modalidad || tutorInfo.modalidad,
       },
-      include: {
-        usuario: true,
-      },
+      include: { usuario: true },
     });
 
     res.json(tutorActualizado);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
 
@@ -482,16 +455,21 @@ router.post("/calificaciones", async (req, res) => {
     req.body;
 
   if (!id_tutor || !id_estudiante || !id_sesion || !calificacion) {
-    return res.status(400).json({ error: "" });
+    return res.status(400).json({
+      error:
+        "Los campos id_tutor, id_estudiante, id_sesion y calificación son obligatorios.",
+    });
   }
-  //Validaciones
+
   try {
     const sesion = await prisma.sesiones.findUnique({
       where: { id_sesion: parseInt(id_sesion) },
     });
 
     if (!sesion) {
-      return res.status(404).json({ error: "Sesión no encontrada" });
+      return res
+        .status(404)
+        .json({ error: "Sesión no encontrada. Verifica el ID proporcionado." });
     }
 
     const tutor = await prisma.usuarios.findUnique({
@@ -505,21 +483,19 @@ router.post("/calificaciones", async (req, res) => {
     if (!tutor || !estudiante) {
       return res
         .status(404)
-        .json({ error: "Tutor o estudiante no encontrado" });
+        .json({ error: "No se encontró el tutor o estudiante especificado." });
     }
 
-    // Si existe la calificación no entra
     const calificacionExistente = await prisma.calificaciones.findFirst({
       where: { id_sesion: parseInt(id_sesion) },
     });
 
     if (calificacionExistente) {
-      return res
-        .status(400)
-        .json({ error: "Ya existe una calificación para esta sesión" });
+      return res.status(400).json({
+        error: "Ya se ha registrado una calificación para esta sesión.",
+      });
     }
 
-    //Insert
     const nuevaCalificacion = await prisma.calificaciones.create({
       data: {
         id_tutor: parseInt(id_tutor),
@@ -538,35 +514,24 @@ router.post("/calificaciones", async (req, res) => {
     res.status(201).json(nuevaCalificacion);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
-
 // GET /tutores/:id/sesiones
 router.get("/tutores/:id/sesiones", async (req, res) => {
   const { id } = req.params;
 
   try {
     const sesiones = await prisma.sesiones.findMany({
-      where: {
-        id_tutor: parseInt(id),
-      },
+      where: { id_tutor: parseInt(id) },
       include: {
-        estudiante: {
-          select: {
-            nombre: true,
-          },
-        },
-        materia: {
-          select: {
-            nombre_materia: true,
-          },
-        },
-        tutor: {
-          include: {
-            tutorInfo: true,
-          },
-        },
+        estudiante: { select: { nombre: true } },
+        materia: { select: { nombre_materia: true } },
+        tutor: { include: { tutorInfo: true } },
       },
     });
 
@@ -580,27 +545,34 @@ router.get("/tutores/:id/sesiones", async (req, res) => {
     res.json(resultado);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "No se pudieron obtener las sesiones del tutor. Intenta nuevamente más tarde."
+      );
   }
 });
 
-//Subir bitacora
+// POST bitácora
 router.post("/bitacora", async (req, res) => {
   const { id_usuario, tipo_evento, descripcion, ip_origen } = req.body;
 
   if (!id_usuario || !tipo_evento || !descripcion || !ip_origen) {
-    return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    return res.status(400).json({
+      error:
+        "Debes completar todos los campos requeridos para registrar en la bitácora.",
+    });
   }
-  //Validación de usuario
+
   try {
     const usuario = await prisma.usuarios.findUnique({
       where: { id_usuario: parseInt(id_usuario) },
     });
 
     if (!usuario) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
+      return res.status(404).json({ error: "Usuario no encontrado." });
     }
-    //Datos
+
     const nuevaBitacora = await prisma.bitacora.create({
       data: {
         id_usuario: parseInt(id_usuario),
@@ -608,83 +580,19 @@ router.post("/bitacora", async (req, res) => {
         descripcion,
         ip_origen,
       },
-      include: {
-        usuario: true,
-      },
+      include: { usuario: true },
     });
 
     res.status(201).json(nuevaBitacora);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send("No se pudo registrar la bitácora. Intenta nuevamente más tarde.");
   }
 });
 
-//Modificar tutor foto
-router.put("/usuarios/:id/foto", async (req, res) => {
-  const { id } = req.params;
-  const { foto_perfil } = req.body;
-
-  if (!foto_perfil) {
-    return res.status(400).json({ error: "La URL de la foto es obligatoria" });
-  }
-
-  try {
-    const usuario = await prisma.usuarios.findUnique({
-      where: { id_usuario: parseInt(id) },
-    });
-
-    if (!usuario) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    const usuarioActualizado = await prisma.usuarios.update({
-      where: { id_usuario: parseInt(id) },
-      data: {
-        foto_perfil: foto_perfil,
-      },
-    });
-    res.json(usuarioActualizado);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error del servidor");
-  }
-});
-
-//Delete de usuarios
-router.delete("/usuarios/:id", async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    // Usuario validación
-    const usuario = await prisma.usuarios.findUnique({
-      where: { id_usuario: parseInt(id) },
-    });
-
-    if (!usuario) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    // Elimina  todo lo relacionado al tutor
-    if (usuario.id_perfil === 2) {
-      await prisma.tutoresInfo.deleteMany({
-        where: { id_usuario: parseInt(id) },
-      });
-    }
-
-    // Delete
-    await prisma.usuarios.delete({
-      where: { id_usuario: parseInt(id) },
-    });
-
-    res.json({ message: "Usuario eliminado correctamente" });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error del servidor");
-  }
-});
-
-//Eliminar bitacoras
+// DELETE bitácora
 router.delete("/bitacora/:id", async (req, res) => {
   const { id } = req.params;
 
@@ -694,20 +602,90 @@ router.delete("/bitacora/:id", async (req, res) => {
     });
 
     if (!bitacora) {
-      return res.status(404).json({ error: "Bitácora no encontrada" });
+      return res.status(404).json({ error: "Bitácora no encontrada." });
     }
+
     await prisma.bitacora.delete({
       where: { id: parseInt(id) },
     });
 
-    res.json({ message: "Bitácora eliminada correctamente" });
+    res.json({ message: "Bitácora eliminada correctamente." });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send("No se pudo eliminar la bitácora. Intenta nuevamente más tarde.");
   }
 });
 
-//Modificar calificaciones
+// PUT foto perfil usuario
+router.put("/usuarios/:id/foto", async (req, res) => {
+  const { id } = req.params;
+  const { foto_perfil } = req.body;
+
+  if (!foto_perfil) {
+    return res.status(400).json({ error: "La URL de la foto es obligatoria." });
+  }
+
+  try {
+    const usuario = await prisma.usuarios.findUnique({
+      where: { id_usuario: parseInt(id) },
+    });
+
+    if (!usuario) {
+      return res.status(404).json({ error: "Usuario no encontrado." });
+    }
+
+    const usuarioActualizado = await prisma.usuarios.update({
+      where: { id_usuario: parseInt(id) },
+      data: { foto_perfil },
+    });
+
+    res.json(usuarioActualizado);
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .send(
+        "No se pudo actualizar la foto de perfil. Intenta nuevamente más tarde."
+      );
+  }
+});
+// DELETE usuario
+router.delete("/usuarios/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const usuario = await prisma.usuarios.findUnique({
+      where: { id_usuario: parseInt(id) },
+    });
+
+    if (!usuario) {
+      return res
+        .status(404)
+        .json({ error: "Usuario no encontrado. No se puede eliminar." });
+    }
+
+    if (usuario.id_perfil === 2) {
+      await prisma.tutoresInfo.deleteMany({
+        where: { id_usuario: parseInt(id) },
+      });
+    }
+
+    await prisma.usuarios.delete({
+      where: { id_usuario: parseInt(id) },
+    });
+
+    res.json({ message: "Usuario eliminado correctamente." });
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .send("No se pudo eliminar el usuario. Intenta nuevamente más tarde.");
+  }
+});
+
+// PUT calificación
 router.put("/calificaciones/:id", async (req, res) => {
   const { id } = req.params;
   const { calificacion, comentario } = req.body;
@@ -725,11 +703,48 @@ router.put("/calificaciones/:id", async (req, res) => {
     res.json(actualizada);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "No se pudo actualizar la calificación. Intenta nuevamente más tarde."
+      );
   }
 });
 
-//Modificar horario
+// POST sesión
+router.post("/sesiones", async (req, res) => {
+  const { id_tutor, id_estudiante, id_materia, fecha_hora, duracion_min } =
+    req.body;
+
+  if (!id_tutor || !id_estudiante || !id_materia || !fecha_hora) {
+    return res.status(400).json({
+      error:
+        "Faltan campos requeridos: id_tutor, id_estudiante, id_materia o fecha_hora.",
+    });
+  }
+
+  try {
+    const nuevaSesion = await prisma.sesiones.create({
+      data: {
+        id_tutor: parseInt(id_tutor),
+        id_estudiante: parseInt(id_estudiante),
+        id_materia: parseInt(id_materia),
+        fecha_hora: new Date(fecha_hora),
+        duracion_min: duracion_min ? parseInt(duracion_min) : null,
+        estado: "pendiente",
+      },
+    });
+
+    res.status(201).json(nuevaSesion);
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .send("No se pudo crear la sesión. Intenta nuevamente más tarde.");
+  }
+});
+
+// POST modificar horario
 router.post("/tutores/:id/horario", async (req, res) => {
   const { id } = req.params;
   const { horario } = req.body;
@@ -745,11 +760,13 @@ router.post("/tutores/:id/horario", async (req, res) => {
     res.json(actualizado);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send("No se pudo actualizar el horario. Intenta nuevamente más tarde.");
   }
 });
 
-//Modificar horario del tutor
+// PUT modificar horario
 router.put("/tutores/:id/horario", async (req, res) => {
   const { id } = req.params;
   const { horario } = req.body;
@@ -760,7 +777,9 @@ router.put("/tutores/:id/horario", async (req, res) => {
     });
 
     if (!tutor) {
-      return res.status(404).json({ error: "Tutor no encontrado" });
+      return res.status(404).json({
+        error: "Tutor no encontrado. No se puede modificar el horario.",
+      });
     }
 
     const actualizado = await prisma.tutoresInfo.update({
@@ -771,25 +790,33 @@ router.put("/tutores/:id/horario", async (req, res) => {
     res.json(actualizado);
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "No se pudo modificar el horario del tutor. Intenta nuevamente más tarde."
+      );
   }
 });
 
-//Eliminar horarios de los tutores inactivos
+// DELETE horarios inactivos
 router.delete("/tutores/horarios/inactivos", async (req, res) => {
   try {
     const result = await prisma.tutoresInfo.deleteMany({
       where: { horario: null },
     });
 
-    res.json({ message: `${result.count} horarios eliminados` });
+    res.json({ message: `${result.count} horarios eliminados correctamente.` });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "No se pudieron eliminar los horarios inactivos. Intenta nuevamente más tarde."
+      );
   }
 });
 
-// Eliminar tutores retirados
+// DELETE tutores retirados
 router.delete("/tutores/retirados", async (req, res) => {
   try {
     const retirados = await prisma.usuarios.findMany({
@@ -807,10 +834,16 @@ router.delete("/tutores/retirados", async (req, res) => {
       },
     });
 
-    res.json({ message: `${ids.length} tutores retirados eliminados` });
+    res.json({
+      message: `${ids.length} tutores retirados eliminados correctamente.`,
+    });
   } catch (err) {
     console.error(err.message);
-    res.status(500).send("Error del servidor");
+    res
+      .status(500)
+      .send(
+        "No se pudieron eliminar los tutores retirados. Intenta nuevamente más tarde."
+      );
   }
 });
 

@@ -14,7 +14,11 @@ export default function TutorCard({ tutor }) {
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.header}>
         <Image
-          source={require("../../assets/bolamarilla.png")}
+          source={
+            tutor.foto_perfil
+              ? { uri: tutor.foto_perfil }
+              : require("../../assets/bolamarilla.png")
+          }
           style={styles.profileImage}
         />
         <View style={styles.info}>
@@ -29,15 +33,23 @@ export default function TutorCard({ tutor }) {
               />
             ))}
           </View>
+          <Text style={styles.experience}>
+            {tutor.experiencia
+              ? `Experiencia: ${tutor.experiencia} años`
+              : "Experiencia no especificada"}
+          </Text>
         </View>
       </View>
 
-      <View style={styles.subjects}>
-        {tutor.materias.map((materia, index) => (
-          <Text key={materia.id_materia || index} style={styles.subject}>
-            {materia.nombre_materia}
-          </Text>
-        ))}
+      <View style={styles.subjectsContainer}>
+        <Text style={styles.subjectsTitle}>Materias:</Text>
+        <View style={styles.subjectsList}>
+          {tutor.materias.map((materia, index) => (
+            <View key={materia.id_materia || index} style={styles.subjectBadge}>
+              <Text style={styles.subjectText}>{materia.nombre_materia}</Text>
+            </View>
+          ))}
+        </View>
       </View>
 
       <View style={styles.extraInfo}>
@@ -51,11 +63,6 @@ export default function TutorCard({ tutor }) {
             : ["mañana", "tarde", "noche"][tutor.horario ?? 0]}
         </Text>
       </View>
-
-      {/* <View style={styles.footer}>
-        <Text style={styles.date}>{tutor.fecha}</Text>
-        <Text style={styles.hours}>{tutor.horas} h</Text>
-      </View> */}
     </TouchableOpacity>
   );
 }
@@ -90,34 +97,45 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 5,
   },
-  subjects: {
+  subjectsContainer: {
     marginTop: 10,
     marginBottom: 10,
   },
-  subject: {
+  subjectsTitle: {
     fontSize: 14,
-    color: "#555",
+    fontWeight: "bold",
+    color: "#333",
+    marginBottom: 4,
   },
-  footer: {
+  subjectsList: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: 6,
   },
-  date: {
-    fontSize: 12,
-    color: "#777",
+  subjectBadge: {
+    backgroundColor: "#FFF9C4",
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    marginRight: 6,
+    marginBottom: 6,
   },
-  hours: {
-    fontSize: 12,
-    color: "#777",
+  subjectText: {
+    fontSize: 13,
+    color: "#555",
   },
   extraInfo: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 8,
   },
-
   textSmall: {
     fontSize: 13,
     color: "#555",
+  },
+  experience: {
+    fontSize: 13,
+    color: "#00796B",
+    marginTop: 4,
   },
 });

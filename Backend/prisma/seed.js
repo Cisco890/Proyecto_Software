@@ -336,6 +336,8 @@ async function main() {
   });
 }
 
+await prisma.$executeRaw`SELECT setval('"Sesiones_id_sesion_seq"', (SELECT MAX(id_sesion) FROM "Sesiones"))`;
+
 main()
   .catch((e) => {
     console.error(e);

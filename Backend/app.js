@@ -9,6 +9,11 @@ const prisma = new PrismaClient();
 app.use(cors());
 app.use(express.json());
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
 app.use("/api/tutorias", require("./routes/tutorias"));
 app.use("/api/login", require("./routes/login"));
 const filtroRouter = require("./routes/filtros");

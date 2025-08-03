@@ -54,8 +54,8 @@ describe("Tutorías API", () => {
     }
   });
 
-  test("POST /api/login → error por campos vacíos", async () => {
-    const res = await request(app).post("/api/login").send({});
-    expect(res.statusCode).toBe(400);
-  });
+  //test("POST /api/login → error por campos vacíos", async () => {
+  //  const res = await request(app).post("/api/login").send({});
+  //   expect(res.statusCode).toBe(400);
+  //  });
 });

@@ -7,7 +7,7 @@
     "test:watch": "npm test -- --watch",
     "start": "node app.js",
     "seed": "npx prisma db seed",
-    "reset:testdb": "cross-env NODE_ENV=test npx prisma migrate reset --force --skip-seed && node prisma/seed.js",
+    "reset:testdb": "cross-env NODE_ENV=test npx prisma migrate reset --force --skip-seed && node prisma/seed.cjs",
     "coverage": "npm test -- --coverage"
   },
   "keywords": [],

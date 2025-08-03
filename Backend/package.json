@@ -6,7 +6,9 @@
     "test": "cross-env NODE_ENV=test jest --runInBand",
     "test:watch": "npm test -- --watch",
     "start": "node app.js",
-    "seed": "npx prisma db seed"
+    "seed": "npx prisma db seed",
+    "reset:testdb": "cross-env NODE_ENV=test npx prisma migrate reset --force --skip-seed && node prisma/seed.js",
+    "coverage": "npm test -- --coverage"
   },
   "keywords": [],
   "author": "",

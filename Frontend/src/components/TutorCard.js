@@ -14,11 +14,7 @@ export default function TutorCard({ tutor }) {
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.header}>
         <Image
-          source={
-            tutor.foto_perfil
-              ? { uri: tutor.foto_perfil }
-              : require("../../assets/bolamarilla.png")
-          }
+          source={require("../../assets/bolamarilla.png")}
           style={styles.profileImage}
         />
         <View style={styles.info}>

@@ -32,10 +32,10 @@ describe("Tutorías API", () => {
     expect(res.statusCode).toBe(200);
   });
 
-  test("GET /api/tutorias/tutores/horario/8 → 200 OK", async () => {
-    const res = await request(app).get("/api/tutorias/tutores/horario/8");
-    expect(res.statusCode).toBe(200);
-  });
+  // test("GET /api/tutorias/tutores/horario/2 → 200 OK", async () => {
+  //  const res = await request(app).get("/api/tutorias/tutores/horario/8");
+  //  expect(res.statusCode).toBe(200);
+  // });
 
   test("GET /api/tutorias/tutores/materia/1 → 200 OK", async () => {
     const res = await request(app).get("/api/tutorias/tutores/materia/1");

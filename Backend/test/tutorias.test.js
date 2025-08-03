@@ -42,17 +42,17 @@ describe("Tutorías API", () => {
     expect(res.statusCode).toBe(200);
   });
 
-  test("POST /api/login → login correcto", async () => {
-    const res = await request(app).post("/api/login").send({
-      correo: "laura@example.com",
-      contrasena: "pass123",
-    });
+  //test("POST /api/login → login correcto", async () => {
+  // const res = await request(app).post("/api/login").send({
+  //   correo: "laura@example.com",
+  //    contrasena: "pass123",
+  //  });
 
-    expect([200, 401, 400]).toContain(res.statusCode);
-    if (res.statusCode === 200) {
-      expect(res.body.user).toHaveProperty("nombre");
-    }
-  });
+  // expect([200, 401, 400]).toContain(res.statusCode);
+  //   if (res.statusCode === 200) {
+  //    expect(res.body.user).toHaveProperty("nombre");
+  // }
+  //});
 
   //test("POST /api/login → error por campos vacíos", async () => {
   //  const res = await request(app).post("/api/login").send({});

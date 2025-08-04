@@ -4,38 +4,39 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
-// Método POST para LOGIN de usuarios
-router.post('/', async (req, res) => {
+router.post("/login", async (req, res) => {
   const { correo, contrasena } = req.body;
 
-  // Validación básica
   if (!correo || !contrasena) {
-    return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    return res
+      .status(400)
+      .json({ error: "Debes ingresar tu correo y contraseña." });
   }
 
   try {
     const usuario = await prisma.usuarios.findUnique({
-      where: { correo }
+      where: { correo: correo },
     });
 
     if (!usuario || usuario.contrasena !== contrasena) {
-      return res.status(401).json({ error: 'Credenciales incorrectas' });
+      return res.status(401).json({
+        error:
+          "Correo o contraseña incorrectos. Verifica tus datos e inténtalo de nuevo.",
+      });
     }
 
-    // Estructura limpia para enviar solo lo necesario al frontend
-    const userData = {
-      id_usuario: usuario.id_usuario,
-      nombre: usuario.nombre,
-      correo: usuario.correo,
-      telefono: usuario.telefono,
-      id_perfil: usuario.id_perfil,
-    };
-
-    res.status(200).json({ message: 'Inicio de sesión exitoso', user: userData });
+    res
+      .status(200)
+      .json({ message: "Inicio de sesión exitoso", user: usuario });
   } catch (err) {
-    console.error('❌ Error al iniciar sesión:', err.message);
-    res.status(500).json({ error: 'Error del servidor' });
+    console.error(err.message);
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
   }
 });
+
 
 module.exports = router;

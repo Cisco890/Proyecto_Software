@@ -38,5 +38,42 @@ router.post("/login", async (req, res) => {
   }
 });
 
+router.post("/registro", async (req, res) => {
+  const { nombre, correo, contrasena, tipo_usuario, telefono, foto_perfil } =
+    req.body;
 
+  if (!nombre || !correo || !contrasena || !telefono) {
+    return res.status(400).json({
+      error:
+        "Debes completar todos los campos obligatorios: nombre, correo, contraseña y teléfono.",
+    });
+  } else if (!correo.includes("@")) {
+    return res.status(400).json({
+      error:
+        'El correo ingresado no tiene un formato válido (debe incluir "@").',
+    });
+  }
+
+  try {
+    const nuevoUsuario = await prisma.usuarios.create({
+      data: {
+        nombre,
+        correo,
+        contrasena,
+        id_perfil: tipo_usuario === "tutor" ? 2 : 1,
+        telefono,
+        foto_perfil: foto_perfil || null, // Ahora acepta la foto si viene
+      },
+    });
+
+    res.status(201).json(nuevoUsuario);
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .send(
+        "Ha ocurrido un error interno en el servidor. Por favor, intenta nuevamente más tarde."
+      );
+  }
+});
 module.exports = router;

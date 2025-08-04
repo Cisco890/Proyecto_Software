@@ -230,52 +230,6 @@ router.get("/tutores/rating", async (req, res) => {
     res.status(500).send("Error del servidor");
   }
 });
-
-// FIltro que devuelva el rating promedio de los tutores
-// /api/tutorias/tutores/rating?minRating=4.0
-router.get("/tutores/rating", async (req, res) => {
-  const { minRating } = req.query;
-
-  if (!minRating || isNaN(minRating)) {
-    return res
-      .status(400)
-      .json({ error: "Debe proporcionar un rating mínimo válido" });
-  }
-
-  try {
-    const resultados = await prisma.calificaciones.groupBy({
-      by: ["id_tutor"],
-      _avg: {
-        calificacion: true,
-      },
-      having: {
-        calificacion: {
-          _avg: {
-            gte: parseFloat(minRating),
-          },
-        },
-      },
-    });
-
-    // Obtener IDs de tutores filtrados
-    const tutorIds = resultados.map((r) => r.id_tutor);
-
-    const tutores = await prisma.usuarios.findMany({
-      where: {
-        id_usuario: { in: tutorIds },
-      },
-      include: {
-        tutorInfo: true,
-      },
-    });
-
-    res.json(tutores);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error del servidor");
-  }
-});
-
 // /api/tutorias/tutores/nombre?busqueda=ana
 // Filtro para buscar tutores por nombre
 router.get("/tutores/nombre", async (req, res) => {
@@ -457,7 +411,6 @@ router.get("/tutores/busqueda-avanzada", async (req, res) => {
 });
 
 // Filtro combinado por experiencia mínima y modalidad
-// Ejemplo: /api/tutorias/tutores?minExperiencia=3&modalidad=virtual
 router.get("/tutores", async (req, res) => {
   const { minExperiencia, modalidad } = req.query;
 

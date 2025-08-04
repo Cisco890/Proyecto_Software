@@ -4,6 +4,7 @@ const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
+//Login
 router.post("/login", async (req, res) => {
   const { correo, contrasena } = req.body;
 
@@ -38,6 +39,8 @@ router.post("/login", async (req, res) => {
   }
 });
 
+
+//Registro
 router.post("/registro", async (req, res) => {
   const { nombre, correo, contrasena, tipo_usuario, telefono, foto_perfil } =
     req.body;
@@ -62,7 +65,7 @@ router.post("/registro", async (req, res) => {
         contrasena,
         id_perfil: tipo_usuario === "tutor" ? 2 : 1,
         telefono,
-        foto_perfil: foto_perfil || null, // Ahora acepta la foto si viene
+        foto_perfil: foto_perfil || null, 
       },
     });
 

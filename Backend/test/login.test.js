@@ -57,8 +57,10 @@ beforeAll(async () => {
   // Crea el usuario de prueba
   await prisma.usuarios.create({
     data: {
-      ...TEST_USER,
-      correo: encrypt(TEST_USER.correo) 
+      nombre: TEST_USER.nombre,
+      correo: encrypt(TEST_USER.correo), 
+      contrasena: await bcrypt.hash(TEST_USER.contrasena, 10),
+      id_perfil: TEST_USER.id_perfil,
     },
   });
 });

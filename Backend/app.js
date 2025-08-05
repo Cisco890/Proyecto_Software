@@ -16,11 +16,11 @@ app.get("/health", (req, res) => {
     .json({ status: "healthy", timestamp: new Date().toISOString() });
 });
 
-app.use("/api/tutorias", require("./routes/tutorias"));
-app.use("/api/login", require("./routes/login"));
-const filtroRouter = require("./routes/filtros");
+app.use("/api/tutorias", require("./routes/users/tutorias"));
+app.use("/api/login", require("./routes/authentication/login"));
+const filtroRouter = require("./routes/filters/filtros");
 app.use("/api/tutorias", filtroRouter);
-const citasRoutes = require("./routes/citas");
+const citasRoutes = require("./routes/sessions/sessions");
 app.use("/api/citas", citasRoutes);
 
 if (process.env.NODE_ENV !== "test") {

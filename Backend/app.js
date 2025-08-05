@@ -17,7 +17,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/tutorias", require("./routes/users/tutorias"));
-app.use("/api/login", require("./routes/authentication/login"));
+app.use("/login", require("./routes/authentication/login"));
 const filtroRouter = require("./routes/filters/filtros");
 app.use("/api/tutorias", filtroRouter);
 const citasRoutes = require("./routes/sessions/sessions");

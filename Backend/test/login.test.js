@@ -1,6 +1,8 @@
 const request = require("supertest");
 const app = require("../app");
 const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 const prisma = new PrismaClient();
 
@@ -11,6 +13,14 @@ const TEST_USER = {
   contrasena: "pass1234",
   id_perfil: 2,
 };
+
+function encrypt(text) {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return iv.toString("hex") + ":" + encrypted;
+}
 
 beforeAll(async () => {
   // Asegura que el perfil 2 (tutor) exista
@@ -31,7 +41,10 @@ beforeAll(async () => {
 
   // Crea el usuario de prueba
   await prisma.usuarios.create({
-    data: TEST_USER,
+    data: {
+      ...TEST_USER,
+      correo: encrypt(TEST_USER.correo) 
+    },
   });
 });
 
@@ -40,9 +53,9 @@ afterAll(async () => {
   await prisma.$disconnect();
 });
 
-describe("POST /api/login", () => {
+describe("POST /login", () => {
   test("login exitoso con credenciales correctas", async () => {
-    const res = await request(app).post("/api/login").send({
+    const res = await request(app).post("/login").send({
       correo: TEST_USER.correo,
       contrasena: TEST_USER.contrasena,
     });
@@ -58,13 +71,13 @@ describe("POST /api/login", () => {
   });
 
   test("error cuando faltan campos", async () => {
-    const res = await request(app).post("/api/login").send({});
+    const res = await request(app).post("/login").send({});
     expect(res.statusCode).toBe(400);
     expect(res.body).toHaveProperty("error");
   });
 
   test("error con credenciales incorrectas", async () => {
-    const res = await request(app).post("/api/login").send({
+    const res = await request(app).post("/login").send({
       correo: TEST_USER.correo,
       contrasena: "wrongpassword",
     });
@@ -74,7 +87,7 @@ describe("POST /api/login", () => {
 
   test("no permite inyección simple en el correo", async () => {
     const res = await request(app)
-      .post("/api/login")
+      .post("//login")
       .send({
         correo: `${TEST_USER.correo}' OR '1'='1`,
         contrasena: TEST_USER.contrasena,

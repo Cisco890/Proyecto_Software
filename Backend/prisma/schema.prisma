@@ -70,7 +70,7 @@ enum horario {
 
 model Perfiles {
   id_perfil Int        @id @default(autoincrement())
-  nombre    String     @db.VarChar(100)
+  nombre    String
   usuarios  Usuarios[]
   roles     Roles[]
 }
@@ -86,10 +86,10 @@ model Roles {
 
 model Usuarios {
   id_usuario     Int      @id @default(autoincrement())
-  nombre         String   @db.VarChar(100)
-  correo         String   @unique @map("correo_electronico") @db.VarChar(150)
+  nombre         String
+  correo         String   @unique @map("correo_electronico")
   contrasena     String
-  telefono       String?  @db.VarChar(20)
+  telefono       String?
   fecha_registro DateTime @default(now())
   id_perfil      Int?
   foto_perfil    String?  @db.VarChar(255)
@@ -136,10 +136,10 @@ model TutorMateria {
 model Bitacora {
   id          Int      @id @default(autoincrement())
   id_usuario  Int
-  tipo_evento String   @db.VarChar(50)
+  tipo_evento String
   descripcion String
   fecha_hora  DateTime @default(now())
-  ip_origen   String   @db.VarChar(45)
+  ip_origen   String
 
   usuario Usuarios @relation(fields: [id_usuario], references: [id_usuario])
 }

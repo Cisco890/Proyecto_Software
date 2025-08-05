@@ -1,16 +1,41 @@
 const express = require("express");
 const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
+const crypto = require("crypto");
 
 const prisma = new PrismaClient();
 
+const algorithm = "aes-256-cbc";
+const key = crypto.scryptSync(
+  process.env.SECRET_KEY || "clave_super_secreta",
+  "salt",
+  32
+);
+
+function decrypt(encrypted) {
+  if (!encrypted) return "";
+  const [ivHex, encryptedText] = encrypted.split(":");
+  const iv = Buffer.from(ivHex, "hex");
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
+  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
+}
+
+function desencriptarUsuario(usuario) {
+  if (!usuario) return usuario;
+  return {
+    ...usuario,
+    correo: usuario.correo ? decrypt(usuario.correo) : "",
+    telefono: usuario.telefono ? decrypt(usuario.telefono) : "",
+  };
+}
+
 //Metodo Get de los nombres de los tutores
 router.get("/nombre", async (req, res) => {
-  const nombre = await prisma.perfiles;
-  const id_perfil = await prisma.perfiles;
-
   try {
     const nombres = await prisma.usuarios.findMany({});
+    res.json(nombres.map(desencriptarUsuario));
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Error del servidor");
@@ -39,7 +64,7 @@ router.get("/horarios/:horario", async (req, res) => {
     res.json(
       tutores.map((tm) => ({
         ...tm.tutor,
-        usuario: tm.tutor.usuario,
+        usuario: desencriptarUsuario(tm.tutor.usuario),
       }))
     );
   } catch (err) {
@@ -70,7 +95,12 @@ router.get("/tutores/experiencia", async (req, res) => {
       },
     });
 
-    res.json(tutores);
+    res.json(
+      tutores.map((t) => ({
+        ...t,
+        usuario: desencriptarUsuario(t.usuario),
+      }))
+    );
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Error del servidor");
@@ -99,7 +129,7 @@ router.get("/tutores/materia/:idMateria", async (req, res) => {
     res.json(
       tutores.map((tm) => ({
         ...tm.tutor,
-        usuario: tm.tutor.usuario,
+        usuario: desencriptarUsuario(tm.tutor.usuario),
       }))
     );
   } catch (err) {
@@ -122,7 +152,12 @@ router.get("/tutores/modalidad/:modalidad", async (req, res) => {
       },
     });
 
-    res.json(tutores);
+    res.json(
+      tutores.map((t) => ({
+        ...t,
+        usuario: desencriptarUsuario(t.usuario),
+      }))
+    );
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Error del servidor");
@@ -149,7 +184,12 @@ router.get("/tutores/horario/:hora", async (req, res) => {
       },
     });
 
-    res.json(tutores);
+    res.json(
+      tutores.map((t) => ({
+        ...t,
+        usuario: desencriptarUsuario(t.usuario),
+      }))
+    );
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Error del servidor");
@@ -157,7 +197,6 @@ router.get("/tutores/horario/:hora", async (req, res) => {
 });
 
 // Filtro por precio
-// /api/tutorias/tutores/precio?maxPrecio=25.00
 router.get("/tutores/precio", async (req, res) => {
   const { maxPrecio } = req.query;
 
@@ -179,7 +218,12 @@ router.get("/tutores/precio", async (req, res) => {
       },
     });
 
-    res.json(tutores);
+    res.json(
+      tutores.map((t) => ({
+        ...t,
+        usuario: desencriptarUsuario(t.usuario),
+      }))
+    );
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Error del servidor");
@@ -224,7 +268,7 @@ router.get("/tutores/rating", async (req, res) => {
       },
     });
 
-    res.json(tutores);
+    res.json(tutores.map(desencriptarUsuario));
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Error del servidor");
@@ -258,7 +302,7 @@ router.get("/tutores/nombre", async (req, res) => {
       },
     });
 
-    res.json(tutores);
+    res.json(tutores.map(desencriptarUsuario));
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Error del servidor");
@@ -394,7 +438,7 @@ router.get("/tutores/busqueda-avanzada", async (req, res) => {
             : 0;
 
         return {
-          ...tutor,
+          ...desencriptarUsuario(tutor),
           ratingPromedio: parseFloat(ratingPromedio.toFixed(2)),
           totalCalificaciones: calificaciones.length,
         };
@@ -414,7 +458,6 @@ router.get("/tutores/busqueda-avanzada", async (req, res) => {
 router.get("/tutores", async (req, res) => {
   const { minExperiencia, modalidad } = req.query;
 
-  // Validación básica
   if ((!minExperiencia || isNaN(minExperiencia)) && !modalidad) {
     return res.status(400).json({
       error: "Debe proporcionar al menos minExperiencia (número) o modalidad.",
@@ -438,7 +481,12 @@ router.get("/tutores", async (req, res) => {
       },
     });
 
-    res.json(tutores);
+    res.json(
+      tutores.map((t) => ({
+        ...t,
+        usuario: desencriptarUsuario(t.usuario),
+      }))
+    );
   } catch (err) {
     console.error(err.message);
     res.status(500).send("Error del servidor");

@@ -1,11 +1,35 @@
 const express = require("express");
 const router = express.Router();
 const { PrismaClient } = require("@prisma/client");
+const crypto = require("crypto");
 
 const prisma = new PrismaClient();
 
+const algorithm = "aes-256-cbc";
+const key = crypto.scryptSync(
+  process.env.SECRET_KEY || "clave_super_secreta",
+  "salt",
+  32
+);
 
+function decrypt(encrypted) {
+  if (!encrypted) return "";
+  const [ivHex, encryptedText] = encrypted.split(":");
+  const iv = Buffer.from(ivHex, "hex");
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
+  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
+}
 
+function desencriptarUsuario(usuario) {
+  if (!usuario) return usuario;
+  return {
+    ...usuario,
+    correo: usuario.correo ? decrypt(usuario.correo) : "",
+    telefono: usuario.telefono ? decrypt(usuario.telefono) : "",
+  };
+}
 
 router.post("/perfiles", async (req, res) => {
   const { nombre } = req.body;
@@ -28,7 +52,6 @@ router.post("/perfiles", async (req, res) => {
     });
   }
 });
-
 
 router.get("/tutores/:id/rating", async (req, res) => {
   const { id } = req.params;
@@ -103,11 +126,16 @@ router.get("/tutores/info/usuario/:idUsuario", async (req, res) => {
           calificaciones.length
         : 0;
 
+    // Desencriptar usuario antes de enviar
+    const usuarioDesencriptado = desencriptarUsuario(tutorInfo.usuario);
+
     const response = {
       id_tutor: tutorInfo.id,
       id_usuario: tutorInfo.id_usuario,
-      nombre: tutorInfo.usuario.nombre,
-      foto_perfil: tutorInfo.usuario.foto_perfil,
+      nombre: usuarioDesencriptado.nombre,
+      correo: usuarioDesencriptado.correo,
+      telefono: usuarioDesencriptado.telefono,
+      foto_perfil: usuarioDesencriptado.foto_perfil,
       descripcion: tutorInfo.descripcion,
       horario: tutorInfo.horario,
       modalidad: tutorInfo.modalidad,

@@ -1,6 +1,23 @@
 // prisma/seed.cjs
 const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const prisma = new PrismaClient();
+
+const algorithm = "aes-256-cbc";
+const key = crypto.scryptSync(
+  process.env.SECRET_KEY || "clave_super_secreta",
+  "salt",
+  32
+);
+
+function encrypt(text) {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return iv.toString("hex") + ":" + encrypted;
+}
 
 async function main() {
   // Perfiles
@@ -29,78 +46,78 @@ async function main() {
     skipDuplicates: true,
   });
 
-  // Usuarios
+  // Usuarios (encriptado)
   await prisma.usuarios.createMany({
     data: [
       {
         id_usuario: 1,
         nombre: "Laura Sánchez",
-        correo: "laura@example.com",
-        contrasena: "pass123",
-        telefono: "1111111111",
+        correo: encrypt("laura@example.com"),
+        contrasena: await bcrypt.hash("pass123", 10),
+        telefono: encrypt("1111111111"),
         id_perfil: 1,
         foto_perfil: null,
       },
       {
         id_usuario: 2,
         nombre: "Miguel Torres",
-        correo: "miguel@example.com",
-        contrasena: "pass123",
-        telefono: "2222222222",
+        correo: encrypt("miguel@example.com"),
+        contrasena: await bcrypt.hash("pass123", 10),
+        telefono: encrypt("2222222222"),
         id_perfil: 1,
         foto_perfil: null,
       },
       {
         id_usuario: 3,
         nombre: "Elena Ramírez",
-        correo: "elena@example.com",
-        contrasena: "pass123",
-        telefono: "3333333333",
+        correo: encrypt("elena@example.com"),
+        contrasena: await bcrypt.hash("pass123", 10),
+        telefono: encrypt("3333333333"),
         id_perfil: 1,
         foto_perfil: null,
       },
       {
         id_usuario: 4,
         nombre: "Carlos Pérez",
-        correo: "carlos@example.com",
-        contrasena: "pass123",
-        telefono: "4444444444",
+        correo: encrypt("carlos@example.com"),
+        contrasena: await bcrypt.hash("pass123", 10),
+        telefono: encrypt("4444444444"),
         id_perfil: 1,
         foto_perfil: null,
       },
       {
         id_usuario: 5,
         nombre: "Valeria Díaz",
-        correo: "valeria@example.com",
-        contrasena: "pass123",
-        telefono: "5555555555",
+        correo: encrypt("valeria@example.com"),
+        contrasena: await bcrypt.hash("pass123", 10),
+        telefono: encrypt("5555555555"),
         id_perfil: 1,
         foto_perfil: null,
       },
       {
         id_usuario: 6,
         nombre: "Ana Tutor",
-        correo: "ana.tutor@example.com",
-        contrasena: "pass123",
-        telefono: "6666666666",
+        correo: encrypt("ana.tutor@example.com"),
+        contrasena: await bcrypt.hash("pass123", 10),
+        telefono: encrypt("6666666666"),
         id_perfil: 2,
         foto_perfil: null,
       },
       {
         id_usuario: 7,
         nombre: "Jorge Tutor",
-        correo: "jorge.tutor@example.com",
-        contrasena: "pass123",
-        telefono: "7777777777",
+        correo: encrypt("jorge.tutor@example.com"),
+        contrasena: await bcrypt.hash("pass123", 10),
+        telefono: encrypt("7777777777"),
         id_perfil: 2,
         foto_perfil: null,
       },
       {
         id_usuario: 8,
         nombre: "Lucía Tutor",
-        correo: "lucia.tutor@example.com",
-        contrasena: "pass123",
-        telefono: "8888888888",
+        correo: encrypt("lucia.tutor@example.com"),
+        contrasena: await bcrypt.hash("pass123", 10),
+        telefono: encrypt("8888888888"),
         id_perfil: 2,
         foto_perfil: null,
       },
@@ -283,7 +300,7 @@ async function main() {
     skipDuplicates: true,
   });
 
-  // Bitácora
+  // Bitácora (encriptar ip_origen)
   await prisma.bitacora.createMany({
     data: [
       {
@@ -291,21 +308,21 @@ async function main() {
         id_usuario: 1,
         tipo_evento: "inicio_sesion",
         descripcion: "El usuario inició sesión",
-        ip_origen: "192.168.1.1",
+        ip_origen: encrypt("192.168.1.1"),
       },
       {
         id: 2,
         id_usuario: 2,
         tipo_evento: "registro",
         descripcion: "El usuario se registró en el sistema",
-        ip_origen: "192.168.1.2",
+        ip_origen: encrypt("192.168.1.2"),
       },
       {
         id: 3,
         id_usuario: 6,
         tipo_evento: "inicio_sesion",
         descripcion: "El tutor inició sesión",
-        ip_origen: "192.168.1.3",
+        ip_origen: encrypt("192.168.1.3"),
       },
     ],
     skipDuplicates: true,
@@ -336,8 +353,17 @@ async function main() {
     skipDuplicates: true,
   });
 
-  // sincronizar secuencia de sesiones (PostgreSQL)
+  // sincronizar secuencia de sesiones
   await prisma.$executeRaw`SELECT setval('"Sesiones_id_sesion_seq"', (SELECT MAX(id_sesion) FROM "Sesiones"))`;
+  await prisma.$executeRaw`SELECT setval('"Usuarios_id_usuario_seq"', (SELECT MAX(id_usuario) FROM "Usuarios"))`;
+  await prisma.$executeRaw`SELECT setval('"TutoresInfo_id_seq"', (SELECT MAX(id) FROM "TutoresInfo"))`;
+  await prisma.$executeRaw`SELECT setval('"Materias_id_materia_seq"', (SELECT MAX(id_materia) FROM "Materias"))`;
+  await prisma.$executeRaw`SELECT setval('"TutorMateria_id_tutor_materia_seq"', (SELECT MAX(id_tutor_materia) FROM "TutorMateria"))`;
+  await prisma.$executeRaw`SELECT setval('"Sesiones_id_sesion_seq"', (SELECT MAX(id_sesion) FROM "Sesiones"))`;
+  await prisma.$executeRaw`SELECT setval('"Pagos_id_pago_seq"', (SELECT MAX(id_pago) FROM "Pagos"))`;
+  await prisma.$executeRaw`SELECT setval('"Calificaciones_id_calificacion_seq"', (SELECT MAX(id_calificacion) FROM "Calificaciones"))`;
+  await prisma.$executeRaw`SELECT setval('"Bitacora_id_seq"', (SELECT MAX(id) FROM "Bitacora"))`;
+  await prisma.$executeRaw`SELECT setval('"Notificaciones_id_notificacion_seq"', (SELECT MAX(id_notificacion) FROM "Notificaciones"))`;
 }
 
 main()

@@ -1,8 +1,34 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 const prisma = new PrismaClient();
+
+const algorithm = "aes-256-cbc";
+const key = crypto.scryptSync(
+  process.env.SECRET_KEY || "clave_super_secreta",
+  "salt",
+  32
+);
+
+function encrypt(text) {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv(algorithm, key, iv);
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  return iv.toString("hex") + ":" + encrypted;
+}
+
+function decrypt(encrypted) {
+  const [ivHex, encryptedText] = encrypted.split(":");
+  const iv = Buffer.from(ivHex, "hex");
+  const decipher = crypto.createDecipheriv(algorithm, key, iv);
+  let decrypted = decipher.update(encryptedText, "hex", "utf8");
+  decrypted += decipher.final("utf8");
+  return decrypted;
+}
 
 //Login
 router.post("/login", async (req, res) => {
@@ -15,16 +41,29 @@ router.post("/login", async (req, res) => {
   }
 
   try {
+    const correoEncriptado = encrypt(correo);
     const usuario = await prisma.usuarios.findUnique({
-      where: { correo: correo },
+      where: { correo: correoEncriptado },
     });
 
-    if (!usuario || usuario.contrasena !== contrasena) {
+    if (!usuario) {
       return res.status(401).json({
         error:
           "Correo o contraseña incorrectos. Verifica tus datos e inténtalo de nuevo.",
       });
     }
+
+    const isMatch = await bcrypt.compare(contrasena, usuario.contrasena);
+    if (!isMatch) {
+      return res.status(401).json({
+        error:
+          "Correo o contraseña incorrectos. Verifica tus datos e inténtalo de nuevo.",
+      });
+    }
+
+    // Desencripta antes de enviar al frontend
+    usuario.correo = decrypt(usuario.correo);
+    usuario.telefono = decrypt(usuario.telefono);
 
     res
       .status(200)
@@ -38,7 +77,6 @@ router.post("/login", async (req, res) => {
       );
   }
 });
-
 
 //Registro
 router.post("/registro", async (req, res) => {
@@ -58,16 +96,24 @@ router.post("/registro", async (req, res) => {
   }
 
   try {
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
+    const correoEncriptado = encrypt(correo);
+    const telefonoEncriptado = encrypt(telefono);
+
     const nuevoUsuario = await prisma.usuarios.create({
       data: {
         nombre,
-        correo,
-        contrasena,
+        correo: correoEncriptado,
+        contrasena: hashedPassword,
         id_perfil: tipo_usuario === "tutor" ? 2 : 1,
-        telefono,
-        foto_perfil: foto_perfil || null, 
+        telefono: telefonoEncriptado,
+        foto_perfil: foto_perfil || null,
       },
     });
+
+    // Desencripta antes de enviar al frontend
+    nuevoUsuario.correo = correo;
+    nuevoUsuario.telefono = telefono;
 
     res.status(201).json(nuevoUsuario);
   } catch (err) {

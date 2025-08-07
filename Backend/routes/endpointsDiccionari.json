@@ -1,0 +1,61 @@
+{
+  "info": {
+    "name": "API Autenticación JWT",
+    "_postman_id": "d3bcb76d-9e43-4dbd-b230-000000000001",
+    "description": "Colección para probar autenticación con JWT",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"username\": \"usuario1\",\n    \"password\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/login",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Ruta Protegida",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/protegida",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["protegida"]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": { "type": "text/javascript", "exec": [] }
+    },
+    {
+      "listen": "test",
+      "script": { "type": "text/javascript", "exec": [] }
+    }
+  ],
+  "variable": [
+    { "key": "token", "value": "" }
+  ]
+}

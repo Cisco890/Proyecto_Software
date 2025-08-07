@@ -1,0 +1,337 @@
+{
+  "info": {
+    "_postman_id": "c0aa0d1a-4057-44b6-aef9-23e8831fdae4",
+    "name": "TutoriasUVG",
+    "description": "Colección de endpoints de la aplicación TutoriasUVG",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "43574994",
+    "_collection_link": "https://sebastian-1545329.postman.co/workspace/86169d7e-33f9-4de6-89f3-3b4d7c4ad9e3/collection/43574994-c0aa0d1a-4057-44b6-aef9-23e8831fdae4?action=share&source=collection_link&creator=43574994"
+  },
+  "item": [
+    {
+      "name": "Login de usuario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"correo\": \"ejemplo@uvg.edu.gt\",\n  \"contrasena\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/login/",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["login", ""]
+        },
+        "description": "Inicio de sesión para un usuario registrado"
+      },
+      "response": [
+        {
+          "name": "Login exitoso",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "http://localhost:3001/login/"}
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"message\": \"Inicio de sesión exitoso\",\n  \"user\": {\n    \"id_usuario\": 1,\n    \"nombre\": \"Juan Pérez\",\n    \"correo\": \"ejemplo@uvg.edu.gt\",\n    \"telefono\": \"12345678\",\n    \"id_perfil\": 1\n  }\n}"
+        },
+        {
+          "name": "Error de credenciales",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "http://localhost:3001/login/"}
+          },
+          "status": "Unauthorized",
+          "code": 401,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"error\": \"Correo o contraseña incorrectos. Verifica tus datos e inténtalo de nuevo.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Registro de usuario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"correo\": \"juan@uvg.edu.gt\",\n  \"contrasena\": \"12345678\",\n  \"tipo_usuario\": \"estudiante\",\n  \"telefono\": \"12345678\",\n  \"foto_perfil\": \"https://example.com/foto.jpg\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/login/registro",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["login", "registro"]
+        },
+        "description": "Registro de un nuevo usuario, ya sea estudiante o tutor."
+      },
+      "response": [
+        {
+          "name": "Registro exitoso",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "http://localhost:3001/login/registro"}
+          },
+          "status": "Created",
+          "code": 201,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"id_usuario\": 2,\n  \"nombre\": \"Juan Pérez\",\n  \"correo\": \"juan@uvg.edu.gt\",\n  \"telefono\": \"12345678\",\n  \"id_perfil\": 1,\n  \"foto_perfil\": \"https://example.com/foto.jpg\"\n}"
+        },
+        {
+          "name": "Error de validación",
+          "originalRequest": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "url": {"raw": "http://localhost:3001/login/registro"}
+          },
+          "status": "Bad Request",
+          "code": 400,
+          "_postman_previewlanguage": "json",
+          "header": [],
+          "cookie": [],
+          "body": "{\n  \"error\": \"Debes completar todos los campos obligatorios: nombre, correo, contraseña y teléfono.\"\n}"
+        }
+      ]
+    },
+    {
+      "name": "Obtener todos los nombres de tutores",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/nombre",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "nombre"]
+        },
+        "description": "Devuelve la lista completa de usuarios (incluyendo tutores), con correos y teléfonos desencriptados."
+      },
+      "response": []
+    },
+    {
+      "name": "Filtrar tutores por horario",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/horarios/vespertino",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "horarios", "vespertino"]
+        },
+        "description": "Filtra tutores según su disponibilidad horaria: matutino, vespertino o nocturno."
+      },
+      "response": []
+    },
+    {
+      "name": "Filtrar tutores por experiencia mínima",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/tutores/experiencia?minExperiencia=2",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "tutores", "experiencia"],
+          "query": [
+            {
+              "key": "minExperiencia",
+              "value": "2",
+              "description": "Valor mínimo de experiencia en años"
+            }
+          ]
+        },
+        "description": "Devuelve tutores con al menos cierta cantidad de años de experiencia."
+      },
+      "response": []
+    },
+    {
+      "name": "Filtrar tutores por materia",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/tutores/materia/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "tutores", "materia", "1"]
+        },
+        "description": "Devuelve tutores que enseñan una materia específica, dado su ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Filtrar tutores por modalidad",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/tutores/modalidad/virtual",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "tutores", "modalidad", "virtual"]
+        },
+        "description": "Filtra tutores por modalidad: virtual, presencial o híbrido."
+      },
+      "response": []
+    },
+    {
+      "name": "Filtrar tutores por hora",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/tutores/horario/14",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "tutores", "horario", "14"]
+        },
+        "description": "Filtra tutores disponibles a una hora específica (de 0 a 23)."
+      },
+      "response": []
+    },
+    {
+      "name": "Filtrar tutores por precio máximo",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/tutores/precio?maxPrecio=100",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "tutores", "precio"],
+          "query": [
+            {
+              "key": "maxPrecio",
+              "value": "100",
+              "description": "Tarifa máxima por hora en quetzales"
+            }
+          ]
+        },
+        "description": "Devuelve tutores que cobran una tarifa por hora menor o igual al precio máximo."
+      },
+      "response": []
+    },
+    {
+      "name": "Filtrar tutores por calificación mínima",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/tutores/rating?minRating=4.0",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "tutores", "rating"],
+          "query": [
+            {
+              "key": "minRating",
+              "value": "4.0",
+              "description": "Calificación mínima promedio"
+            }
+          ]
+        },
+        "description": "Filtra tutores que tengan una calificación promedio mínima."
+      },
+      "response": []
+    },
+    {
+      "name": "Buscar tutores por nombre",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/tutores/nombre?busqueda=ana",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "tutores", "nombre"],
+          "query": [
+            {
+              "key": "busqueda",
+              "value": "ana",
+              "description": "Nombre o parte del nombre del tutor"
+            }
+          ]
+        },
+        "description": "Busca tutores cuyo nombre coincida parcial o totalmente con el texto dado."
+      },
+      "response": []
+    },
+    {
+      "name": "Búsqueda avanzada de tutores",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/tutores/busqueda-avanzada?minExperiencia=2&maxPrecio=120&modalidad=virtual&horario=vespertino&materia=1&minRating=4.0&nombre=ana",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "tutores", "busqueda-avanzada"],
+          "query": [
+            {"key": "minExperiencia", "value": "2"},
+            {"key": "maxPrecio", "value": "120"},
+            {"key": "modalidad", "value": "virtual"},
+            {"key": "horario", "value": "vespertino"},
+            {"key": "materia", "value": "1"},
+            {"key": "minRating", "value": "4.0"},
+            {"key": "nombre", "value": "ana"}
+          ]
+        },
+        "description": "Permite aplicar múltiples filtros al mismo tiempo sobre los tutores."
+      },
+      "response": []
+    },
+    {
+      "name": "Filtrar tutores por experiencia y modalidad",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/tutores?minExperiencia=2&modalidad=virtual",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "tutores"],
+          "query": [
+            {"key": "minExperiencia", "value": "2"},
+            {"key": "modalidad", "value": "virtual"}
+          ]
+        },
+        "description": "Filtra tutores según experiencia mínima y modalidad."
+      },
+      "response": []
+    }
+  ]
+}

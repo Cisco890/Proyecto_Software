@@ -41,9 +41,17 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    const correoEncriptado = encrypt(correo);
-    const usuario = await prisma.usuarios.findUnique({
-      where: { correo: correoEncriptado },
+    // Buscar todos los usuarios y desencriptar correos uno por uno
+    const usuarios = await prisma.usuarios.findMany();
+
+    // Buscar el usuario cuyo correo desencriptado coincide con el enviado
+    const usuario = usuarios.find((u) => {
+      try {
+        const decryptedCorreo = decrypt(u.correo);
+        return decryptedCorreo === correo;
+      } catch (e) {
+        return false;
+      }
     });
 
     if (!usuario) {

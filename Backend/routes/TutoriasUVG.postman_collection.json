@@ -332,6 +332,129 @@
         "description": "Filtra tutores según experiencia mínima y modalidad."
       },
       "response": []
+    },{
+      "name": "Obtener rating promedio tutor",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/tutores/1/rating",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "tutores", "1", "rating"]
+        },
+        "description": "Obtiene el rating promedio y total de calificaciones de un tutor por su ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener info tutor por idUsuario",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/tutores/info/usuario/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "tutores", "info", "usuario", "1"]
+        },
+        "description": "Obtiene información detallada del tutor incluyendo usuario desencriptado y calificaciones."
+      },
+      "response": []
+    },
+    {
+      "name": "Crear perfil",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Perfil de Prueba\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/perfiles",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "perfiles"]
+        },
+        "description": "Crea un nuevo perfil con el nombre dado."
+      },
+      "response": []
+    },
+    {
+      "name": "Crear calificación",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_tutor\": 1,\n  \"id_estudiante\": 3,\n  \"id_sesion\": 5,\n  \"calificacion\": 5,\n  \"comentario\": \"Muy buen tutor\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/calificaciones",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "calificaciones"]
+        },
+        "description": "Registra una nueva calificación para una sesión."
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar calificación",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"calificacion\": 4,\n  \"comentario\": \"Actualización de comentario\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/calificaciones/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "calificaciones", "1"]
+        },
+        "description": "Actualiza la calificación y/o comentario de una calificación existente por su ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar usuario",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/tutorias/usuarios/3",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "tutorias", "usuarios", "3"]
+        },
+        "description": "Elimina un usuario por ID."
+      },
+      "response": []
     }
   ]
+  
 }

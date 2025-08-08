@@ -454,6 +454,46 @@
         "description": "Elimina un usuario por ID."
       },
       "response": []
+    },{
+      "name": "Obtener bloques ocupados de tutor",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/api/citas/tutores/1/disponibilidad",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "citas", "tutores", "1", "disponibilidad"]
+        },
+        "description": "Obtiene los bloques de tiempo ocupados para un tutor dado su ID (solo futuras sesiones)."
+      },
+      "response": []
+    },
+    {
+      "name": "Crear nueva cita",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_tutor\": 1,\n  \"id_estudiante\": 3,\n  \"id_materia\": 2,\n  \"fecha_hora\": \"2025-08-15T14:00:00.000Z\",\n  \"duracion_min\": 60\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3001/api/citas/cita",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["api", "citas", "cita"]
+        },
+        "description": "Crea una nueva cita para tutoría con los datos indicados."
+      },
+      "response": []
     }
   ]
   

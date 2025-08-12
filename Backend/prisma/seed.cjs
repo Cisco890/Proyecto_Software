@@ -2,6 +2,7 @@
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
+const { faker } = require('@faker-js/faker');  // agrega faker a tu proyecto con npm i @faker-js/faker
 const prisma = new PrismaClient();
 
 const algorithm = "aes-256-cbc";
@@ -17,6 +18,26 @@ function encrypt(text) {
   let encrypted = cipher.update(text, "utf8", "hex");
   encrypted += cipher.final("hex");
   return iv.toString("hex") + ":" + encrypted;
+}
+
+async function generarUsuariosFalsos(cantidad) {
+  const usuarios = [];
+  for (let i = 0; i < cantidad; i++) {
+    const nombre = faker.person.fullName();
+    const correo = faker.internet.email({ firstName: nombre.split(' ')[0], lastName: nombre.split(' ')[1] || '' });
+    const telefono = faker.phone.number('##########');
+    const perfil = faker.helpers.arrayElement([1, 2]);
+
+    usuarios.push({
+      nombre,
+      correo: encrypt(correo),
+      contrasena: await bcrypt.hash('pass123', 10),
+      telefono: encrypt(telefono),
+      id_perfil: perfil,
+      foto_perfil: null,
+    });
+  }
+  return usuarios;
 }
 
 async function main() {
@@ -46,7 +67,7 @@ async function main() {
     skipDuplicates: true,
   });
 
-  // Usuarios (encriptado)
+  // Usuarios fijos 
   await prisma.usuarios.createMany({
     data: [
       {
@@ -122,6 +143,13 @@ async function main() {
         foto_perfil: null,
       },
     ],
+    skipDuplicates: true,
+  });
+
+  // Usuarios generados (1000)
+  const usuariosGenerados = await generarUsuariosFalsos(1000);
+  await prisma.usuarios.createMany({
+    data: usuariosGenerados,
     skipDuplicates: true,
   });
 
@@ -353,13 +381,11 @@ async function main() {
     skipDuplicates: true,
   });
 
-  // sincronizar secuencia de sesiones
-  await prisma.$executeRaw`SELECT setval('"Sesiones_id_sesion_seq"', (SELECT MAX(id_sesion) FROM "Sesiones"))`;
   await prisma.$executeRaw`SELECT setval('"Usuarios_id_usuario_seq"', (SELECT MAX(id_usuario) FROM "Usuarios"))`;
+  await prisma.$executeRaw`SELECT setval('"Sesiones_id_sesion_seq"', (SELECT MAX(id_sesion) FROM "Sesiones"))`;
   await prisma.$executeRaw`SELECT setval('"TutoresInfo_id_seq"', (SELECT MAX(id) FROM "TutoresInfo"))`;
   await prisma.$executeRaw`SELECT setval('"Materias_id_materia_seq"', (SELECT MAX(id_materia) FROM "Materias"))`;
   await prisma.$executeRaw`SELECT setval('"TutorMateria_id_tutor_materia_seq"', (SELECT MAX(id_tutor_materia) FROM "TutorMateria"))`;
-  await prisma.$executeRaw`SELECT setval('"Sesiones_id_sesion_seq"', (SELECT MAX(id_sesion) FROM "Sesiones"))`;
   await prisma.$executeRaw`SELECT setval('"Pagos_id_pago_seq"', (SELECT MAX(id_pago) FROM "Pagos"))`;
   await prisma.$executeRaw`SELECT setval('"Calificaciones_id_calificacion_seq"', (SELECT MAX(id_calificacion) FROM "Calificaciones"))`;
   await prisma.$executeRaw`SELECT setval('"Bitacora_id_seq"', (SELECT MAX(id) FROM "Bitacora"))`;

@@ -40,6 +40,98 @@ async function generarUsuariosFalsos(cantidad) {
   return usuarios;
 }
 
+async function generateSesiones(count, maxUserId, maxMateriaId) {
+  const estados = ["completada", "cancelada", "pendiente"];
+  const sesiones = [];
+  const now = Date.now();
+
+  for (let i = 0; i < count; i++) {
+    const id_tutor = faker.number.int({ min: 1, max: maxUserId });
+    let id_estudiante = faker.number.int({ min: 1, max: maxUserId });
+    while (id_estudiante === id_tutor) {
+      id_estudiante = faker.number.int({ min: 1, max: maxUserId });
+    }
+
+    sesiones.push({
+      id_tutor,
+      id_estudiante,
+      id_materia: faker.number.int({ min: 1, max: maxMateriaId }),
+      fecha_hora: faker.date.between({ from: new Date(now - 60 * 86400000), to: new Date(now + 60 * 86400000) }),
+      duracion_min: faker.number.int({ min: 30, max: 120 }),
+      estado: estados[faker.number.int({ min: 0, max: estados.length -1 })],
+    });
+  }
+  return sesiones;
+}
+
+async function generateNotificaciones(count, maxUserId) {
+  const tipos = ["recordatorio", "alerta", "mensaje"];
+  const mensajes = [
+    "Tienes una sesión próxima en dos días",
+    "Tu sesión fue cancelada",
+    "Un estudiante te calificó",
+    "Nuevo mensaje recibido",
+    "Actualización en tu perfil",
+  ];
+  const notificaciones = [];
+
+  for (let i = 0; i < count; i++) {
+    notificaciones.push({
+      id_usuario: faker.number.int({ min: 1, max: maxUserId }),
+      tipo_notificacion: tipos[faker.number.int({ min: 0, max: tipos.length - 1 })],
+      mensaje: mensajes[faker.number.int({ min: 0, max: mensajes.length - 1 })],
+    });
+  }
+  return notificaciones;
+}
+
+async function generateCalificaciones(count, maxTutorId, maxEstudianteId, maxSesionId) {
+  const calificaciones = [];
+
+  for (let i = 0; i < count; i++) {
+    calificaciones.push({
+      id_tutor: faker.number.int({ min: 1, max: maxTutorId }),
+      id_estudiante: faker.number.int({ min: 1, max: maxEstudianteId }),
+      id_sesion: faker.number.int({ min: 1, max: maxSesionId }),
+      calificacion: faker.number.int({ min: 1, max: 5 }),
+      comentario: faker.lorem.sentence(),
+    });
+  }
+  return calificaciones;
+}
+
+async function generateBitacora(count, maxUserId) {
+  const eventos = ["inicio_sesion", "registro", "cambio_clave", "cierre_sesion", "actualizacion_perfil"];
+  const bitacora = [];
+
+  for (let i = 0; i < count; i++) {
+    bitacora.push({
+      id_usuario: faker.number.int({ min: 1, max: maxUserId }),
+      tipo_evento: eventos[faker.number.int({ min: 0, max: eventos.length -1 })],
+      descripcion: faker.lorem.sentence(),
+      ip_origen: encrypt(faker.internet.ip()),
+    });
+  }
+  return bitacora;
+}
+
+async function generatePagos(count, maxSesionId) {
+  const metodos = ["transferencia", "tarjeta", "efectivo"];
+  
+  const estados = ["completado", "pendiente", "rechazado","cancelado"];
+  const pagos = [];
+
+  for (let i = 0; i < count; i++) {
+    pagos.push({
+      id_sesion: faker.number.int({ min: 1, max: maxSesionId }),
+      monto: faker.finance.amount(50, 500, 2),
+      metodo_pago: metodos[faker.number.int({ min: 0, max: metodos.length - 1 })],
+      estado_pago: estados[faker.number.int({ min: 0, max: estados.length - 1 })],
+    });
+  }
+  return pagos;
+}
+
 async function main() {
   // Perfiles
   await prisma.perfiles.createMany({
@@ -146,12 +238,7 @@ async function main() {
     skipDuplicates: true,
   });
 
-  // Usuarios generados (1000)
-  const usuariosGenerados = await generarUsuariosFalsos(1000);
-  await prisma.usuarios.createMany({
-    data: usuariosGenerados,
-    skipDuplicates: true,
-  });
+
 
   // Tutores Info (sin horario)
   await prisma.tutoresInfo.createMany({
@@ -381,16 +468,55 @@ async function main() {
     skipDuplicates: true,
   });
 
-  await prisma.$executeRaw`SELECT setval('"Usuarios_id_usuario_seq"', (SELECT MAX(id_usuario) FROM "Usuarios"))`;
-  await prisma.$executeRaw`SELECT setval('"Sesiones_id_sesion_seq"', (SELECT MAX(id_sesion) FROM "Sesiones"))`;
-  await prisma.$executeRaw`SELECT setval('"TutoresInfo_id_seq"', (SELECT MAX(id) FROM "TutoresInfo"))`;
-  await prisma.$executeRaw`SELECT setval('"Materias_id_materia_seq"', (SELECT MAX(id_materia) FROM "Materias"))`;
-  await prisma.$executeRaw`SELECT setval('"TutorMateria_id_tutor_materia_seq"', (SELECT MAX(id_tutor_materia) FROM "TutorMateria"))`;
-  await prisma.$executeRaw`SELECT setval('"Pagos_id_pago_seq"', (SELECT MAX(id_pago) FROM "Pagos"))`;
-  await prisma.$executeRaw`SELECT setval('"Calificaciones_id_calificacion_seq"', (SELECT MAX(id_calificacion) FROM "Calificaciones"))`;
-  await prisma.$executeRaw`SELECT setval('"Bitacora_id_seq"', (SELECT MAX(id) FROM "Bitacora"))`;
-  await prisma.$executeRaw`SELECT setval('"Notificaciones_id_notificacion_seq"', (SELECT MAX(id_notificacion) FROM "Notificaciones"))`;
+  await prisma.$executeRaw`SELECT setval('"Usuarios_id_usuario_seq"', (SELECT COALESCE(MAX(id_usuario), 1) FROM "Usuarios"))`;
+  await prisma.$executeRaw`SELECT setval('"Sesiones_id_sesion_seq"', (SELECT COALESCE(MAX(id_sesion), 1) FROM "Sesiones"))`;
+  await prisma.$executeRaw`SELECT setval('"TutoresInfo_id_seq"', (SELECT COALESCE(MAX(id), 1) FROM "TutoresInfo"))`;
+  await prisma.$executeRaw`SELECT setval('"Materias_id_materia_seq"', (SELECT COALESCE(MAX(id_materia), 1) FROM "Materias"))`;
+  await prisma.$executeRaw`SELECT setval('"TutorMateria_id_tutor_materia_seq"', (SELECT COALESCE(MAX(id_tutor_materia), 1) FROM "TutorMateria"))`;
+  await prisma.$executeRaw`SELECT setval('"Pagos_id_pago_seq"', (SELECT COALESCE(MAX(id_pago), 1) FROM "Pagos"))`;
+  await prisma.$executeRaw`SELECT setval('"Calificaciones_id_calificacion_seq"', (SELECT COALESCE(MAX(id_calificacion), 1) FROM "Calificaciones"))`;
+  await prisma.$executeRaw`SELECT setval('"Bitacora_id_seq"', (SELECT COALESCE(MAX(id), 1) FROM "Bitacora"))`;
+  await prisma.$executeRaw`SELECT setval('"Notificaciones_id_notificacion_seq"', (SELECT COALESCE(MAX(id_notificacion), 1) FROM "Notificaciones"))`;
+
+  const maxUserId = 1000; // asumiendo que tus usuarios van hasta 1000
+  const maxMateriaId = 4;
+  const maxSesionId = 1000;
+  const maxTutorId = 1000; // asumiendo que id_tutor está en usuarios también
+  const maxEstudianteId = 1000;
+
+    // Usuarios generados (1000)
+  const usuariosGenerados = await generarUsuariosFalsos(1000);
+  await prisma.usuarios.createMany({
+    data: usuariosGenerados,
+    skipDuplicates: true,
+  });
+
+  // Crear datos masivos
+  const sesiones = await generateSesiones(1000, maxUserId, maxMateriaId);
+  const notificaciones = await generateNotificaciones(1000, maxUserId);
+  const calificaciones = await generateCalificaciones(1000, maxTutorId, maxEstudianteId, maxSesionId);
+  const bitacora = await generateBitacora(1000, maxUserId);
+  const pagos = await generatePagos(1000, maxSesionId);
+
+  // Insertar en BD con createMany
+  await prisma.sesiones.createMany({ data: sesiones });
+  await prisma.notificaciones.createMany({ data: notificaciones });
+  await prisma.calificaciones.createMany({ data: calificaciones });
+  await prisma.bitacora.createMany({ data: bitacora });
+  await prisma.pagos.createMany({ data: pagos });
+
+
+  await prisma.$executeRaw`SELECT setval('"Usuarios_id_usuario_seq"', (SELECT COALESCE(MAX(id_usuario), 1) FROM "Usuarios"))`;
+  await prisma.$executeRaw`SELECT setval('"Sesiones_id_sesion_seq"', (SELECT COALESCE(MAX(id_sesion), 1) FROM "Sesiones"))`;
+  await prisma.$executeRaw`SELECT setval('"TutoresInfo_id_seq"', (SELECT COALESCE(MAX(id), 1) FROM "TutoresInfo"))`;
+  await prisma.$executeRaw`SELECT setval('"Materias_id_materia_seq"', (SELECT COALESCE(MAX(id_materia), 1) FROM "Materias"))`;
+  await prisma.$executeRaw`SELECT setval('"TutorMateria_id_tutor_materia_seq"', (SELECT COALESCE(MAX(id_tutor_materia), 1) FROM "TutorMateria"))`;
+  await prisma.$executeRaw`SELECT setval('"Pagos_id_pago_seq"', (SELECT COALESCE(MAX(id_pago), 1) FROM "Pagos"))`;
+  await prisma.$executeRaw`SELECT setval('"Calificaciones_id_calificacion_seq"', (SELECT COALESCE(MAX(id_calificacion), 1) FROM "Calificaciones"))`;
+  await prisma.$executeRaw`SELECT setval('"Bitacora_id_seq"', (SELECT COALESCE(MAX(id), 1) FROM "Bitacora"))`;
+  await prisma.$executeRaw`SELECT setval('"Notificaciones_id_notificacion_seq"', (SELECT COALESCE(MAX(id_notificacion), 1) FROM "Notificaciones"))`;
 }
+
 
 main()
   .catch((e) => {

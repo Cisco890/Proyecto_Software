@@ -492,6 +492,390 @@
           "path": ["api", "citas", "cita"]
         },
         "description": "Crea una nueva cita para tutoría con los datos indicados."
+      }
+      
+    },
+    {
+      "name": "Estadísticas generales",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/general",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "general"
+          ]
+        },
+        "description": "Obtiene estadísticas generales del sistema."
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener metodología de tutor",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/tutores/:id/metodologia",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "tutores",
+            ":id",
+            "metodologia"
+          ]
+        },
+        "description": "Obtiene la metodología de enseñanza de un tutor por su ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener tutorías de un tutor",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/tutores/:id/tutorias",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "tutores",
+            ":id",
+            "tutorias"
+          ]
+        },
+        "description": "Obtiene las materias y horarios que un tutor imparte."
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener descripción de tutor",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/tutores/:id/descripcion",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "tutores",
+            ":id",
+            "descripcion"
+          ]
+        },
+        "description": "Obtiene la descripción y nombre de un tutor por su ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Registrar información de tutor",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3001/tutores/info",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "tutores",
+            "info"
+          ]
+        },
+        "description": "Registra información adicional para un tutor.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_usuario\": 1,\n  \"descripcion\": \"Tutor con experiencia en matemáticas\",\n  \"tarifa_hora\": 100,\n  \"experiencia\": 5,\n  \"horario\": 14,\n  \"modalidad\": \"virtual\"\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar información de tutor",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3001/tutores/info/:id",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "tutores",
+            "info",
+            ":id"
+          ]
+        },
+        "description": "Actualiza información de un tutor por su ID de info.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"descripcion\": \"Actualización de descripción\",\n  \"tarifa_hora\": 120,\n  \"experiencia\": 6,\n  \"horario\": 16,\n  \"modalidad\": \"presencial\"\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Obtener sesiones de tutor",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/tutores/:id/sesiones",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "tutores",
+            ":id",
+            "sesiones"
+          ]
+        },
+        "description": "Obtiene las sesiones impartidas por un tutor."
+      },
+      "response": []
+    },
+    {
+      "name": "Registrar en bitácora",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3001/bitacora",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "bitacora"
+          ]
+        },
+        "description": "Registra un evento en la bitácora.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_usuario\": 1,\n  \"tipo_evento\": \"login\",\n  \"descripcion\": \"Inicio de sesión exitoso\",\n  \"ip_origen\": \"127.0.0.1\"\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar entrada de bitácora",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/bitacora/:id",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "bitacora",
+            ":id"
+          ]
+        },
+        "description": "Elimina un registro de la bitácora por ID."
+      },
+      "response": []
+    },
+    {
+      "name": "Actualizar foto de perfil de usuario",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3001/usuarios/:id/foto",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "usuarios",
+            ":id",
+            "foto"
+          ]
+        },
+        "description": "Actualiza la foto de perfil de un usuario.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"foto_perfil\": \"https://example.com/foto.jpg\"\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Crear nueva sesión",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3001/sesiones",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "sesiones"
+          ]
+        },
+        "description": "Crea una nueva sesión de tutoría.",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"id_tutor\": 1,\n  \"id_estudiante\": 3,\n  \"id_materia\": 2,\n  \"fecha_hora\": \"2025-08-15T14:00:00.000Z\",\n  \"duracion_min\": 60\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Modificar horario de tutor (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3001/tutores/:id/horario",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "tutores",
+            ":id",
+            "horario"
+          ]
+        },
+        "description": "Modifica el horario de un tutor (POST).",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"horario\": 14\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Modificar horario de tutor (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3001/tutores/:id/horario",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "tutores",
+            ":id",
+            "horario"
+          ]
+        },
+        "description": "Modifica el horario de un tutor (PUT).",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"horario\": 16\n}"
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar horarios inactivos",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/tutores/horarios/inactivos",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "tutores",
+            "horarios",
+            "inactivos"
+          ]
+        },
+        "description": "Elimina todos los horarios de tutores que estén inactivos."
+      },
+      "response": []
+    },
+    {
+      "name": "Eliminar tutores retirados",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/tutores/retirados",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "3001",
+          "path": [
+            "tutores",
+            "retirados"
+          ]
+        },
+        "description": "Elimina todos los tutores que ya no tienen información registrada."
       },
       "response": []
     }

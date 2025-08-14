@@ -31,7 +31,7 @@ function desencriptarUsuario(usuario) {
   };
 }
 
-//Metodo Get de los nombres de los tutores
+//Metodo Get de los datos de los usuarios
 router.get("/nombre", async (req, res) => {
   try {
     const nombres = await prisma.usuarios.findMany({});
@@ -41,6 +41,46 @@ router.get("/nombre", async (req, res) => {
     res.status(500).send("Error del servidor");
   }
 });
+
+
+// Obtener todos los tutores
+router.get("/tutores", async (req, res) => {
+  try {
+    const tutores = await prisma.usuarios.findMany({
+      where: {
+        tutorInfo: {
+          isNot: null 
+        }
+      },
+      include: {
+        tutorInfo: true
+      }
+    });
+
+    res.json(tutores.map(desencriptarUsuario));
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Error del servidor al obtener tutores");
+  }
+});
+
+// Obtener todos los estudiantes
+router.get("/estudiantes", async (req, res) => {
+  try {
+    const estudiantes = await prisma.usuarios.findMany({
+      where: {
+        tutorInfo: null
+      }
+    });
+
+    res.json(estudiantes.map(desencriptarUsuario));
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send("Error del servidor al obtener estudiantes");
+  }
+});
+
+
 
 // Filtro de horarios (vespertino, matutino, nocturno)
 router.get("/horarios/:horario", async (req, res) => {

@@ -97,7 +97,7 @@ beforeAll(async () => {
       throw new Error("Usuario no encontrado en BD después de creación");
     }
 
-    console.log("🔍 Usuario en BD:", {
+    console.log(" Usuario en BD:", {
       id: usuarioBD.id_usuario,
       nombre: usuarioBD.nombre,
       correo: usuarioBD.correo,

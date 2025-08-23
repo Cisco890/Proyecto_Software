@@ -44,16 +44,16 @@ const TEST_USER = {
   correo: `testlogin.${Date.now()}@login.com`,
   contrasena: "pass1234",
   telefono: "1234567890",
-  id_perfil: 2
+  id_perfil: 2,
 };
 
 beforeAll(async () => {
   console.log("\n=== INICIANDO CONFIGURACIÓN DE PRUEBAS ===");
-  
+
   try {
     // 1. Verificar conexión a la base de datos
     await prisma.$connect();
-    console.log("✅ Conexión a BD establecida");
+    console.log(" Conexión a BD establecida");
 
     // 2. Crear perfil de tutor si no existe
     await prisma.perfiles.upsert({
@@ -61,15 +61,15 @@ beforeAll(async () => {
       update: {},
       create: { nombre: "Tutor" },
     });
-    console.log("✅ Perfil de tutor verificado");
+    console.log(" Perfil de tutor verificado");
 
     // 3. Limpiar posibles usuarios de pruebas anteriores
     await prisma.usuarios.deleteMany({
       where: {
-        nombre: TEST_USER.nombre
-      }
+        nombre: TEST_USER.nombre,
+      },
     });
-    console.log("🧹 Usuarios de prueba anteriores eliminados");
+    console.log(" Usuarios de prueba anteriores eliminados");
 
     // 4. Crear usuario directamente en la BD (no mediante endpoint)
     const encryptedEmail = encrypt(TEST_USER.correo);
@@ -79,21 +79,21 @@ beforeAll(async () => {
         correo: encryptedEmail,
         contrasena: await bcrypt.hash(TEST_USER.contrasena, 10),
         telefono: encrypt(TEST_USER.telefono),
-        id_perfil: TEST_USER.id_perfil
-      }
+        id_perfil: TEST_USER.id_perfil,
+      },
     });
-    console.log("✅ Usuario creado directamente en BD");
+    console.log("Usuario creado directamente en BD");
 
     // 5. Verificar que el usuario existe
     const usuarioBD = await prisma.usuarios.findFirst({
-      where: { nombre: TEST_USER.nombre }
+      where: { nombre: TEST_USER.nombre },
     });
 
     if (!usuarioBD) {
       const allUsers = await prisma.usuarios.findMany({
-        select: { id_usuario: true, nombre: true, correo: true }
+        select: { id_usuario: true, nombre: true, correo: true },
       });
-      console.log("👥 Usuarios existentes:", allUsers);
+      console.log(" Usuarios existentes:", allUsers);
       throw new Error("Usuario no encontrado en BD después de creación");
     }
 
@@ -101,11 +101,10 @@ beforeAll(async () => {
       id: usuarioBD.id_usuario,
       nombre: usuarioBD.nombre,
       correo: usuarioBD.correo,
-      correoDesencriptado: decrypt(usuarioBD.correo)
+      correoDesencriptado: decrypt(usuarioBD.correo),
     });
-
   } catch (error) {
-    console.error("❌ Error en configuración inicial:", error);
+    console.error(" Error en configuración inicial:", error);
     throw error;
   }
 });
@@ -115,10 +114,10 @@ afterAll(async () => {
     // Limpieza exhaustiva
     const deleteResult = await prisma.usuarios.deleteMany({
       where: {
-        nombre: TEST_USER.nombre
-      }
+        nombre: TEST_USER.nombre,
+      },
     });
-    console.log(`🧹 ${deleteResult.count} usuarios de prueba eliminados`);
+    console.log(`${deleteResult.count} usuarios de prueba eliminados`);
   } catch (error) {
     console.error("Error en limpieza:", error);
   } finally {
@@ -133,9 +132,9 @@ describe("POST /login", () => {
       contrasena: TEST_USER.contrasena,
     });
 
-    console.log("📋 Respuesta login:", {
+    console.log(" Respuesta login:", {
       status: res.status,
-      body: res.body
+      body: res.body,
     });
 
     expect(res.statusCode).toBe(200);
@@ -163,10 +162,12 @@ describe("POST /login", () => {
   });
 
   test("no permite inyección SQL en el correo", async () => {
-    const res = await request(app).post("/login").send({
-      correo: `${TEST_USER.correo}' OR '1'='1`,
-      contrasena: TEST_USER.contrasena,
-    });
+    const res = await request(app)
+      .post("/login")
+      .send({
+        correo: `${TEST_USER.correo}' OR '1'='1`,
+        contrasena: TEST_USER.contrasena,
+      });
     expect([400, 401]).toContain(res.statusCode);
   });
 });

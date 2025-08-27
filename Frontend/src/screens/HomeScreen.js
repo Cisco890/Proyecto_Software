@@ -37,7 +37,7 @@ export default function HomeScreen() {
               rating = r.data?.rating_promedio ?? 0;
             } catch (err) {
               console.warn(
-                `⚠️ No se pudo obtener rating para tutor ${tutor.id_usuario}`
+                `No se pudo obtener rating para tutor ${tutor.id_usuario}`
               );
             }
 
@@ -68,7 +68,7 @@ export default function HomeScreen() {
 
         setTutores(tutoresConRating);
       } catch (err) {
-        console.error("❌ Error al obtener tutores:", err.message || err);
+        console.error("Error al obtener tutores:", err.message || err);
       } finally {
         setLoading(false);
       }

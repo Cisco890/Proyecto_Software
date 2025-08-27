@@ -33,6 +33,9 @@ router.post("/cita", async (req, res) => {
   const { id_tutor, id_estudiante, id_materia, fecha_hora, duracion_min } =
     req.body;
 
+
+
+    
   if (!id_tutor || !id_estudiante || !id_materia || !fecha_hora) {
     return res.status(400).json({ error: "Faltan campos requeridos" });
   }

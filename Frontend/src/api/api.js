@@ -11,8 +11,8 @@ export const login = (correo, contrasena) =>
 export const register = (userData) => api.post("/tutorias/registro", userData);
 
 // Usuarios
-export const getUsuarios = () => api.get("/filtro/tutores");
-export const getEstudiantes = () => api.get("filtro/estudiantes");
+export const getUsuarios = () => api.get("api/tutorias/tutores");
+export const getEstudiantes = () => api.get("api/tutorias/estudiantes");
 
 // Perfiles
 export const crearPerfil = (nombre) =>

@@ -1,18 +1,21 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_URL, // debe incluir /api al final
 });
 
 // Autenticación
 export const login = (correo, contrasena) =>
   api.post("/login", { correo, contrasena });
 
-export const register = (userData) => api.post("/tutorias/registro", userData);
+export const register = (userData) => api.post("/login/registro", userData);
 
 // Usuarios
-export const getUsuarios = () => api.get("api/tutorias/tutores");
-export const getEstudiantes = () => api.get("api/tutorias/estudiantes");
+export const getUsuarios = () => api.get("/tutorias/tutores");
+// Nota: el endpoint para "estudiantes" no existe explícitamente en el backend.
+// Se deja una llamada con query param por si el backend soporta filtrado por perfil.
+export const getEstudiantes = () =>
+  api.get("/tutorias/tutores?perfil=estudiante");
 
 // Perfiles
 export const crearPerfil = (nombre) =>
@@ -69,13 +72,13 @@ export const filtrarTutoresPorExperiencia = (minExperiencia) =>
 export const filtrarTutoresPorFranjaHoraria = (horario) =>
   api.get(`/tutorias/horarios/${horario}`);
 
-export default api;
-
 // Citas / Sesiones
 
 // Obtener disponibilidad de bloques ocupados del tutor
 export const getDisponibilidadTutor = (idTutor) =>
-  api.get(`/citas/disponibilidad/${idTutor}`);
+  api.get(`/citas/tutores/${idTutor}/disponibilidad`);
 
 // Crear una nueva cita
-export const agendarCita = (data) => api.post("/citas", data);
+export const agendarCita = (data) => api.post("/citas/cita", data);
+
+export default api;

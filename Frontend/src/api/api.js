@@ -12,10 +12,9 @@ export const register = (userData) => api.post("/login/registro", userData);
 
 // Usuarios
 export const getUsuarios = () => api.get("/tutorias/tutores");
-// Nota: el endpoint para "estudiantes" no existe explícitamente en el backend.
-// Se deja una llamada con query param por si el backend soporta filtrado por perfil.
-export const getEstudiantes = () =>
-  api.get("/tutorias/tutores?perfil=estudiante");
+
+// <-- Cambiado: usar el endpoint backend creado para estudiantes -->
+export const getEstudiantes = () => api.get("/tutorias/usuarios/estudiantes");
 
 // Perfiles
 export const crearPerfil = (nombre) =>

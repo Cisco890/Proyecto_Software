@@ -780,4 +780,35 @@ router.delete("/tutores/retirados", async (req, res) => {
   }
 });
 
+// GET: Obtener estudiantes (usuarios con id_perfil = 1)
+router.get("/usuarios/estudiantes", async (req, res) => {
+  try {
+    const estudiantes = await prisma.usuarios.findMany({
+      where: { id_perfil: 1 },
+      select: {
+        id_usuario: true,
+        nombre: true,
+        correo: true,
+        telefono: true,
+        foto_perfil: true,
+        id_perfil: true,
+      },
+    });
+
+    const estudiantesDesencriptados = estudiantes.map((u) =>
+      desencriptarUsuario(u)
+    );
+
+    res.json(estudiantesDesencriptados);
+  } catch (err) {
+    console.error(err.message);
+    res
+      .status(500)
+      .json({
+        error:
+          "No se pudieron obtener los estudiantes. Intenta nuevamente más tarde.",
+      });
+  }
+});
+
 module.exports = router;

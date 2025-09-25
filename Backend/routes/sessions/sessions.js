@@ -59,4 +59,107 @@ router.post("/cita", async (req, res) => {
   }
 });
 
+// GET: Obtener todas las citas de un usuario (tutor o estudiante)
+router.get("/citas/:idUsuario", async (req, res) => {
+  const { idUsuario } = req.params;
+
+  if (!idUsuario || isNaN(idUsuario)) {
+    return res.status(400).json({ error: "ID de usuario inválido" });
+  }
+
+  try {
+    const citas = await prisma.sesiones.findMany({
+      where: {
+        OR: [
+          { id_tutor: parseInt(idUsuario) },
+          { id_estudiante: parseInt(idUsuario) }
+        ]
+      },
+      include: {
+        tutor: {
+          select: {
+            id_usuario: true,
+            nombre: true,
+            foto_perfil: true
+          }
+        },
+        estudiante: {
+          select: {
+            id_usuario: true,
+            nombre: true,
+            foto_perfil: true
+          }
+        },
+        materia: {
+          select: {
+            id_materia: true,
+            nombre_materia: true
+          }
+        },
+        pagos: true,
+        calificaciones: true
+      },
+      orderBy: {
+        fecha_hora: 'asc'
+      }
+    });
+
+    res.json(citas);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al obtener las citas" });
+  }
+});
+
+// GET: Obtener cita específica por ID
+router.get("/cita/:idSesion", async (req, res) => {
+  const { idSesion } = req.params;
+
+  if (!idSesion || isNaN(idSesion)) {
+    return res.status(400).json({ error: "ID de sesión inválido" });
+  }
+
+  try {
+    const cita = await prisma.sesiones.findUnique({
+      where: {
+        id_sesion: parseInt(idSesion)
+      },
+      include: {
+        tutor: {
+          select: {
+            id_usuario: true,
+            nombre: true,
+            foto_perfil: true,
+            tutorInfo: true
+          }
+        },
+        estudiante: {
+          select: {
+            id_usuario: true,
+            nombre: true,
+            foto_perfil: true
+          }
+        },
+        materia: {
+          select: {
+            id_materia: true,
+            nombre_materia: true
+          }
+        },
+        pagos: true,
+        calificaciones: true
+      }
+    });
+
+    if (!cita) {
+      return res.status(404).json({ error: "Cita no encontrada" });
+    }
+
+    res.json(cita);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al obtener la cita" });
+  }
+});
+
 module.exports = router;

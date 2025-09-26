@@ -7,7 +7,7 @@
     "test": "cross-env NODE_ENV=test jest --runInBand",
     "test:watch": "npm test -- --watch",
     "test:load": "npm test -- --testNamePattern='Pruebas de Carga'",
-    "test:stress": "npm test -- --testNamePattern='Pruebas de Estrés'",
+    "test:stress": "cross-env NODE_ENV=test jest stress.test.js --verbose --runInBand --detectOpenHandles --forceExit",
     "start": "node app.js",
     "seed": "node prisma/seed.cjs",
     "reset:testdb": "cross-env NODE_ENV=test npx prisma migrate reset --force --skip-seed && node prisma/seed.cjs",

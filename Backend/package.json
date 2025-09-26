@@ -1,12 +1,15 @@
 {
+  "$schema": "./node_modules/@types/node/package.json",
   "name": "backend",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test jest --runInBand",
     "test:watch": "npm test -- --watch",
+    "test:load": "npm test -- --testNamePattern='Pruebas de Carga'",
+    "test:stress": "npm test -- --testNamePattern='Pruebas de Estrés'",
     "start": "node app.js",
-    "seed": "npx prisma db seed",
+    "seed": "node prisma/seed.cjs",
     "reset:testdb": "cross-env NODE_ENV=test npx prisma migrate reset --force --skip-seed && node prisma/seed.cjs",
     "coverage": "npm test -- --coverage"
   },
@@ -17,7 +20,6 @@
   "dependencies": {
     "@faker-js/faker": "^9.9.0",
     "@prisma/client": "^6.5.0",
-    "backend": "file:",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -31,6 +33,6 @@
     "supertest": "^7.1.4"
   },
   "prisma": {
-    "seed": "node prisma/seed.js"
+    "seed": "node prisma/seed.cjs"
   }
 }

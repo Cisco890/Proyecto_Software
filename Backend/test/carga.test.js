@@ -6,7 +6,7 @@ describe("Pruebas de Carga", () => {
   const REQUESTS_POR_USUARIO = 4;
 
   beforeAll(() => {
-    console.log("🚀 Iniciando pruebas de carga para API de Tutorías");
+    console.log(" Iniciando pruebas de carga para API de Tutorías");
   });
 
   test("carga - búsqueda de todos los tutores", async () => {
@@ -31,12 +31,12 @@ describe("Pruebas de Carga", () => {
 
     console.timeEnd("CargaTutores");
     console.log(
-      `✅ Exitosos: ${exitosos}/${promises.length} (${(
+      ` Exitosos: ${exitosos}/${promises.length} (${(
         (exitosos / promises.length) *
         100
       ).toFixed(1)}%)`
     );
-    console.log(`❌ Fallidos: ${fallidos}`);
+    console.log(` Fallidos: ${fallidos}`);
 
     expect(exitosos).toBeGreaterThan(promises.length * 0.9); // 90% éxito mínimo
   }, 45000);
@@ -65,12 +65,12 @@ describe("Pruebas de Carga", () => {
     const exitosos = resultados.filter((r) => r.status === "fulfilled").length;
 
     console.timeEnd("CargaFiltroModalidad");
-    console.log(`📊 ${promises.length} requests en ${duracion}ms`);
+    console.log(` ${promises.length} requests en ${duracion}ms`);
     console.log(
       `⚡ Promedio: ${(duracion / promises.length).toFixed(2)}ms por request`
     );
     console.log(
-      `✅ Tasa de éxito: ${((exitosos / promises.length) * 100).toFixed(1)}%`
+      ` Tasa de éxito: ${((exitosos / promises.length) * 100).toFixed(1)}%`
     );
 
     expect(exitosos).toBeGreaterThan(promises.length * 0.85);
@@ -95,7 +95,7 @@ describe("Pruebas de Carga", () => {
     }
 
     console.log(
-      `🎯 Probando ${promises.length} requests en ${endpointsCriticos.length} endpoints críticos`
+      `Probando ${promises.length} requests en ${endpointsCriticos.length} endpoints críticos`
     );
 
     const inicio = Date.now();
@@ -105,12 +105,12 @@ describe("Pruebas de Carga", () => {
     const exitosos = resultados.filter((r) => r.status === "fulfilled").length;
 
     console.log(
-      `📈 Resultados: ${exitosos}/${promises.length} exitosos en ${duracion}ms`
+      ` Resultados: ${exitosos}/${promises.length} exitosos en ${duracion}ms`
     );
     console.log(
-      `⏱️ Promedio por endpoint: ${(
-        duracion / endpointsCriticos.length
-      ).toFixed(2)}ms`
+      ` Promedio por endpoint: ${(duracion / endpointsCriticos.length).toFixed(
+        2
+      )}ms`
     );
 
     expect(exitosos).toBeGreaterThan(promises.length * 0.7);
@@ -139,10 +139,10 @@ describe("Pruebas de Carga", () => {
     ).length;
 
     console.log(
-      `🔐 Login bajo carga: ${respondieron}/${promises.length} respondieron`
+      ` Login bajo carga: ${respondieron}/${promises.length} respondieron`
     );
     console.log(
-      `⏱️ Tiempo total: ${duracion}ms, promedio: ${(
+      ` Tiempo total: ${duracion}ms, promedio: ${(
         duracion / promises.length
       ).toFixed(2)}ms`
     );

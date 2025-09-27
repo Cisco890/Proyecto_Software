@@ -38,8 +38,12 @@ function decrypt(encrypted) {
   }
 }
 
+// Generar ID único para tests
+const testUserId = 999000 + Math.floor(Math.random() * 1000);
+
 // Datos de prueba
 const TEST_USER = {
+  id_usuario: testUserId,
   nombre: "Usuario Test Login",
   correo: `testlogin.${Date.now()}@login.com`,
   contrasena: "pass1234",
@@ -48,63 +52,61 @@ const TEST_USER = {
 };
 
 beforeAll(async () => {
-  console.log("\n=== INICIANDO CONFIGURACIÓN DE PRUEBAS ===");
+  console.log("\n=== INICIANDO CONFIGURACIÓN DE PRUEBAS LOGIN ===");
 
   try {
     // 1. Verificar conexión a la base de datos
     await prisma.$connect();
-    console.log(" Conexión a BD establecida");
+    console.log("✅ Conexión a BD establecida");
 
     // 2. Crear perfil de tutor si no existe
     await prisma.perfiles.upsert({
       where: { id_perfil: 2 },
       update: {},
-      create: { nombre: "Tutor" },
+      create: { id_perfil: 2, nombre: "Tutor" },
     });
-    console.log(" Perfil de tutor verificado");
+    console.log("✅ Perfil de tutor verificado");
 
     // 3. Limpiar posibles usuarios de pruebas anteriores
     await prisma.usuarios.deleteMany({
       where: {
-        nombre: TEST_USER.nombre,
+        OR: [{ nombre: TEST_USER.nombre }, { id_usuario: testUserId }],
       },
     });
-    console.log(" Usuarios de prueba anteriores eliminados");
+    console.log("✅ Usuarios de prueba anteriores eliminados");
 
-    // 4. Crear usuario directamente en la BD (no mediante endpoint)
+    // 4. Crear usuario directamente en la BD con ID específico
     const encryptedEmail = encrypt(TEST_USER.correo);
+    const encryptedPhone = encrypt(TEST_USER.telefono);
+
     await prisma.usuarios.create({
       data: {
+        id_usuario: TEST_USER.id_usuario, // AGREGAR ID específico
         nombre: TEST_USER.nombre,
         correo: encryptedEmail,
         contrasena: await bcrypt.hash(TEST_USER.contrasena, 10),
-        telefono: encrypt(TEST_USER.telefono),
+        telefono: encryptedPhone,
         id_perfil: TEST_USER.id_perfil,
       },
     });
-    console.log("Usuario creado directamente en BD");
+    console.log("✅ Usuario creado directamente en BD con ID:", testUserId);
 
     // 5. Verificar que el usuario existe
-    const usuarioBD = await prisma.usuarios.findFirst({
-      where: { nombre: TEST_USER.nombre },
+    const usuarioBD = await prisma.usuarios.findUnique({
+      where: { id_usuario: testUserId },
     });
 
     if (!usuarioBD) {
-      const allUsers = await prisma.usuarios.findMany({
-        select: { id_usuario: true, nombre: true, correo: true },
-      });
-      console.log(" Usuarios existentes:", allUsers);
       throw new Error("Usuario no encontrado en BD después de creación");
     }
 
-    console.log(" Usuario en BD:", {
+    console.log("✅ Usuario verificado en BD:", {
       id: usuarioBD.id_usuario,
       nombre: usuarioBD.nombre,
-      correo: usuarioBD.correo,
       correoDesencriptado: decrypt(usuarioBD.correo),
     });
   } catch (error) {
-    console.error(" Error en configuración inicial:", error);
+    console.error("❌ Error en configuración inicial:", error);
     throw error;
   }
 });
@@ -114,12 +116,12 @@ afterAll(async () => {
     // Limpieza exhaustiva
     const deleteResult = await prisma.usuarios.deleteMany({
       where: {
-        nombre: TEST_USER.nombre,
+        OR: [{ nombre: TEST_USER.nombre }, { id_usuario: testUserId }],
       },
     });
-    console.log(`${deleteResult.count} usuarios de prueba eliminados`);
+    console.log(`✅ ${deleteResult.count} usuarios de prueba eliminados`);
   } catch (error) {
-    console.error("Error en limpieza:", error);
+    console.error("❌ Error en limpieza:", error);
   } finally {
     await prisma.$disconnect();
   }
@@ -127,14 +129,20 @@ afterAll(async () => {
 
 describe("POST /login", () => {
   test("login exitoso con credenciales correctas", async () => {
+    console.log("🧪 Probando login con:", {
+      correo: TEST_USER.correo,
+      contrasena: "***",
+    });
+
     const res = await request(app).post("/login").send({
       correo: TEST_USER.correo,
       contrasena: TEST_USER.contrasena,
     });
 
-    console.log(" Respuesta login:", {
+    console.log("📊 Respuesta login:", {
       status: res.status,
-      body: res.body,
+      hasUser: !!res.body.user,
+      userId: res.body.user?.id_usuario,
     });
 
     expect(res.statusCode).toBe(200);
@@ -148,6 +156,7 @@ describe("POST /login", () => {
 
   test("error cuando faltan campos", async () => {
     const res = await request(app).post("/login").send({});
+
     expect(res.statusCode).toBe(400);
     expect(res.body.error).toBe("Debes ingresar tu correo y contraseña.");
   });
@@ -157,6 +166,17 @@ describe("POST /login", () => {
       correo: TEST_USER.correo,
       contrasena: "wrongpassword",
     });
+
+    expect(res.statusCode).toBe(401);
+    expect(res.body.error).toMatch(/Correo o contraseña incorrectos/);
+  });
+
+  test("error con correo inexistente", async () => {
+    const res = await request(app).post("/login").send({
+      correo: "noexiste@correo.com",
+      contrasena: TEST_USER.contrasena,
+    });
+
     expect(res.statusCode).toBe(401);
     expect(res.body.error).toMatch(/Correo o contraseña incorrectos/);
   });
@@ -168,6 +188,7 @@ describe("POST /login", () => {
         correo: `${TEST_USER.correo}' OR '1'='1`,
         contrasena: TEST_USER.contrasena,
       });
+
     expect([400, 401]).toContain(res.statusCode);
   });
 });

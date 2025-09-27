@@ -3,7 +3,7 @@ const app = require("../app");
 
 describe("Pruebas de Estrés", () => {
   beforeAll(() => {
-    console.log("💥 Iniciando pruebas de estrés - API de Tutorías");
+    console.log(" Iniciando pruebas de estrés - API de Tutorías");
   });
 
   test("estrés extremo - 100 usuarios simultáneos en endpoint principal", async () => {
@@ -11,7 +11,7 @@ describe("Pruebas de Estrés", () => {
     const promises = [];
 
     console.log(
-      `🔥 Iniciando estrés con ${USUARIOS_ESTRES} usuarios simultáneos...`
+      ` Iniciando estrés con ${USUARIOS_ESTRES} usuarios simultáneos...`
     );
 
     // Bombardear el endpoint principal con 100 requests simultáneos
@@ -35,18 +35,18 @@ describe("Pruebas de Estrés", () => {
       (r) => r.status === "fulfilled" && r.value.status >= 500
     ).length;
 
-    console.log(`📊 Resultados del estrés extremo:`);
+    console.log(` Resultados del estrés extremo:`);
     console.log(
-      `   ✅ Exitosos: ${exitosos} (${(
+      `    Exitosos: ${exitosos} (${(
         (exitosos / USUARIOS_ESTRES) *
         100
       ).toFixed(1)}%)`
     );
-    console.log(`   ⏰ Timeouts: ${timeouts}`);
-    console.log(`   💥 Errores 5xx: ${errores}`);
-    console.log(`   ⏱️ Tiempo total: ${duracion}ms`);
+    console.log(`    Timeouts: ${timeouts}`);
+    console.log(`    Errores 5xx: ${errores}`);
+    console.log(`    Tiempo total: ${duracion}ms`);
     console.log(
-      `   📈 Promedio: ${(duracion / USUARIOS_ESTRES).toFixed(2)}ms/request`
+      `   Promedio: ${(duracion / USUARIOS_ESTRES).toFixed(2)}ms/request`
     );
 
     // Bajo estrés extremo, debe responder al menos 60%
@@ -60,7 +60,7 @@ describe("Pruebas de Estrés", () => {
     const REQUESTS_POR_SEGUNDO = 15;
 
     console.log(
-      `🌊 Estrés sostenido: ${REQUESTS_POR_SEGUNDO} req/s por ${
+      ` Estrés sostenido: ${REQUESTS_POR_SEGUNDO} req/s por ${
         DURACION_MS / 1000
       } segundos`
     );
@@ -92,7 +92,7 @@ describe("Pruebas de Estrés", () => {
     // Esperar que termine + tiempo extra para procesar
     await new Promise((resolve) => setTimeout(resolve, DURACION_MS + 2000));
 
-    console.log(`📝 Procesando ${promises.length} requests del bombardeo...`);
+    console.log(` Procesando ${promises.length} requests del bombardeo...`);
     const resultados = await Promise.allSettled(promises);
 
     const exitosos = resultados.filter(
@@ -100,17 +100,17 @@ describe("Pruebas de Estrés", () => {
     ).length;
     const fallidos = promises.length - exitosos;
 
-    console.log(`📊 Estrés sostenido completado:`);
-    console.log(`   🎯 Total enviados: ${promises.length}`);
+    console.log(` Estrés sostenido completado:`);
+    console.log(`    Total enviados: ${promises.length}`);
     console.log(
-      `   ✅ Exitosos: ${exitosos} (${(
+      `    Exitosos: ${exitosos} (${(
         (exitosos / promises.length) *
         100
       ).toFixed(1)}%)`
     );
-    console.log(`   ❌ Fallidos: ${fallidos}`);
+    console.log(`    Fallidos: ${fallidos}`);
     console.log(
-      `   📊 Throughput: ${(promises.length / (DURACION_MS / 1000)).toFixed(
+      `    Throughput: ${(promises.length / (DURACION_MS / 1000)).toFixed(
         1
       )} req/s`
     );
@@ -143,7 +143,7 @@ describe("Pruebas de Estrés", () => {
 
     const inicio = Date.now();
     console.log(
-      `🔄 Ejecutando ${promises.length} requests de filtros complejos...`
+      ` Ejecutando ${promises.length} requests de filtros complejos...`
     );
 
     const resultados = await Promise.allSettled(promises);
@@ -153,14 +153,14 @@ describe("Pruebas de Estrés", () => {
       (r) => r.status === "fulfilled" && r.value.status === 200
     ).length;
 
-    console.log(`📈 Filtros complejos bajo estrés:`);
-    console.log(`   ✅ Exitosos: ${exitosos}/${promises.length}`);
-    console.log(`   ⏱️ Tiempo: ${duracion}ms`);
+    console.log(` Filtros complejos bajo estrés:`);
+    console.log(`    Exitosos: ${exitosos}/${promises.length}`);
+    console.log(`    Tiempo: ${duracion}ms`);
     console.log(
-      `   📊 Promedio: ${(duracion / promises.length).toFixed(2)}ms por filtro`
+      `    Promedio: ${(duracion / promises.length).toFixed(2)}ms por filtro`
     );
     console.log(
-      `   🎯 Tasa éxito: ${((exitosos / promises.length) * 100).toFixed(1)}%`
+      `    Tasa éxito: ${((exitosos / promises.length) * 100).toFixed(1)}%`
     );
 
     expect(exitosos).toBeGreaterThan(promises.length * 0.6); // 60% mínimo
@@ -170,7 +170,7 @@ describe("Pruebas de Estrés", () => {
     const INTENTOS_LOGIN = 80;
     const promises = [];
 
-    console.log(`🔐 Estrés en login: ${INTENTOS_LOGIN} intentos simultáneos`);
+    console.log(` Estrés en login: ${INTENTOS_LOGIN} intentos simultáneos`);
 
     // Simular ataque de fuerza bruta
     for (let i = 0; i < INTENTOS_LOGIN; i++) {
@@ -194,12 +194,12 @@ describe("Pruebas de Estrés", () => {
     ).length;
     const timeouts = resultados.filter((r) => r.status === "rejected").length;
 
-    console.log(`🛡️ Login bajo estrés:`);
-    console.log(`   📞 Respondieron: ${respondieron}/${INTENTOS_LOGIN}`);
-    console.log(`   ⏰ Timeouts: ${timeouts}`);
-    console.log(`   ⏱️ Tiempo total: ${duracion}ms`);
+    console.log(` Login bajo estrés:`);
+    console.log(`    Respondieron: ${respondieron}/${INTENTOS_LOGIN}`);
+    console.log(`    Timeouts: ${timeouts}`);
+    console.log(`   ⏱ Tiempo total: ${duracion}ms`);
     console.log(
-      `   📈 Promedio: ${(duracion / INTENTOS_LOGIN).toFixed(2)}ms por intento`
+      `    Promedio: ${(duracion / INTENTOS_LOGIN).toFixed(2)}ms por intento`
     );
 
     // El sistema debe responder (aunque rechace el login)
@@ -208,7 +208,7 @@ describe("Pruebas de Estrés", () => {
   }, 60000);
 
   test("estrés pico - ráfagas intensas de tráfico", async () => {
-    console.log(`🚀 Estrés pico: Simulando tráfico en ráfagas intensas`);
+    console.log(` Estrés pico: Simulando tráfico en ráfagas intensas`);
 
     const RAFAGAS = 3;
     const REQUESTS_POR_RAFAGA = 60;
@@ -220,7 +220,7 @@ describe("Pruebas de Estrés", () => {
 
     for (let rafaga = 0; rafaga < RAFAGAS; rafaga++) {
       console.log(
-        `   🌪️ Ráfaga ${
+        `   Ráfaga ${
           rafaga + 1
         }/${RAFAGAS} - ${REQUESTS_POR_RAFAGA} requests simultáneos`
       );
@@ -245,7 +245,7 @@ describe("Pruebas de Estrés", () => {
       tiemposRafaga.push(duracionRafaga);
 
       console.log(
-        `      ✅ ${exitososRafaga}/${REQUESTS_POR_RAFAGA} exitosos en ${duracionRafaga}ms`
+        `       ${exitososRafaga}/${REQUESTS_POR_RAFAGA} exitosos en ${duracionRafaga}ms`
       );
 
       // Pausa entre ráfagas (excepto la última)
@@ -260,17 +260,17 @@ describe("Pruebas de Estrés", () => {
       tiemposRafaga.reduce((a, b) => a + b, 0) / tiemposRafaga.length;
     const tasaExito = (totalExitosos / totalRequests) * 100;
 
-    console.log(`📊 Resumen estrés pico:`);
+    console.log(` Resumen estrés pico:`);
     console.log(
-      `   🎯 Total: ${totalExitosos}/${totalRequests} exitosos (${tasaExito.toFixed(
+      `    Total: ${totalExitosos}/${totalRequests} exitosos (${tasaExito.toFixed(
         1
       )}%)`
     );
     console.log(
-      `   ⏱️ Tiempo promedio por ráfaga: ${promedioTiempo.toFixed(2)}ms`
+      `    Tiempo promedio por ráfaga: ${promedioTiempo.toFixed(2)}ms`
     );
     console.log(
-      `   🚀 Throughput pico: ${(
+      `    Throughput pico: ${(
         REQUESTS_POR_RAFAGA /
         (promedioTiempo / 1000)
       ).toFixed(1)} req/s`

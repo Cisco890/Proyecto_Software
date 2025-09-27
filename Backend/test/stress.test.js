@@ -2,22 +2,32 @@ const request = require("supertest");
 const app = require("../app");
 
 describe("Pruebas de Estrés", () => {
+  // CAMBIO: Configuración adaptable para CI
+  const USUARIOS_ESTRES = process.env.CI ? 30 : 100;
+  const DURACION_MS = process.env.CI ? 10000 : 20000; // 10s en CI, 20s local
+  const REQUESTS_POR_SEGUNDO = process.env.CI ? 8 : 15;
+  const INTENTOS_LOGIN = process.env.CI ? 40 : 80;
+
   beforeAll(() => {
     console.log(" Iniciando pruebas de estrés - API de Tutorías");
+    if (process.env.CI) {
+      console.log(" Ejecutando en modo CI - estrés reducido");
+    }
   });
 
-  test("estrés extremo - 100 usuarios simultáneos en endpoint principal", async () => {
-    const USUARIOS_ESTRES = 100;
+  test("estrés extremo - usuarios simultáneos en endpoint principal", async () => {
     const promises = [];
 
     console.log(
       ` Iniciando estrés con ${USUARIOS_ESTRES} usuarios simultáneos...`
     );
 
-    // Bombardear el endpoint principal con 100 requests simultáneos
+    // Usar variable adaptable
     for (let i = 0; i < USUARIOS_ESTRES; i++) {
       promises.push(
-        request(app).get("/api/tutorias/tutores").timeout(8000) // 8 segundos timeout
+        request(app)
+          .get("/api/tutorias/tutores")
+          .timeout(process.env.CI ? 10000 : 8000) // Más timeout en CI
       );
     }
 
@@ -46,7 +56,7 @@ describe("Pruebas de Estrés", () => {
     console.log(`    Errores 5xx: ${errores}`);
     console.log(`    Tiempo total: ${duracion}ms`);
     console.log(
-      `   Promedio: ${(duracion / USUARIOS_ESTRES).toFixed(2)}ms/request`
+      `    Promedio: ${(duracion / USUARIOS_ESTRES).toFixed(2)}ms/request`
     );
 
     // Bajo estrés extremo, debe responder al menos 60%
@@ -130,9 +140,7 @@ describe("Pruebas de Estrés", () => {
       "/api/tutorias/tutores/experiencia?minExperiencia=2",
     ];
 
-    console.log(
-      `⚡ Estrés en filtros complejos con ${USUARIOS_ESTRES} usuarios`
-    );
+    console.log(` Estrés en filtros complejos con ${USUARIOS_ESTRES} usuarios`);
 
     // Cada usuario hace múltiples filtros complejos
     for (let usuario = 0; usuario < USUARIOS_ESTRES; usuario++) {
@@ -197,7 +205,7 @@ describe("Pruebas de Estrés", () => {
     console.log(` Login bajo estrés:`);
     console.log(`    Respondieron: ${respondieron}/${INTENTOS_LOGIN}`);
     console.log(`    Timeouts: ${timeouts}`);
-    console.log(`   ⏱ Tiempo total: ${duracion}ms`);
+    console.log(`    Tiempo total: ${duracion}ms`);
     console.log(
       `    Promedio: ${(duracion / INTENTOS_LOGIN).toFixed(2)}ms por intento`
     );

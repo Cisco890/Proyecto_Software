@@ -5,13 +5,17 @@
   "main": "app.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test jest --runInBand",
-    "test:watch": "npm test -- --watch",
-    "test:load": "npm test -- --testNamePattern='Pruebas de Carga'",
+    "test:all": "cross-env NODE_ENV=test jest --runInBand --verbose",
+    "test:unit": "cross-env NODE_ENV=test jest --testPathIgnorePatterns=carga.test.js,stress.test.js --runInBand",
+    "test:load": "cross-env NODE_ENV=test jest carga.test.js --verbose --runInBand --detectOpenHandles --forceExit",
     "test:stress": "cross-env NODE_ENV=test jest stress.test.js --verbose --runInBand --detectOpenHandles --forceExit",
+    "test:performance": "npm run test:load && npm run test:stress",
+    "test:ci": "npm run test:unit && npm run test:load",
+    "test:watch": "npm test -- --watch",
     "start": "node app.js",
     "seed": "node prisma/seed.cjs",
     "reset:testdb": "cross-env NODE_ENV=test npx prisma migrate reset --force --skip-seed && node prisma/seed.cjs",
-    "coverage": "npm test -- --coverage"
+    "coverage": "cross-env NODE_ENV=test jest --testPathIgnorePatterns=carga.test.js,stress.test.js --coverage --runInBand"
   },
   "keywords": [],
   "author": "",

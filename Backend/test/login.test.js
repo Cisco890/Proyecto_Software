@@ -119,9 +119,9 @@ afterAll(async () => {
         OR: [{ nombre: TEST_USER.nombre }, { id_usuario: testUserId }],
       },
     });
-    console.log(`✅ ${deleteResult.count} usuarios de prueba eliminados`);
+    console.log(` ${deleteResult.count} usuarios de prueba eliminados`);
   } catch (error) {
-    console.error("❌ Error en limpieza:", error);
+    console.error(" Error en limpieza:", error);
   } finally {
     await prisma.$disconnect();
   }
@@ -129,7 +129,7 @@ afterAll(async () => {
 
 describe("POST /login", () => {
   test("login exitoso con credenciales correctas", async () => {
-    console.log("🧪 Probando login con:", {
+    console.log(" Probando login con:", {
       correo: TEST_USER.correo,
       contrasena: "***",
     });
@@ -139,7 +139,7 @@ describe("POST /login", () => {
       contrasena: TEST_USER.contrasena,
     });
 
-    console.log("📊 Respuesta login:", {
+    console.log(" Respuesta login:", {
       status: res.status,
       hasUser: !!res.body.user,
       userId: res.body.user?.id_usuario,

@@ -28,6 +28,7 @@ jobs:
     env:
       NODE_ENV: test
       DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb?schema=public
+      SECRET_KEY: test_secret_key_for_ci
 
     steps:
       - name: Checkout repository
@@ -55,12 +56,145 @@ jobs:
         working-directory: Backend
         run: node prisma/seed.cjs
 
-      - name: Run tests with coverage
+      - name: Start server in background
+        working-directory: Backend
+        run: |
+          npm start &
+          echo $! > server.pid
+          sleep 10  # Esperar que el servidor inicie
+
+      - name: Verify server is running
+        run: |
+          curl -f http://localhost:3000/api/tutorias/tutores || exit 1
+          echo "✅ Server is responding"
+
+      - name: Run unit tests with coverage
+        working-directory: Backend
+        run: npm run test:unit
+
+      - name: Run load tests
+        working-directory: Backend
+        run: |
+          echo "🚀 Ejecutando pruebas de carga..."
+          npm run test:load
+        continue-on-error: false
+
+      - name: Run stress tests
+        working-directory: Backend
+        run: |
+          echo "💥 Ejecutando pruebas de estrés..."
+          npm run test:stress
+        continue-on-error: true # Permitir fallos en stress tests
+
+      - name: Generate coverage report
         working-directory: Backend
         run: npm run coverage
+
+      - name: Stop server
+        working-directory: Backend
+        run: |
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true
+            rm server.pid
+          fi
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
           path: Backend/coverage
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: |
+            Backend/coverage/
+            Backend/test-results.xml
+
+  # Job separado para pruebas de rendimiento intensivas (opcional)
+  performance-tests:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: testuser
+          POSTGRES_PASSWORD: testpass
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgresql://testuser:testpass@localhost:5432/testdb?schema=public
+      SECRET_KEY: test_secret_key_for_ci
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install dependencies
+        working-directory: Backend
+        run: npm ci
+
+      - name: Generate Prisma client
+        working-directory: Backend
+        run: npx prisma generate
+
+      - name: Reset and seed database
+        working-directory: Backend
+        run: |
+          npx prisma migrate reset --force --skip-seed
+          node prisma/seed.cjs
+
+      - name: Start server for performance tests
+        working-directory: Backend
+        run: |
+          npm start &
+          echo $! > server.pid
+          sleep 15  # Más tiempo para pruebas intensivas
+
+      - name: Run intensive performance tests
+        working-directory: Backend
+        run: |
+          echo "🔥 Ejecutando pruebas de rendimiento intensivas..."
+          npm run test:performance
+        continue-on-error: true
+
+      - name: Generate performance report
+        working-directory: Backend
+        run: |
+          echo "📊 Generando reporte de rendimiento..."
+          mkdir -p performance-reports
+          echo "Performance test completed at $(date)" > performance-reports/summary.txt
+
+      - name: Stop server
+        working-directory: Backend
+        run: |
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true
+            rm server.pid
+          fi
+
+      - name: Upload performance reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-reports
+          path: Backend/performance-reports/

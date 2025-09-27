@@ -57,4 +57,34 @@ router.post("/", async (req, res) => {
   }
 });
 
+// GET: sesiones por usuario (tutor o estudiante) con filtros básicos
+router.get("/usuarios/:id/sesiones", async (req, res) => {
+  const { id } = req.params;
+  const { rol = "estudiante", estado, futuras } = req.query;
+
+  try {
+    const where = {};
+    if (rol === "tutor") where.id_tutor = parseInt(id);
+    else where.id_estudiante = parseInt(id);
+
+    if (estado) where.estado = estado;
+    if (futuras === "true") where.fecha_hora = { gte: new Date() };
+
+    const sesiones = await prisma.sesiones.findMany({
+      where,
+      orderBy: { fecha_hora: "asc" },
+      include: {
+        estudiante: { select: { id_usuario: true, nombre: true } },
+        tutor:      { select: { id_usuario: true, nombre: true } },
+        materia:    { select: { id_materia: true, nombre_materia: true } },
+      },
+    });
+
+    res.json(sesiones);
+  } catch (err) {
+    console.error("Error al obtener sesiones:", err);
+    res.status(500).json({ error: "Error al obtener sesiones" });
+  }
+});
+
 module.exports = router;

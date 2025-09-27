@@ -8,6 +8,9 @@ import TutorDetailScreen from "../screens/TutorDetailScreen";
 import DrawerNavigator from "./DrawerNavigator";
 import AppointmentBookingScreen from "../screens/AppointmentBookingScreen";
 import DebugPanelScreen from "../screens/DebugPanelScreen";
+import UpcomingAppointmentsScreen from "../screens/UpcomingAppointmentsScreen";
+import ReviewRequestsScreen from "../screens/Tutor/ReviewRequestsScreen";
+import AppointmentDetailScreen from "../screens/Tutor/AppointmentDetailScreen";
 
 import { IS_DEV_MODE } from "../utils/config";
 
@@ -29,10 +32,10 @@ export default function MainStack() {
       {/* Pantallas normales */}
       <Stack.Screen name="DrawerNavigator" component={DrawerNavigator} />
       <Stack.Screen name="TutorDetail" component={TutorDetailScreen} />
-      <Stack.Screen
-        name="AppointmentBooking"
-        component={AppointmentBookingScreen}
-      />
+      <Stack.Screen name="AppointmentBooking" component={AppointmentBookingScreen}/>
+      <Stack.Screen name="UpcomingAppointments" component={UpcomingAppointmentsScreen} />
+      <Stack.Screen name="ReviewRequests" component={ReviewRequestsScreen} />
+      <Stack.Screen name="AppointmentDetail" component={AppointmentDetailScreen} />
 
       {/* Debug panel solo visible en dev mode */}
       {IS_DEV_MODE && (

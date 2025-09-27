@@ -88,7 +88,9 @@ export default function AppointmentBookingScreen({ route }) {
         fecha_hora,
       });
 
-      Alert.alert("Cita agendada", "Tu cita ha sido creada exitosamente.");
+      Alert.alert("Cita agendada", "Tu cita ha sido creada exitosamente.", [
+  { text: "OK", onPress: () => navigation.navigate("UpcomingAppointments") },
+]);
     } catch (err) {
       console.error("Error al agendar:", err);
       Alert.alert("Error", "No se pudo agendar la cita.");

@@ -80,3 +80,24 @@ export const getDisponibilidadTutor = (idTutor) =>
 
 // Crear una nueva cita
 export const agendarCita = (data) => api.post("/citas", data);
+
+// Lista sesiones por usuario
+export function getUserSessions({ userId, rol, estado, futuras }) {
+  const params = {};
+  if (rol) params.rol = rol;
+  if (estado) params.estado = estado;
+  if (typeof futuras !== "undefined") params.futuras = futuras ? "true" : "false";
+  return api.get(`/citas/usuarios/${userId}/sesiones`, { params });
+}
+
+// Cambiar estado
+export function updateSessionStatus(idSesion, estado) {
+  return api.put(`/citas/sesiones/${idSesion}/estado`, { estado });
+}
+
+// 🔹 Pendientes del tutor (futuras)
+export function getTutorPendingSessions(tutorId) {
+  return api.get(`/citas/usuarios/${tutorId}/sesiones`, {
+    params: { rol: "tutor", estado: "pendiente", futuras: "true" },
+  });
+}

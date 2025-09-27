@@ -30,6 +30,13 @@ export default function Sidebar({ navigation }) {
           <Ionicons name="time-outline" size={24} color="white" />
           <Text style={styles.menuText}>Inicio</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.navigate("UpcomingAppointments")}
+        >
+        <Ionicons name="time-outline" size={24} color="white" />
+        <Text style={styles.menuText}>Próximas Citas</Text>
+        </TouchableOpacity>
         {user?.id_perfil === 2 ? (
           <>
             <TouchableOpacity
@@ -55,6 +62,13 @@ export default function Sidebar({ navigation }) {
               <Ionicons name="star-outline" size={24} color="white" />
               <Text style={styles.menuText}>Reseñas</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+  style={styles.menuButton}
+  onPress={() => navigation.navigate("ReviewRequests")}
+>
+  <Ionicons name="checkmark-done-outline" size={24} color="white" />
+  <Text style={styles.menuText}>Citas por Confirmar</Text>
+</TouchableOpacity>
           </>
         ) : (
           <Text style={[styles.menuText, { color: "#fff" }]}>

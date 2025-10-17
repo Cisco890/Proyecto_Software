@@ -1,5 +1,5 @@
 import React, { useContext, useState, useCallback } from "react";
-import { View, Text, StyleSheet, FlatList, RefreshControl } from "react-native";
+import { View, Text, StyleSheet, FlatList, RefreshControl, Platform, Dimensions } from "react-native";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { getUserSessions } from "../api/api";
@@ -144,10 +144,13 @@ export default function UpcomingAppointmentsScreen() {
     );
   };
 
+  const isWeb = Platform.OS === 'web';
+  const screenWidth = Dimensions.get('window').width;
+
   return (
     <View style={styles.container}>
       <Header title="Próximas Citas" />
-      <View style={styles.content}>
+      <View style={[styles.content, isWeb && screenWidth > 768 && styles.contentWeb]}>
         <FlatList
           data={items}
           keyExtractor={(it) => String(it.id_sesion)}
@@ -171,6 +174,11 @@ export default function UpcomingAppointmentsScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { flex: 1, backgroundColor: "#fff" },
+  contentWeb: {
+    maxWidth: 1000,
+    alignSelf: "center",
+    width: "100%",
+  },
   card: { borderRadius: 12, padding: 16, marginBottom: 12 },
   title: { fontWeight: "bold", fontSize: 16, marginBottom: 6 },
   row: { color: "#333", marginBottom: 4 },

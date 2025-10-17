@@ -6,6 +6,8 @@ import {
   ScrollView,
   Image,
   TouchableOpacity,
+  Platform,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Header from "../components/Header";
@@ -15,11 +17,14 @@ export default function TutorDetailScreen({ route }) {
   const { tutor } = route.params;
   const navigation = useNavigation();
 
+  const isWeb = Platform.OS === 'web';
+  const screenWidth = Dimensions.get('window').width;
+
   return (
     <View style={styles.container}>
       <Header title="Perfil del Tutor" />
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={[styles.content, isWeb && screenWidth > 768 && styles.contentWeb]}>
         <Image
           source={require("../../assets/bolamarilla.png")}
           style={styles.image}
@@ -65,6 +70,12 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     backgroundColor: "#fff",
+  },
+  contentWeb: {
+    maxWidth: 800,
+    alignSelf: "center",
+    width: "100%",
+    paddingHorizontal: 40,
   },
   image: {
     width: 100,

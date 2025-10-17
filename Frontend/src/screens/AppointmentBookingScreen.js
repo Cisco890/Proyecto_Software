@@ -6,7 +6,10 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Platform,
+  Dimensions,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { getDisponibilidadTutor, agendarCita } from "../api/api";
@@ -15,6 +18,7 @@ import { AuthContext } from "../context/AuthContext";
 export default function AppointmentBookingScreen({ route }) {
   const { tutor } = route.params;
   const { user } = useContext(AuthContext);
+  const navigation = useNavigation();
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
@@ -97,11 +101,14 @@ export default function AppointmentBookingScreen({ route }) {
     }
   };
 
+  const isWeb = Platform.OS === 'web';
+  const screenWidth = Dimensions.get('window').width;
+
   return (
     <View style={styles.container}>
       <Header title="Agendar Cita" />
 
-      <ScrollView style={styles.content}>
+      <ScrollView style={[styles.content, isWeb && screenWidth > 768 && styles.contentWeb]}>
         <Text style={styles.sectionTitle}>1. Selecciona una fecha</Text>
         <View style={styles.buttonGroup}>
           {getNextFiveDays().map((date, index) => {
@@ -203,6 +210,12 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     backgroundColor: "#fff",
+  },
+  contentWeb: {
+    maxWidth: 800,
+    alignSelf: "center",
+    width: "100%",
+    paddingHorizontal: 40,
   },
   sectionTitle: {
     fontSize: 16,

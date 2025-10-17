@@ -4,6 +4,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   SafeAreaView,
+  Platform,
+  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -13,10 +15,29 @@ import { IS_DEV_MODE } from "../utils/config";
 export default function Header({ title = "" }) {
   const navigation = useNavigation();
 
+  const handleMenuPress = () => {
+    try {
+      // Intenta abrir el drawer si existe
+      if (navigation.openDrawer) {
+        navigation.openDrawer();
+      } else {
+        // Si no está en un DrawerNavigator, navega al Home que sí tiene el drawer
+        navigation.navigate("DrawerNavigator", { screen: "Home" });
+      }
+    } catch (error) {
+      console.log("Error al abrir menú:", error);
+      // Como fallback, intenta navegar al DrawerNavigator
+      navigation.navigate("DrawerNavigator");
+    }
+  };
+
+  const isWeb = Platform.OS === 'web';
+  const screenWidth = Dimensions.get('window').width;
+
   return (
     <SafeAreaView style={{ backgroundColor: "#4CAF50" }}>
-      <View style={styles.container}>
-        <TouchableOpacity onPress={() => navigation.openDrawer()}>
+      <View style={[styles.container, isWeb && screenWidth > 768 && styles.containerWeb]}>
+        <TouchableOpacity onPress={handleMenuPress}>
           <Ionicons name="menu" size={32} color="white" />
         </TouchableOpacity>
 
@@ -47,6 +68,11 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     justifyContent: "space-between",
     position: "relative",
+  },
+  containerWeb: {
+    maxWidth: 1200,
+    alignSelf: "center",
+    width: "100%",
   },
   titleWrapper: {
     position: "absolute",

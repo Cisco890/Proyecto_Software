@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, StyleSheet } from "react-native";
+import { View, TouchableOpacity, StyleSheet, Platform, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React, { useContext } from "react";
@@ -8,8 +8,11 @@ export default function Footer() {
   const navigation = useNavigation();
   const { user } = useContext(AuthContext);
 
+  const isWeb = Platform.OS === 'web';
+  const screenWidth = Dimensions.get('window').width;
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isWeb && screenWidth > 768 && styles.containerWeb]}>
       <TouchableOpacity
         onPress={() => navigation.goBack()}
         accessibilityRole="button"
@@ -50,5 +53,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 10,
     paddingBottom: 30,
+  },
+  containerWeb: {
+    maxWidth: 1200,
+    alignSelf: "center",
+    width: "100%",
+    paddingHorizontal: 40,
+    borderTopWidth: 1,
+    borderTopColor: "#ccc",
   },
 });

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Platform, Dimensions } from "react-native";
 import React, { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,8 +10,11 @@ export default function Sidebar({ navigation }) {
     logout();
   };
 
+  const isWeb = Platform.OS === 'web';
+  const screenWidth = Dimensions.get('window').width;
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isWeb && screenWidth > 768 && styles.containerWeb]}>
       {/* Parte de arriba */}
       <View style={styles.topSection}>
         <Ionicons name="person-circle-outline" size={80} color="white" />
@@ -106,6 +109,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     justifyContent: "space-between",
   },
+  containerWeb: {
+    width: 300, // Ancho fijo para web
+    maxWidth: 300,
+  },
   topSection: {
     alignItems: "center",
     marginBottom: 30,
@@ -126,6 +133,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 20,
+    padding: 10,
+    borderRadius: 8,
+    transition: "background-color 0.2s",
   },
   menuText: {
     color: "#fff",

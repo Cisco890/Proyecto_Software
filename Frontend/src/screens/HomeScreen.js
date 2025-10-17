@@ -4,6 +4,8 @@ import {
   StyleSheet,
   Text,
   ActivityIndicator,
+  Platform,
+  Dimensions,
 } from "react-native";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -104,11 +106,14 @@ export default function HomeScreen() {
     return matchesSearch && matchesFilters;
   });
 
+  const isWeb = Platform.OS === 'web';
+  const screenWidth = Dimensions.get('window').width;
+
   return (
     <View style={styles.container}>
       <Header title="Buscar tutores" />
 
-      <View style={styles.content}>
+      <View style={[styles.content, isWeb && screenWidth > 768 && styles.contentWeb]}>
         <SearchBar
           searchText={searchText}
           setSearchText={setSearchText}
@@ -149,6 +154,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     backgroundColor: "#fff",
+  },
+  contentWeb: {
+    maxWidth: 1200,
+    alignSelf: "center",
+    width: "100%",
+    paddingHorizontal: 40,
   },
   emptyText: {
     textAlign: "center",

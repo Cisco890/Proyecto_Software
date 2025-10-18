@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "Bitacora" ALTER COLUMN "tipo_evento" SET DATA TYPE TEXT,
-ALTER COLUMN "ip_origen" SET DATA TYPE TEXT;

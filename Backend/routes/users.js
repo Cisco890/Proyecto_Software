@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const bcrypt = require("bcrypt");
 const prisma = require("../prisma/client");
 
 router.get("/", async (req, res) => {
@@ -59,11 +60,13 @@ router.post("/registro", async (req, res) => {
   }
 
   try {
+    const hashedPassword = await bcrypt.hash(contrasena, 10);
+
     const nuevoUsuario = await prisma.usuarios.create({
       data: {
         nombre,
         correo,
-        contrasena,
+        contrasena: hashedPassword,
         id_perfil: tipo_usuario === "tutor" ? 2 : 1,
         telefono,
         foto_perfil: "null",

@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const bcrypt = require('bcrypt');
 const prisma = require('../prisma/client');
 
 // Método POST para LOGIN de usuarios
@@ -16,7 +17,12 @@ router.post('/', async (req, res) => {
       where: { correo }
     });
 
-    if (!usuario || usuario.contrasena !== contrasena) {
+    if (!usuario) {
+      return res.status(401).json({ error: 'Credenciales incorrectas' });
+    }
+
+    const passwordMatch = await bcrypt.compare(contrasena, usuario.contrasena);
+    if (!passwordMatch) {
       return res.status(401).json({ error: 'Credenciales incorrectas' });
     }
 

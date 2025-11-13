@@ -1,20 +1,17 @@
-// app.js
 const express = require("express");
 const cors = require("cors");
-const { PrismaClient } = require("@prisma/client");
 
 const app = express();
-const prisma = new PrismaClient();
 
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/tutorias", require("./routes/tutorias"));
-app.use("/api/login", require("./routes/login"));
-const filtroRouter = require("./routes/filtros");
-app.use("/api/tutorias", filtroRouter);
-const citasRoutes = require("./routes/citas");
-app.use("/api/citas", citasRoutes);
+app.use("/api/login", require("./routes/auth"));
+app.use("/api/tutorias", require("./routes/users"));
+app.use("/api/tutorias", require("./routes/tutors"));
+app.use("/api/tutorias", require("./routes/ratings"));
+app.use("/api/tutorias", require("./routes/filters"));
+app.use("/api/citas", require("./routes/appointments"));
 
 if (process.env.NODE_ENV !== "test") {
   const PORT = process.env.PORT || 3001;

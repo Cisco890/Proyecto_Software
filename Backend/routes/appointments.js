@@ -86,4 +86,41 @@ router.get("/usuarios/:id/sesiones", async (req, res) => {
   }
 });
 
+router.put("/sesiones/:idSesion/estado", async (req, res) => {
+  const { idSesion } = req.params;
+  const { estado } = req.body;
+
+  const estadosValidos = ["pendiente", "completada", "en_curso", "cancelada"];
+  if (!estado || !estadosValidos.includes(estado)) {
+    return res.status(400).json({
+      error: `Estado inválido. Debe ser uno de: ${estadosValidos.join(", ")}`,
+    });
+  }
+
+  try {
+    const sesion = await prisma.sesiones.findUnique({
+      where: { id_sesion: parseInt(idSesion) },
+    });
+
+    if (!sesion) {
+      return res.status(404).json({ error: "Sesión no encontrada" });
+    }
+
+    const sesionActualizada = await prisma.sesiones.update({
+      where: { id_sesion: parseInt(idSesion) },
+      data: { estado },
+      include: {
+        estudiante: { select: { id_usuario: true, nombre: true } },
+        tutor: { select: { id_usuario: true, nombre: true } },
+        materia: { select: { id_materia: true, nombre_materia: true } },
+      },
+    });
+
+    res.json(sesionActualizada);
+  } catch (err) {
+    console.error("Error al actualizar estado:", err);
+    res.status(500).json({ error: "Error al actualizar estado de la sesión" });
+  }
+});
+
 module.exports = router;

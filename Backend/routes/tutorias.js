@@ -1,8 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { PrismaClient } = require("@prisma/client");
-
-const prisma = new PrismaClient();
+const prisma = require("../prisma/client");
 
 //Metodo Get de todos los usuarios (tutores)
 router.get("/", async (req, res) => {

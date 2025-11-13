@@ -1,7 +1,9 @@
 const { PrismaClient } = require("@prisma/client");
+const bcrypt = require("bcrypt");
 const prisma = new PrismaClient();
 
 async function main() {
+  const hashedPassword = await bcrypt.hash("pass123", 10);
   // Perfiles
   await prisma.perfiles.createMany({
     data: [
@@ -35,7 +37,7 @@ async function main() {
         id_usuario: 1,
         nombre: "Laura Sánchez",
         correo: "laura@example.com",
-        contrasena: "pass123",
+        contrasena: hashedPassword,
         telefono: "1111111111",
         id_perfil: 1,
         foto_perfil: null,
@@ -44,7 +46,7 @@ async function main() {
         id_usuario: 2,
         nombre: "Miguel Torres",
         correo: "miguel@example.com",
-        contrasena: "pass123",
+        contrasena: hashedPassword,
         telefono: "2222222222",
         id_perfil: 1,
         foto_perfil: null,
@@ -53,7 +55,7 @@ async function main() {
         id_usuario: 3,
         nombre: "Elena Ramírez",
         correo: "elena@example.com",
-        contrasena: "pass123",
+        contrasena: hashedPassword,
         telefono: "3333333333",
         id_perfil: 1,
         foto_perfil: null,
@@ -62,7 +64,7 @@ async function main() {
         id_usuario: 4,
         nombre: "Carlos Pérez",
         correo: "carlos@example.com",
-        contrasena: "pass123",
+        contrasena: hashedPassword,
         telefono: "4444444444",
         id_perfil: 1,
         foto_perfil: null,
@@ -71,7 +73,7 @@ async function main() {
         id_usuario: 5,
         nombre: "Valeria Díaz",
         correo: "valeria@example.com",
-        contrasena: "pass123",
+        contrasena: hashedPassword,
         telefono: "5555555555",
         id_perfil: 1,
         foto_perfil: null,
@@ -80,7 +82,7 @@ async function main() {
         id_usuario: 6,
         nombre: "Ana Tutor",
         correo: "ana.tutor@example.com",
-        contrasena: "pass123",
+        contrasena: hashedPassword,
         telefono: "6666666666",
         id_perfil: 2,
         foto_perfil: null,
@@ -89,7 +91,7 @@ async function main() {
         id_usuario: 7,
         nombre: "Jorge Tutor",
         correo: "jorge.tutor@example.com",
-        contrasena: "pass123",
+        contrasena: hashedPassword,
         telefono: "7777777777",
         id_perfil: 2,
         foto_perfil: null,
@@ -98,7 +100,7 @@ async function main() {
         id_usuario: 8,
         nombre: "Lucía Tutor",
         correo: "lucia.tutor@example.com",
-        contrasena: "pass123",
+        contrasena: hashedPassword,
         telefono: "8888888888",
         id_perfil: 2,
         foto_perfil: null,

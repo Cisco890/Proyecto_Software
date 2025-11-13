@@ -1,7 +1,8 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
+import StarRating from "./StarRating";
+import Avatar from "./Avatar";
 
 export default function TutorCard({ tutor }) {
   const navigation = useNavigation();
@@ -13,22 +14,15 @@ export default function TutorCard({ tutor }) {
   return (
     <TouchableOpacity style={styles.card} onPress={handlePress}>
       <View style={styles.header}>
-        <Image
-          source={require("../../assets/bolamarilla.png")}
-          style={styles.profileImage}
+        <Avatar
+          uri={tutor.foto}
+          name={tutor.nombre}
+          size={50}
+          style={styles.avatar}
         />
         <View style={styles.info}>
           <Text style={styles.name}>{tutor.nombre}</Text>
-          <View style={styles.rating}>
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Ionicons
-                key={index}
-                name={index < tutor.rating ? "star" : "star-outline"}
-                size={16}
-                color="#FFD700"
-              />
-            ))}
-          </View>
+          <StarRating rating={tutor.rating} size={16} showNumber={true} />
         </View>
       </View>
 
@@ -72,12 +66,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
-  profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  avatar: {
     marginRight: 15,
-    backgroundColor: "#ccc",
   },
   info: {
     flex: 1,
@@ -85,10 +75,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     fontWeight: "bold",
-  },
-  rating: {
-    flexDirection: "row",
-    marginTop: 5,
+    marginBottom: 5,
   },
   subjects: {
     marginTop: 10,

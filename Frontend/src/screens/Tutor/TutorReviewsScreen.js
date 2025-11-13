@@ -10,6 +10,7 @@ import { obtenerRatingDelTutor, obtenerInfoTutor } from "../../api/api";
 import { AuthContext } from "../../context/AuthContext";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import StarRating from "../../components/StarRating";
 
 export default function TutorReviewsScreen() {
   const { user } = useContext(AuthContext);
@@ -41,7 +42,7 @@ export default function TutorReviewsScreen() {
 
   const renderReview = ({ item }) => (
     <View style={styles.reviewItem}>
-      <Text style={styles.reviewText}>⭐ {item.calificacion}</Text>
+      <StarRating rating={item.calificacion} size={18} showNumber={true} />
       <Text style={styles.comment}>{item.comentario || "Sin comentario"}</Text>
       <Text style={styles.date}>
         {new Date(item.fecha).toLocaleDateString()}
@@ -58,7 +59,10 @@ export default function TutorReviewsScreen() {
           <ActivityIndicator size="large" color="#000" />
         ) : (
           <>
-            <Text style={styles.average}>⭐ Promedio: {rating.toFixed(1)}</Text>
+            <View style={styles.averageContainer}>
+              <Text style={styles.average}>Promedio: </Text>
+              <StarRating rating={rating} size={20} showNumber={true} />
+            </View>
             <FlatList
               data={reviews}
               keyExtractor={(_, index) => index.toString()}
@@ -85,20 +89,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 10,
   },
+  averageContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 15,
+  },
   average: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
-    textAlign: "center",
   },
   reviewItem: {
     borderBottomWidth: 1,
     borderColor: "#ccc",
     paddingVertical: 10,
-  },
-  reviewText: {
-    fontSize: 16,
-    fontWeight: "bold",
   },
   comment: {
     fontSize: 15,

@@ -8,6 +8,7 @@ import {
   Alert,
   Platform,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Header from "../components/Header";
@@ -24,6 +25,7 @@ export default function AppointmentBookingScreen({ route }) {
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState(null);
   const [bloquesOcupados, setBloquesOcupados] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getDisponibilidadTutor(tutor.id_tutor)
@@ -36,6 +38,9 @@ export default function AppointmentBookingScreen({ route }) {
       .catch((err) => {
         console.error("Error obteniendo disponibilidad:", err);
         setBloquesOcupados([]);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
@@ -71,6 +76,16 @@ export default function AppointmentBookingScreen({ route }) {
     return bloquesOcupados.includes(slot.toISOString());
   };
 
+  const isSlotInPast = (date, time) => {
+    const slot = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate(),
+      parseInt(time.split(":")[0])
+    );
+    return slot < new Date();
+  };
+
   const handleConfirm = async () => {
     if (!selectedDate || !selectedTime || !selectedSubject) {
       Alert.alert("Faltan datos", "Selecciona fecha, hora y materia.");
@@ -82,14 +97,21 @@ export default function AppointmentBookingScreen({ route }) {
       selectedDate.getMonth(),
       selectedDate.getDate(),
       parseInt(selectedTime.split(":")[0])
-    ).toISOString();
+    );
+
+    if (fecha_hora < new Date()) {
+      Alert.alert("Error", "No puedes agendar una cita en el pasado.");
+      return;
+    }
+
+    const fecha_hora_iso = fecha_hora.toISOString();
 
     try {
       await agendarCita({
         id_tutor: tutor.id_usuario,
         id_estudiante: user?.id_usuario,
         id_materia: selectedSubject.id_materia,
-        fecha_hora,
+        fecha_hora: fecha_hora_iso,
       });
 
       Alert.alert("Cita agendada", "Tu cita ha sido creada exitosamente.", [
@@ -108,8 +130,14 @@ export default function AppointmentBookingScreen({ route }) {
     <View style={styles.container}>
       <Header title="Agendar Cita" />
 
-      <ScrollView style={[styles.content, isWeb && screenWidth > 768 && styles.contentWeb]}>
-        <Text style={styles.sectionTitle}>1. Selecciona una fecha</Text>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#4CAF50" />
+          <Text style={styles.loadingText}>Cargando disponibilidad...</Text>
+        </View>
+      ) : (
+        <ScrollView style={[styles.content, isWeb && screenWidth > 768 && styles.contentWeb]}>
+          <Text style={styles.sectionTitle}>1. Selecciona una fecha</Text>
         <View style={styles.buttonGroup}>
           {getNextFiveDays().map((date, index) => {
             const label = date.toLocaleDateString();
@@ -139,8 +167,9 @@ export default function AppointmentBookingScreen({ route }) {
         <View style={styles.buttonGroup}>
           {getTimeSlots().map((time, index) => {
             const isSelected = selectedTime === time;
-            const isDisabled =
-              selectedDate && isSlotOccupied(selectedDate, time);
+            const isPast = selectedDate && isSlotInPast(selectedDate, time);
+            const isOccupied = selectedDate && isSlotOccupied(selectedDate, time);
+            const isDisabled = isPast || isOccupied;
             return (
               <TouchableOpacity
                 key={index}
@@ -160,6 +189,8 @@ export default function AppointmentBookingScreen({ route }) {
                   ]}
                 >
                   {time} - {parseInt(time.split(":")[0]) + 1}:00
+                  {isPast && " (pasado)"}
+                  {isOccupied && " (ocupado)"}
                 </Text>
               </TouchableOpacity>
             );
@@ -198,7 +229,8 @@ export default function AppointmentBookingScreen({ route }) {
             <Text style={styles.confirmText}>Confirmar Cita</Text>
           </TouchableOpacity>
         )}
-      </ScrollView>
+        </ScrollView>
+      )}
 
       <Footer />
     </View>
@@ -207,6 +239,17 @@ export default function AppointmentBookingScreen({ route }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fff",
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 14,
+    color: "#666",
+  },
   content: {
     padding: 20,
     backgroundColor: "#fff",

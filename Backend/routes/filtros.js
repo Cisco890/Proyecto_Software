@@ -2,18 +2,6 @@ const express = require("express");
 const router = express.Router();
 const prisma = require("../prisma/client");
 
-//Metodo Get de los nombres de los tutores
-router.get("/nombre", async (req, res) => {
-  const nombre = await prisma.perfiles;
-  const id_perfil = await prisma.perfiles;
-
-  try {
-    const nombres = await prisma.usuarios.findMany({});
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error del servidor");
-  }
-});
 
 // Filtro de horarios (vespertino, matutino, nocturno)
 router.get("/horarios/:horario", async (req, res) => {

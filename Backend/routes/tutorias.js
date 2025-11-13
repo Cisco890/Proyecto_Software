@@ -104,33 +104,6 @@ router.post("/perfiles", async (req, res) => {
   }
 });
 
-//Metodo Post para LOGIN de Usuarios
-router.post("/login", async (req, res) => {
-  const { correo, contrasena } = req.body;
-
-  if (!correo || !contrasena) {
-    return res.status(400).json({ error: "Todos los campos son obligatorios" });
-  }
-
-  try {
-    const usuario = await prisma.usuarios.findUnique({
-      where: {
-        correo: correo,
-      },
-    });
-
-    if (!usuario || usuario.contrasena !== contrasena) {
-      return res.status(401).json({ error: "Credenciales incorrectas" });
-    }
-
-    res
-      .status(200)
-      .json({ message: "Inicio de sesión exitoso", user: usuario });
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error del servidor");
-  }
-});
 
 // Metodo get para obtener el raiting del tutor
 router.get("/tutores/:id/rating", async (req, res) => {

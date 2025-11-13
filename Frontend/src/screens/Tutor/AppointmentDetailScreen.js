@@ -51,7 +51,7 @@ export default function AppointmentDetailScreen() {
         await updateSessionStatus(session.id_sesion, nuevoEstado);
         if (Platform.OS !== "web") {
           // En nativo mostramos aviso después
-          Alert.alert("Listo", nuevoEstado === "confirmada" ? "La cita fue confirmada." : "La cita fue rechazada.");
+          Alert.alert("Listo", nuevoEstado === "confirmada" ? "La cita fue confirmada." : "La cita fue cancelada.");
         }
       } catch (e) {
         console.log("Error al actualizar sesión:", e?.message || e);
@@ -75,7 +75,7 @@ export default function AppointmentDetailScreen() {
     if (loading) return;
     setLoading(true);
     goToUpcoming();              // 1) Navega ya
-    updateInBackground("rechazada");  // 2) PUT en background
+    updateInBackground("cancelada");  // 2) PUT en background
   };
 
   return (

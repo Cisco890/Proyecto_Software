@@ -213,6 +213,68 @@ router.get("/tutores/:id/descripcion", async (req, res) => {
   }
 });
 
+// PUT: Actualizar información del tutor
+router.put("/tutores/info/:idUsuario", async (req, res) => {
+  const { idUsuario } = req.params;
+  const {
+    descripcion,
+    tarifa_hora,
+    experiencia,
+    horario,
+    modalidad,
+  } = req.body;
+
+  // Validación de campos requeridos
+  if (!descripcion || !tarifa_hora || !experiencia || horario === undefined || !modalidad) {
+    return res.status(400).json({ error: "Todos los campos son obligatorios" });
+  }
+
+  // Validación de horario
+  const horarioNum = parseInt(horario);
+  if (![0, 1, 2].includes(horarioNum)) {
+    return res.status(400).json({
+      error: "Horario inválido. Debe ser 0 (mañana), 1 (tarde) o 2 (noche)",
+    });
+  }
+
+  try {
+    // Verificar si el tutor existe
+    const tutorExistente = await prisma.tutoresInfo.findUnique({
+      where: { id_usuario: parseInt(idUsuario) },
+    });
+
+    if (!tutorExistente) {
+      return res.status(404).json({ error: "Información de tutor no encontrada" });
+    }
+
+    // Actualizar la información del tutor
+    const tutorActualizado = await prisma.tutoresInfo.update({
+      where: { id_usuario: parseInt(idUsuario) },
+      data: {
+        descripcion,
+        tarifa_hora: parseFloat(tarifa_hora),
+        experiencia: parseInt(experiencia),
+        horario: horarioNum,
+        modalidad,
+      },
+      include: {
+        usuario: true,
+      },
+    });
+
+    res.json({
+      message: "Información actualizada correctamente",
+      tutor: tutorActualizado
+    });
+  } catch (err) {
+    console.error("Error al actualizar información del tutor:", err.message);
+    res.status(500).json({ 
+      error: "Error del servidor al actualizar la información",
+      detalle: err.message 
+    });
+  }
+});
+
 router.post("/tutores/info", async (req, res) => {
   const {
     id_usuario,

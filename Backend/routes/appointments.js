@@ -30,31 +30,78 @@ router.get("/disponibilidad/:idTutor", async (req, res) => {
 
 // POST: Crear cita
 router.post("/", async (req, res) => {
-  const { id_tutor, id_estudiante, id_materia, fecha_hora, duracion_min } =
-    req.body;
+  const { id_tutor, id_estudiante, id_materia, fecha_hora, duracion_min } = req.body;
+
 
   if (!id_tutor || !id_estudiante || !id_materia || !fecha_hora) {
-    return res.status(400).json({ error: "Faltan campos requeridos" });
+    return res.status(400).json({ 
+      error: "Faltan campos requeridos",
+      datos_recibidos: req.body 
+    });
   }
 
   try {
+    //Verificar si ya existe una cita en ese horario
+    const fechaHoraCita = new Date(fecha_hora);
+    
+    const citaExistente = await prisma.sesiones.findFirst({
+      where: {
+        id_tutor: parseInt(id_tutor),
+        fecha_hora: fechaHoraCita,
+        estado: {
+          not: "cancelada" // No considerar citas canceladas
+        }
+      }
+    });
+
+    if (citaExistente) {
+      return res.status(409).json({ 
+        error: "El tutor ya tiene una cita programada en este horario",
+        cita_existente: citaExistente
+      });
+    }
+
+    //VALIDACIÓN ADICIONAL: Evitar que un estudiante agende múltiples citas a la misma hora
+    const citaEstudianteExistente = await prisma.sesiones.findFirst({
+      where: {
+        id_estudiante: parseInt(id_estudiante),
+        fecha_hora: fechaHoraCita,
+        estado: {
+          not: "cancelada"
+        }
+      }
+    });
+
+    if (citaEstudianteExistente) {
+      return res.status(409).json({ 
+        error: "Ya tienes una cita programada en este horario"
+      });
+    }
+
+    // Crear la cita si pasa todas las validaciones
     const nuevaSesion = await prisma.sesiones.create({
       data: {
         id_tutor: parseInt(id_tutor),
         id_estudiante: parseInt(id_estudiante),
         id_materia: parseInt(id_materia),
-        fecha_hora: new Date(fecha_hora),
+        fecha_hora: fechaHoraCita,
         duracion_min: duracion_min ? parseInt(duracion_min) : null,
         estado: "pendiente",
       },
     });
 
+    console.log("Cita creada exitosamente:", nuevaSesion);
+    
     res.status(201).json(nuevaSesion);
   } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Error al crear la sesión" });
+    console.error("Error detallado al crear sesión:", err.message);
+    res.status(500).json({ 
+      error: "Error al crear la sesión",
+      detalle: err.message 
+    });
   }
 });
+
 
 // GET: sesiones por usuario (tutor o estudiante) con filtros básicos
 router.get("/usuarios/:id/sesiones", async (req, res) => {

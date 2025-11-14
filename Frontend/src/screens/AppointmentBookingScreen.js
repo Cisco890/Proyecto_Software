@@ -86,42 +86,63 @@ export default function AppointmentBookingScreen({ route }) {
     return slot < new Date();
   };
 
+
   const handleConfirm = async () => {
-    if (!selectedDate || !selectedTime || !selectedSubject) {
-      Alert.alert("Faltan datos", "Selecciona fecha, hora y materia.");
-      return;
-    }
+  if (!selectedDate || !selectedTime || !selectedSubject) {
+    Alert.alert("Faltan datos", "Selecciona fecha, hora y materia.");
+    return;
+  }
 
-    const fecha_hora = new Date(
-      selectedDate.getFullYear(),
-      selectedDate.getMonth(),
-      selectedDate.getDate(),
-      parseInt(selectedTime.split(":")[0])
+  const fecha_hora = new Date(
+    selectedDate.getFullYear(),
+    selectedDate.getMonth(),
+    selectedDate.getDate(),
+    parseInt(selectedTime.split(":")[0])
+  );
+
+  if (fecha_hora < new Date()) {
+    Alert.alert("Error", "No puedes agendar una cita en el pasado.");
+    return;
+  }
+
+  // VALIDACIÓN FRONTEND ADICIONAL: Verificar si el slot está ocupado
+  if (isSlotOccupied(selectedDate, selectedTime)) {
+    Alert.alert(
+      "Horario no disponible", 
+      "Este horario ya está ocupado. Por favor selecciona otro horario."
     );
+    return;
+  }
 
-    if (fecha_hora < new Date()) {
-      Alert.alert("Error", "No puedes agendar una cita en el pasado.");
-      return;
-    }
+  const fecha_hora_iso = fecha_hora.toISOString();
 
-    const fecha_hora_iso = fecha_hora.toISOString();
+  try {
+    const idTutor = tutor.id_usuario || tutor.id;
+    
+    await agendarCita({
+      id_tutor: idTutor,
+      id_estudiante: user?.id_usuario,
+      id_materia: selectedSubject.id_materia,
+      fecha_hora: fecha_hora_iso,
+    });
 
-    try {
-      await agendarCita({
-        id_tutor: tutor.id_usuario,
-        id_estudiante: user?.id_usuario,
-        id_materia: selectedSubject.id_materia,
-        fecha_hora: fecha_hora_iso,
-      });
-
-      Alert.alert("Cita agendada", "Tu cita ha sido creada exitosamente.", [
-  { text: "OK", onPress: () => navigation.navigate("UpcomingAppointments") },
-]);
-    } catch (err) {
-      console.error("Error al agendar:", err);
+    Alert.alert("Cita agendada", "Tu cita ha sido creada exitosamente.", [
+      { text: "OK", onPress: () => navigation.navigate("UpcomingAppointments") },
+    ]);
+  } catch (err) {
+    console.error("Error al agendar:", err.response?.data || err.message);
+    
+    // MANEJO ESPECÍFICO DE ERRORES DE CONFLICTO
+    if (err.response?.status === 409) {
+      Alert.alert(
+        "Conflicto de horario", 
+        err.response.data.error || "Este horario ya está ocupado."
+      );
+    } else {
       Alert.alert("Error", "No se pudo agendar la cita.");
     }
-  };
+  }
+};
 
   const isWeb = Platform.OS === 'web';
   const screenWidth = Dimensions.get('window').width;

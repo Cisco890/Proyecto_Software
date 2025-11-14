@@ -20,8 +20,13 @@ export const crearPerfil = (nombre) =>
   api.post("/tutorias/perfiles", { nombre });
 
 // Información del tutor
+
 export const crearInfoTutor = (tutorData) =>
   api.post("/tutorias/tutores/info", tutorData);
+
+
+export const actualizarInfoTutor = (idUsuario, tutorData) =>
+  api.put(`/tutorias/tutores/info/${idUsuario}`, tutorData);
 
 export const obtenerInfoTutor = (idUsuario) =>
   api.get(`/tutorias/tutores/info/usuario/${idUsuario}`);

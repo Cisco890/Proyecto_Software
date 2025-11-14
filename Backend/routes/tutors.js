@@ -224,41 +224,88 @@ router.put("/tutores/info/:idUsuario", async (req, res) => {
     modalidad,
   } = req.body;
 
-  // Validación de campos requeridos
+  // Validación exhaustiva de campos requeridos
   if (!descripcion || !tarifa_hora || !experiencia || horario === undefined || !modalidad) {
-    return res.status(400).json({ error: "Todos los campos son obligatorios" });
+    return res.status(400).json({ 
+      error: "Todos los campos son obligatorios",
+      campos_requeridos: ["descripcion", "tarifa_hora", "experiencia", "horario", "modalidad"]
+    });
   }
 
-  // Validación de horario
+  // Validación de tipos de datos
+  const tarifaNum = parseFloat(tarifa_hora);
+  const experienciaNum = parseInt(experiencia);
   const horarioNum = parseInt(horario);
-  if (![0, 1, 2].includes(horarioNum)) {
+
+  if (isNaN(tarifaNum) || tarifaNum <= 0) {
     return res.status(400).json({
-      error: "Horario inválido. Debe ser 0 (mañana), 1 (tarde) o 2 (noche)",
+      error: "La tarifa por hora debe ser un número válido mayor a 0"
+    });
+  }
+
+  if (isNaN(experienciaNum) || experienciaNum < 0) {
+    return res.status(400).json({
+      error: "La experiencia debe ser un número válido no negativo"
+    });
+  }
+
+  if (isNaN(horarioNum) || ![0, 1, 2].includes(horarioNum)) {
+    return res.status(400).json({
+      error: "Horario inválido. Debe ser 0 (mañana), 1 (tarde) o 2 (noche)"
+    });
+  }
+
+  // Validación de modalidad
+  const modalidadesValidas = ["virtual", "presencial", "hibrido"];
+  if (!modalidadesValidas.includes(modalidad)) {
+    return res.status(400).json({
+      error: "Modalidad inválida. Debe ser: virtual, presencial o hibrido"
     });
   }
 
   try {
-    // Verificar si el tutor existe
+    // Verificar existencia del usuario
+    const usuarioExistente = await prisma.usuarios.findUnique({
+      where: { id_usuario: parseInt(idUsuario) },
+    });
+
+    if (!usuarioExistente) {
+      return res.status(404).json({ 
+        error: "Usuario no encontrado",
+        id_usuario: idUsuario
+      });
+    }
+
+    // Verificar existencia de información del tutor
     const tutorExistente = await prisma.tutoresInfo.findUnique({
       where: { id_usuario: parseInt(idUsuario) },
     });
 
     if (!tutorExistente) {
-      return res.status(404).json({ error: "Información de tutor no encontrada" });
+      return res.status(404).json({ 
+        error: "Información de tutor no encontrada. Utilice el endpoint POST para crear nueva información.",
+        id_usuario: idUsuario
+      });
     }
 
-    // Actualizar la información del tutor
+    // Actualizar información del tutor
     const tutorActualizado = await prisma.tutoresInfo.update({
       where: { id_usuario: parseInt(idUsuario) },
       data: {
-        descripcion,
-        tarifa_hora: parseFloat(tarifa_hora),
-        experiencia: parseInt(experiencia),
+        descripcion: descripcion.trim(),
+        tarifa_hora: tarifaNum,
+        experiencia: experienciaNum,
         horario: horarioNum,
-        modalidad,
+        modalidad: modalidad,
       },
       include: {
-        usuario: true,
+        usuario: {
+          select: {
+            nombre: true,
+            correo: true,
+            foto_perfil: true,
+          }
+        },
       },
     });
 
@@ -266,83 +313,34 @@ router.put("/tutores/info/:idUsuario", async (req, res) => {
       message: "Información actualizada correctamente",
       tutor: tutorActualizado
     });
-  } catch (err) {
-    console.error("Error al actualizar información del tutor:", err.message);
+
+  } catch (error) {
+    console.error("Error en actualización de tutor:", {
+      idUsuario: idUsuario,
+      error: error.message,
+      stack: error.stack
+    });
+
+    // Manejo específico de errores de Prisma
+    if (error.code === 'P2025') {
+      return res.status(404).json({ 
+        error: "Registro no encontrado para actualización"
+      });
+    }
+
+    if (error.code === 'P2002') {
+      return res.status(409).json({
+        error: "Conflicto de datos único"
+      });
+    }
+
     res.status(500).json({ 
-      error: "Error del servidor al actualizar la información",
-      detalle: err.message 
+      error: "Error interno del servidor",
+      detalle: process.env.NODE_ENV === 'development' ? error.message : 'Contacte al administrador'
     });
   }
 });
-
-router.post("/tutores/info", async (req, res) => {
-  const {
-    id_usuario,
-    descripcion,
-    tarifa_hora,
-    experiencia,
-    horario,
-    modalidad,
-  } = req.body;
-
-  if (
-    !id_usuario ||
-    !descripcion ||
-    !tarifa_hora ||
-    !experiencia ||
-    horario === undefined ||
-    !modalidad
-  ) {
-    return res.status(400).json({ error: "Todos los campos son obligatorios" });
-  }
-
-  const horarioNum = parseInt(horario);
-  if (![0, 1, 2].includes(horarioNum)) {
-    return res.status(400).json({
-      error: "Horario inválido. Debe ser 0 (mañana), 1 (tarde) o 2 (noche)",
-    });
-  }
-
-  try {
-    const usuario = await prisma.usuarios.findUnique({
-      where: { id_usuario: parseInt(id_usuario) },
-    });
-
-    if (!usuario) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    const tutorExistente = await prisma.tutoresInfo.findUnique({
-      where: { id_usuario: parseInt(id_usuario) },
-    });
-
-    if (tutorExistente) {
-      return res
-        .status(400)
-        .json({ error: "Este usuario ya tiene información de tutor" });
-    }
-
-    const nuevoTutor = await prisma.tutoresInfo.create({
-      data: {
-        id_usuario: parseInt(id_usuario),
-        descripcion,
-        tarifa_hora: parseFloat(tarifa_hora),
-        experiencia: parseInt(experiencia),
-        horario: horarioNum,
-        modalidad,
-      },
-      include: {
-        usuario: true,
-      },
-    });
-
-    res.status(201).json(nuevoTutor);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).send("Error del servidor");
-  }
-});
-
+//get
 router.get("/tutores/:id/sesiones", async (req, res) => {
   const { id } = req.params;
 

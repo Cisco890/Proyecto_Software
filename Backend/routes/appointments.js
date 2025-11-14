@@ -5,9 +5,11 @@ const prisma = require("../prisma/client");
 // GET: Bloques ocupados de un tutor
 router.get("/disponibilidad/:idTutor", async (req, res) => {
   const { idTutor } = req.params;
+  const { idEstudiante } = req.query;
 
   try {
-    const sesiones = await prisma.sesiones.findMany({
+    // Bloques ocupados del tutor
+    const sesionesTutor = await prisma.sesiones.findMany({
       where: {
         id_tutor: parseInt(idTutor),
         estado: { not: "cancelada" },
@@ -17,14 +19,34 @@ router.get("/disponibilidad/:idTutor", async (req, res) => {
       },
     });
 
-    const bloquesOcupados = sesiones.map((s) => s.fecha_hora);
+    // Bloques ocupados del estudiante (si se proporciona idEstudiante)
+    let sesionesEstudiante = [];
+    if (idEstudiante) {
+      sesionesEstudiante = await prisma.sesiones.findMany({
+        where: {
+          id_estudiante: parseInt(idEstudiante),
+          estado: { not: "cancelada" },
+        },
+        select: {
+          fecha_hora: true,
+        },
+      });
+    }
 
-    res.json({ bloques_ocupados: bloquesOcupados });
+    const bloquesOcupadosTutor = sesionesTutor.map((s) => 
+      new Date(s.fecha_hora).toISOString()
+    );
+    const bloquesOcupadosEstudiante = sesionesEstudiante.map((s) => 
+      new Date(s.fecha_hora).toISOString()
+    );
+
+    res.json({ 
+      bloques_ocupados: bloquesOcupadosTutor,
+      bloques_ocupados_estudiante: bloquesOcupadosEstudiante
+    });
   } catch (err) {
     console.error(err.message);
-    res
-      .status(500)
-      .json({ error: "Error al obtener disponibilidad del tutor" });
+    res.status(500).json({ error: "Error al obtener disponibilidad" });
   }
 });
 

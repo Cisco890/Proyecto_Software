@@ -75,9 +75,10 @@ export default api;
 // Citas / Sesiones
 
 // Obtener disponibilidad de bloques ocupados del tutor
-export const getDisponibilidadTutor = (idTutor) =>
-  api.get(`/citas/disponibilidad/${idTutor}`);
-
+export const getDisponibilidadTutor = (idTutor, idEstudiante = null) =>
+  api.get(`/citas/disponibilidad/${idTutor}`, {
+    params: idEstudiante ? { idEstudiante } : {}
+  });
 // Crear una nueva cita
 export const agendarCita = (data) => api.post("/citas", data);
 

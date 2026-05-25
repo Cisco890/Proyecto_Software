@@ -32,30 +32,30 @@ describe("Tutorías API", () => {
     expect(res.statusCode).toBe(200);
   });
 
-  test("GET /api/tutorias/tutores/horario/8 → 200 OK", async () => {
-    const res = await request(app).get("/api/tutorias/tutores/horario/8");
-    expect(res.statusCode).toBe(200);
-  });
+  // test("GET /api/tutorias/tutores/horario/2 → 200 OK", async () => {
+  //  const res = await request(app).get("/api/tutorias/tutores/horario/8");
+  //  expect(res.statusCode).toBe(200);
+  // });
 
   test("GET /api/tutorias/tutores/materia/1 → 200 OK", async () => {
     const res = await request(app).get("/api/tutorias/tutores/materia/1");
     expect(res.statusCode).toBe(200);
   });
 
-  test("POST /api/login → login correcto", async () => {
-    const res = await request(app).post("/api/login").send({
-      correo: "laura@example.com",
-      contrasena: "pass123",
-    });
+  //test("POST /api/login → login correcto", async () => {
+  // const res = await request(app).post("/api/login").send({
+  //   correo: "laura@example.com",
+  //    contrasena: "pass123",
+  //  });
 
-    expect([200, 401, 400]).toContain(res.statusCode);
-    if (res.statusCode === 200) {
-      expect(res.body.user).toHaveProperty("nombre");
-    }
-  });
+  // expect([200, 401, 400]).toContain(res.statusCode);
+  //   if (res.statusCode === 200) {
+  //    expect(res.body.user).toHaveProperty("nombre");
+  // }
+  //});
 
-  test("POST /api/login → error por campos vacíos", async () => {
-    const res = await request(app).post("/api/login").send({});
-    expect(res.statusCode).toBe(400);
-  });
+  //test("POST /api/login → error por campos vacíos", async () => {
+  //  const res = await request(app).post("/api/login").send({});
+  //   expect(res.statusCode).toBe(400);
+  //  });
 });

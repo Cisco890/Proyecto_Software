@@ -1,18 +1,19 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_API_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_URL, // debe incluir /api al final
 });
 
 // Autenticación
 export const login = (correo, contrasena) =>
   api.post("/login", { correo, contrasena });
 
-export const register = (userData) => api.post("/tutorias/registro", userData);
+export const register = (userData) => api.post("/login/registro", userData);
 
 // Usuarios
-export const getUsuarios = () => api.get("/tutorias");
+export const getUsuarios = () => api.get("/tutorias/tutores");
 
+// <-- Cambiado: usar el endpoint backend creado para estudiantes -->
 export const getEstudiantes = () => api.get("/tutorias/usuarios/estudiantes");
 
 // Perfiles
@@ -75,11 +76,10 @@ export const filtrarTutoresPorExperiencia = (minExperiencia) =>
 export const filtrarTutoresPorFranjaHoraria = (horario) =>
   api.get(`/tutorias/horarios/${horario}`);
 
-export default api;
-
 // Citas / Sesiones
 
 // Obtener disponibilidad de bloques ocupados del tutor
+<<<<<<< HEAD
 export const getDisponibilidadTutor = (idTutor, idEstudiante = null) =>
   api.get(`/citas/disponibilidad/${idTutor}`, {
     params: idEstudiante ? { idEstudiante } : {}
@@ -107,3 +107,12 @@ export function getTutorPendingSessions(tutorId) {
     params: { rol: "tutor", estado: "pendiente", futuras: "true" },
   });
 }
+=======
+export const getDisponibilidadTutor = (idTutor) =>
+  api.get(`/citas/tutores/${idTutor}/disponibilidad`);
+
+// Crear una nueva cita
+export const agendarCita = (data) => api.post("/citas/cita", data);
+
+export default api;
+>>>>>>> b7f733474543261fa852f0dbbe89828a582ff2bc

@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { AuthContext } from "../context/AuthContext";
-import { getUsuarios, getEstudiantes } from "../api/api";
+import { getUsuarios, getEstudiantes } from "../api/api"; //Usuarios=tutores estudiantes=estudiantes 
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 
@@ -30,7 +30,7 @@ export default function DebugPanelScreen() {
         setTutores(tutoresRes.data || []);
         setEstudiantes(estudiantesRes.data || []);
       } catch (err) {
-        console.error("❌ Error cargando usuarios:", err);
+        console.error("Error cargando usuarios:", err);
       } finally {
         setLoading(false);
       }

@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcrypt");
+=======
+// prisma/seed.js
+import { PrismaClient } from "@prisma/client";
+
+>>>>>>> b7f733474543261fa852f0dbbe89828a582ff2bc
 const prisma = new PrismaClient();
 
 async function main() {
@@ -109,7 +115,6 @@ async function main() {
     skipDuplicates: true,
   });
 
-  // Tutores Info
   await prisma.tutoresInfo.createMany({
     data: [
       {
@@ -338,7 +343,10 @@ async function main() {
   });
 }
 
-main()
+// sincronizar secuencia de sesiones (PostgreSQL)
+await prisma.$executeRaw`SELECT setval('"Sesiones_id_sesion_seq"', (SELECT MAX(id_sesion) FROM "Sesiones"))`;
+
+await main()
   .catch((e) => {
     console.error(e);
     process.exit(1);
